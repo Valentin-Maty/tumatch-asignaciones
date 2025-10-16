@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ver HTML Completo de FichaPublica</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group { 
+            margin: 15px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+        }
+        input, select { 
+            width: 300px; 
+            padding: 8px; 
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .result { 
+            margin-top: 20px; 
+        }
+        .analysis {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .analysis h3 {
+            margin-top: 0;
+            color: #007cba;
+        }
+        .analysis-item {
+            margin: 8px 0;
+            padding: 5px;
+            background: white;
+            border-radius: 3px;
+        }
+        .html-content {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .search-box {
+            margin: 10px 0;
+            padding: 5px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .error {
+            background: #ffe8e8;
+            border: 1px solid #ffccd2;
+            color: #cc0000;
+            padding: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Ver HTML Completo de FichaPublica</h1>
+        
+        <div class="form-group">
+            <label for="propertyId">Property ID:</label>
+            <input type="text" id="propertyId" value="2950" placeholder="Ej: 2950, 2959, 3024">
+            <button onclick="fetchHTML()" style="margin-left: 10px;">Obtener HTML</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        let currentHtml = '';
+        
+        async function fetchHTML() {
+            const propertyId = document.getElementById('propertyId').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!propertyId) {
+                alert('Por favor ingresa un Property ID');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">🔄 Obteniendo HTML completo de FichaPublica...</div>';
+            
+            try {
+                const url = `/.netlify/functions/show-html?propertyId=${propertyId}`;
+                console.log('Fetching:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    currentHtml = data.html;
+                    showResults(data);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">
+                        <h3>Error</h3>
+                        <p>${data.error || 'Error desconocido'}</p>
+                    </div>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="error">
+                    <h3>Error de conexión</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+        
+        function showResults(data) {
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = `
+                <div class="analysis">
+                    <h3>📊 Análisis de HTML - Propiedad ${data.propertyId}</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="analysis-item">
+                            <strong>URL:</strong> ${data.fichaUrl}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Tamaño HTML:</strong> ${data.analysis.htmlLength.toLocaleString()} caracteres
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Contiene Angular:</strong> ${data.analysis.containsAngular ? '✅ SÍ' : '❌ NO'}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>img_property_full:</strong> ${data.analysis.containsImgPropertyFull ? '✅ SÍ' : '❌ NO'}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>2clicsalmcl:</strong> ${data.analysis.contains2clics ? '✅ SÍ' : '❌ NO'}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>blob.core.windows.net:</strong> ${data.analysis.containsBlobCore ? '✅ SÍ' : '❌ NO'}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Total &lt;img&gt; tags:</strong> ${data.analysis.totalImgTags}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Total &lt;script&gt; tags:</strong> ${data.analysis.totalScriptTags}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>URLs blob encontradas:</strong> ${data.analysis.blobUrls.length}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>URLs de imágenes:</strong> ${data.analysis.imageUrls.length}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>GUIDs encontrados:</strong> ${data.analysis.guidPatterns.length}
+                        </div>
+                        <div class="analysis-item">
+                            <strong>Extraído:</strong> ${new Date(data.extractedAt).toLocaleString()}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('html')">📄 HTML Completo</div>
+                    <div class="tab" onclick="showTab('blobs')">🔗 URLs Blob (${data.analysis.blobUrls.length})</div>
+                    <div class="tab" onclick="showTab('images')">🖼️ URLs Imágenes (${data.analysis.imageUrls.length})</div>
+                    <div class="tab" onclick="showTab('guids')">🔑 GUIDs (${data.analysis.guidPatterns.length})</div>
+                </div>
+                
+                <div id="html-tab" class="tab-content active">
+                    <input type="text" id="searchBox" class="search-box" placeholder="🔍 Buscar en HTML..." onkeyup="searchInHTML()">
+                    <div class="html-content" id="htmlContent">${escapeHtml(data.html)}</div>
+                </div>
+                
+                <div id="blobs-tab" class="tab-content">
+                    <h4>URLs de Blob Storage encontradas:</h4>
+                    ${data.analysis.blobUrls.length > 0 ? 
+                        data.analysis.blobUrls.map((url, i) => `
+                            <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                                <strong>${i + 1}.</strong> <code style="word-break: break-all;">${url}</code>
+                            </div>
+                        `).join('') : 
+                        '<p>No se encontraron URLs de blob storage</p>'
+                    }
+                </div>
+                
+                <div id="images-tab" class="tab-content">
+                    <h4>URLs de imágenes encontradas:</h4>
+                    ${data.analysis.imageUrls.length > 0 ? 
+                        data.analysis.imageUrls.map((url, i) => `
+                            <div style="margin: 10px 0; padding: 10px; background: #f9f9f9; border-radius: 4px;">
+                                <strong>${i + 1}.</strong> <code style="word-break: break-all;">${url}</code>
+                            </div>
+                        `).join('') : 
+                        '<p>No se encontraron URLs de imágenes</p>'
+                    }
+                </div>
+                
+                <div id="guids-tab" class="tab-content">
+                    <h4>GUIDs encontrados:</h4>
+                    ${data.analysis.guidPatterns.length > 0 ? 
+                        data.analysis.guidPatterns.map((guid, i) => `
+                            <div style="margin: 5px 0; padding: 8px; background: #f9f9f9; border-radius: 4px;">
+                                <strong>${i + 1}.</strong> <code>${guid}</code>
+                            </div>
+                        `).join('') : 
+                        '<p>No se encontraron GUIDs</p>'
+                    }
+                </div>
+            `;
+        }
+        
+        function showTab(tabName) {
+            // Ocultar todas las tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar la tab seleccionada
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function searchInHTML() {
+            const searchTerm = document.getElementById('searchBox').value;
+            const htmlContent = document.getElementById('htmlContent');
+            
+            if (!searchTerm) {
+                htmlContent.innerHTML = escapeHtml(currentHtml);
+                return;
+            }
+            
+            const highlightedHtml = currentHtml.replace(
+                new RegExp(escapeRegExp(searchTerm), 'gi'),
+                `<span class="highlight">$&</span>`
+            );
+            
+            htmlContent.innerHTML = escapeHtml(highlightedHtml).replace(
+                /&lt;span class="highlight"&gt;([^&]*)&lt;\/span&gt;/g,
+                '<span class="highlight">$1</span>'
+            );
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\$&');
+        }
+        
+        // Cargar automáticamente al inicio
+        window.onload = () => {
+            fetchHTML();
+        };
+    </script>
+</body>
+</html>
