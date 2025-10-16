@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TuMatch - Asignaciones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* TuMatch Brand Colors */
+            --coral: #FF5A5F;
+            --coral-dark: #E74C51;
+            --coral-light: #FF7A7F;
+            --magenta: #FF3366;
+            --magenta-dark: #E02E5C;
+            --magenta-light: #FF5A8A;
+            
+            /* Supporting Colors */
+            --navy: #2A2D3E;
+            --navy-light: #3A3F56;
+            --slate: #475569;
+            --slate-light: #64748B;
+            --blue: #3B82F6;
+            --blue-light: #60A5FA;
+            --teal: #14B8A6;
+            --emerald: #10B981;
+            
+            /* Neutrals */
+            --gray-50: #F8FAFC;
+            --gray-100: #F1F5F9;
+            --gray-200: #E2E8F0;
+            --gray-300: #CBD5E1;
+            --gray-400: #94A3B8;
+            --gray-500: #64748B;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1E293B;
+            --gray-900: #0F172A;
+            --white: #FFFFFF;
+            
+            /* Semantic Colors */
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            --info: #3B82F6;
+            
+            /* Gradients */
+            --gradient-primary: linear-gradient(135deg, var(--coral) 0%, var(--magenta) 100%);
+            --gradient-secondary: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
+            --gradient-accent: linear-gradient(135deg, var(--navy) 0%, var(--slate) 100%);
+            
+            /* Design System */
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--gray-50) 0%, #f0f4f8 100%);
+            color: var(--gray-900);
+            line-height: 1.5;
+            font-size: 14px;
+            min-height: 100vh;
+        }
+
+        /* Header animado */
+        .header {
+            background: var(--gradient-primary);
+            padding: 2rem 1rem 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: headerPulse 4s ease-in-out infinite;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            pointer-events: none;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes headerPulse {
+            0%, 100% { 
+                filter: brightness(1);
+            }
+            50% { 
+                filter: brightness(1.05);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) rotate(45deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(100%) rotate(45deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.3;
+            }
+            50% {
+                transform: translate(-30%, -30%) scale(1.1);
+                opacity: 0.1;
+            }
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.025em;
+            animation: titleBounce 2s ease-in-out infinite;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 400;
+            animation: subtitleFade 3s ease-in-out infinite;
+        }
+
+        @keyframes titleBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-2px);
+            }
+        }
+
+        @keyframes subtitleFade {
+            0%, 100% {
+                opacity: 0.9;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        /* Partículas animadas */
+        .header-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: particleFloat 8s ease-in-out infinite;
+        }
+
+        .particle-1 {
+            width: 6px;
+            height: 6px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+            animation-duration: 6s;
+        }
+
+        .particle-2 {
+            width: 4px;
+            height: 4px;
+            top: 60%;
+            left: 80%;
+            animation-delay: 1s;
+            animation-duration: 8s;
+        }
+
+        .particle-3 {
+            width: 8px;
+            height: 8px;
+            top: 30%;
+            left: 70%;
+            animation-delay: 2s;
+            animation-duration: 7s;
+        }
+
+        .particle-4 {
+            width: 5px;
+            height: 5px;
+            top: 70%;
+            left: 20%;
+            animation-delay: 3s;
+            animation-duration: 9s;
+        }
+
+        .particle-5 {
+            width: 7px;
+            height: 7px;
+            top: 40%;
+            left: 40%;
+            animation-delay: 4s;
+            animation-duration: 6s;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 0.3;
+            }
+            25% {
+                transform: translateY(-20px) translateX(10px) scale(1.2);
+                opacity: 0.6;
+            }
+            50% {
+                transform: translateY(-10px) translateX(-15px) scale(0.8);
+                opacity: 0.4;
+            }
+            75% {
+                transform: translateY(-30px) translateX(5px) scale(1.1);
+                opacity: 0.7;
+            }
+        }
+
+        /* Controles limpios */
+        .controls {
+            background: var(--white);
+            border-bottom: 1px solid var(--gray-200);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .controls-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            background: var(--white);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .search-input::placeholder {
+            color: var(--gray-400);
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            background: var(--white);
+            cursor: pointer;
+            min-width: 180px;
+            color: var(--gray-700);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--teal);
+        }
+
+        .refresh-btn {
+            padding: 0.75rem 1.25rem;
+            background: var(--gradient-secondary);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .refresh-btn:hover {
+            background: var(--blue);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .refresh-btn.loading {
+            pointer-events: none;
+        }
+
+        .refresh-btn.loading span:first-child {
+            animation: spin 1s linear infinite;
+        }
+
+        /* Stats minimalistas */
+        .stats {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--white);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-secondary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--navy);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 1200px;
+            margin: 1.5rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Loading */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 32px;
+            height: 32px;
+            border: 2px solid var(--gray-200);
+            border-top: 2px solid var(--teal);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        /* Grid de propiedades */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .property-card {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            will-change: transform;
+        }
+
+        .property-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--gray-300);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header {
+            background: var(--gradient-accent);
+            padding: 1rem;
+            color: white;
+            position: relative;
+        }
+
+        .agent-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .agent-avatar {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .agent-details h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.125rem;
+            line-height: 1.3;
+        }
+
+        .agent-role {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        .tm-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+
+        .property-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            background: var(--gray-50);
+            border-radius: var(--border-radius);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .detail-item:hover {
+            background: var(--gray-100);
+            transform: translateX(4px);
+        }
+
+        .detail-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-secondary);
+            border-radius: var(--border-radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            color: white;
+        }
+
+        .detail-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .detail-label {
+            font-size: 0.625rem;
+            color: var(--gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.125rem;
+        }
+
+        .detail-value {
+            font-size: 0.875rem;
+            color: var(--gray-900);
+            font-weight: 500;
+            word-break: break-word;
+        }
+
+        .codigo-value {
+            font-family: 'SF Mono', 'Monaco', monospace;
+            color: var(--coral);
+            font-weight: 600;
+        }
+
+        .codigo-link {
+            color: var(--coral);
+            text-decoration: underline;
+            text-decoration-color: var(--coral);
+            text-decoration-thickness: 2px;
+            text-underline-offset: 3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            position: relative;
+            background: rgba(255, 90, 95, 0.08);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 90, 95, 0.15);
+        }
+
+        .codigo-link:hover {
+            color: var(--coral-dark);
+            background: rgba(255, 90, 95, 0.15);
+            border-color: var(--coral);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 90, 95, 0.2);
+        }
+
+        .codigo-link::before {
+            content: '🔗';
+            font-size: 0.8rem;
+            margin-right: 0.25rem;
+        }
+
+        .codigo-link::after {
+            content: 'Ver ficha';
+            font-size: 0.65rem;
+            color: var(--coral);
+            opacity: 0.8;
+            font-weight: 400;
+            margin-left: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Estados */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid var(--gray-200);
+            grid-column: 1/-1;
+        }
+
+        .empty-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            margin-bottom: 1rem;
+        }
+
+        .empty-instructions {
+            background: var(--gray-50);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            border-left: 3px solid var(--coral);
+            text-align: left;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .empty-instructions p {
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--gray-700);
+        }
+
+        .empty-instructions ol {
+            margin: 0;
+            padding-left: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .empty-instructions li {
+            margin-bottom: 0.25rem;
+            color: var(--gray-600);
+        }
+
+        /* Footer profesional */
+        .footer {
+            background: linear-gradient(135deg, var(--navy) 0%, #34495e 100%);
+            color: white;
+            padding: 40px 20px;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .footer-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .footer-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .footer-item a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-item a:hover {
+            color: #4da6ff !important;
+        }
+
+        .footer-systems {
+            margin: 30px 0;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-systems a {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .footer-systems a:hover {
+            background: rgba(255,255,255,0.2);
+            color: #4da6ff !important;
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .footer-divider {
+            width: 100px;
+            height: 2px;
+            background: var(--gradient-primary);
+            margin: 30px auto;
+            border-radius: 1px;
+        }
+
+        .footer-copyright {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Last update badge */
+        .last-update {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            color: var(--gray-500);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.375rem;
+        }
+
+        .update-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--emerald);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Notificación de actualización */
+        .update-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--emerald);
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            font-size: 0.875rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-md);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .update-notification.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1.5rem 1rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-subtitle {
+                font-size: 0.8rem;
+            }
+
+            .controls {
+                padding: 0.75rem;
+            }
+
+            .search-bar {
+                flex-direction: column;
+                gap: 0.75rem;
+                align-items: stretch;
+            }
+
+            .search-input,
+            .filter-select,
+            .refresh-btn {
+                width: 100%;
+            }
+
+            .refresh-btn {
+                justify-content: center;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .properties-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 1rem auto;
+                padding: 0 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 1.25rem 0.75rem 0.75rem;
+            }
+
+            .header h1 {
+                font-size: 1.375rem;
+            }
+
+            .controls {
+                padding: 0.5rem;
+            }
+
+            .search-input,
+            .filter-select,
+            .refresh-btn {
+                padding: 0.625rem 0.875rem;
+                font-size: 0.8rem;
+            }
+
+            .stat-card {
+                padding: 0.75rem;
+            }
+
+            .stat-value {
+                font-size: 1.25rem;
+            }
+
+            .card-header,
+            .card-body {
+                padding: 0.875rem;
+            }
+
+            .agent-avatar {
+                width: 32px;
+                height: 32px;
+                font-size: 0.75rem;
+            }
+
+            .agent-details h3 {
+                font-size: 0.825rem;
+            }
+
+            .detail-item {
+                padding: 0.625rem;
+            }
+
+            .detail-icon {
+                width: 28px;
+                height: 28px;
+                margin-right: 0.625rem;
+                font-size: 0.75rem;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .update-notification {
+                top: 10px;
+                right: 10px;
+                font-size: 0.8rem;
+                padding: 0.5rem 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-particles">
+            <div class="particle particle-1"></div>
+            <div class="particle particle-2"></div>
+            <div class="particle particle-3"></div>
+            <div class="particle particle-4"></div>
+            <div class="particle particle-5"></div>
+        </div>
+        <div class="header-content">
+            <h1>Portal de Asignaciones</h1>
+            <p class="header-subtitle">TuMatch Inmobiliario</p>
+        </div>
+    </header>
+
+    <div class="controls">
+        <div class="controls-container">
+            <div class="search-bar">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Buscar por corredor o código..."
+                >
+                <select class="filter-select" id="corredorFilter">
+                    <option value="">Todos los corredores</option>
+                </select>
+                <button class="refresh-btn" onclick="loadData()">
+                    <span>↻</span>
+                    <span>Actualizar</span>
+                </button>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-value" id="visibleCount">0</div>
+                    <div class="stat-label">Mostrando</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Cargando asignaciones...</p>
+        </div>
+
+        <div id="grid" class="properties-grid" style="display: none;"></div>
+        
+        <div class="last-update" id="lastUpdate">
+            <div class="update-dot"></div>
+            <span>Conectado</span>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">🏠 TuMatch Inmobiliario</div>
+            <div class="footer-info">
+                <div class="footer-item">
+                    <span>📧</span>
+                    <a href="mailto:corretaje@tumatchinmobiliario.cl">
+                        corretaje@tumatchinmobiliario.cl
+                    </a>
+                </div>
+                <div class="footer-item">
+                    <span>📱</span>
+                    <a href="https://wa.me/56934107448" target="_blank">
+                        +56 9 3410 7448
+                    </a>
+                </div>
+                <div class="footer-item">
+                    <span>🕐</span>
+                    <span>Lun-Vie 9:00-18:00</span>
+                </div>
+            </div>
+            
+            <div class="footer-systems">
+                <a href="https://backoffice.propital.com/#/login" target="_blank">
+                    🔐 BackOffice Propital
+                </a>
+                <a href="https://app.2clics.cl/" target="_blank">
+                    📊 Sistema Multipublicador
+                </a>
+            </div>
+            
+            <div class="footer-divider"></div>
+            <p class="footer-copyright">
+                © 2024 TuMatch Inmobiliario. Todos los derechos reservados.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        const SPREADSHEET_ID = '1X7cbk_fD5mGTXxs1cOa4tCxeXBrpiNWV4sEJnBRwVUM';
+        const GID = '1154306850';
+        
+        let allData = [];
+        let filteredData = [];
+        let lastDataHash = '';
+        let refreshInterval = 60000; // Intervalo inicial: 1 minuto (más conservador)
+        let maxRefreshInterval = 300000; // Máximo: 5 minutos
+        let consecutiveNoChanges = 0;
+        let autoRefreshTimer = null;
+        let isFirstLoad = true;
+
+        function getInitials(name) {
+            if (!name) return '??';
+            const parts = name.split(' ');
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        // Función para crear hash de los datos
+        function createDataHash(data) {
+            return btoa(JSON.stringify(data.map(item => `${item.codigo}-${item.corredor}-${item.referido}-${item.firmaOrden}`).sort())).slice(0, 16);
+        }
+
+        // Función para comparar si los datos han cambiado
+        function hasDataChanged(newData) {
+            const newHash = createDataHash(newData);
+            const changed = newHash !== lastDataHash;
+            lastDataHash = newHash;
+            
+            // Ajustar intervalo basado en cambios
+            if (changed) {
+                consecutiveNoChanges = 0;
+                refreshInterval = 60000; // Resetear a 1 minuto cuando hay cambios
+            } else {
+                consecutiveNoChanges++;
+                // Incrementar intervalo gradualmente: 1m, 2m, 3m, 5m
+                if (consecutiveNoChanges >= 2) {
+                    refreshInterval = Math.min(maxRefreshInterval, refreshInterval * 1.5);
+                }
+            }
+            
+            return changed;
+        }
+
+        async function loadData(isAutoRefresh = false) {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('grid');
+            const refreshBtn = document.querySelector('.refresh-btn');
+            
+            // Si es autorefresh y ya hay datos, no mostrar loading
+            if (!isAutoRefresh || allData.length === 0) {
+                loading.style.display = 'flex';
+                grid.style.display = 'none';
+            }
+            
+            // Indicar que está cargando en el botón solo si no es autorefresh
+            if (refreshBtn && !isAutoRefresh) {
+                refreshBtn.classList.add('loading');
+            }
+
+            try {
+                const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID}`;
+                
+                const response = await fetch(CSV_URL);
+                const csvText = await response.text();
+                
+                if (!csvText) {
+                    throw new Error('No se pudo acceder a los datos. Verifica que la hoja sea pública.');
+                }
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                if (lines.length === 0) {
+                    throw new Error('No se encontraron datos en la hoja');
+                }
+                
+                const newData = [];
+                const corredores = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    
+                    const codigo = values[1]?.trim() || '';
+                    const corredor = values[4]?.trim() || '';
+                    const referido = values[6]?.trim() || '';
+                    const firmaOrden = values[7]?.trim() || '';
+                    const estado = values[8]?.trim() || '';
+                    
+                    if (estado) continue;
+                    if (!codigo || !corredor) continue;
+
+                    const isTM = referido.toLowerCase().includes('francisco') && 
+                                referido.toLowerCase().includes('garcia');
+
+                    newData.push({
+                        codigo: codigo,
+                        corredor: corredor,
+                        referido: isTM ? 'TuMatch' : (referido || 'Sin referido'),
+                        firmaOrden: firmaOrden || 'Pendiente',
+                        isTM: isTM
+                    });
+
+                    corredores.add(corredor);
+                }
+
+                // Solo actualizar si hay cambios reales
+                if (!isAutoRefresh || hasDataChanged(newData)) {
+                    allData = newData;
+                    updateCorredorFilter(corredores);
+                    
+                    document.getElementById('lastUpdate').innerHTML = `
+                        <div class="update-dot"></div>
+                        <span>Actualizado ${new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</span>
+                    `;
+
+                    applyFilters();
+                    
+                    // Mostrar notificación sutil si es autorefresh y hay cambios
+                    if (isAutoRefresh && allData.length > 0) {
+                        showUpdateNotification();
+                    }
+                } else if (isAutoRefresh) {
+                    // Solo actualizar la hora si no hay cambios
+                    const nextCheck = Math.round(refreshInterval / 1000);
+                    document.getElementById('lastUpdate').innerHTML = `
+                        <div class="update-dot"></div>
+                        <span>Sin cambios - próxima verificación en ${nextCheck}s</span>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                // Solo mostrar error si no hay datos previos
+                if (allData.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">⚠️</div>
+                            <h2 class="empty-title">Error al cargar datos</h2>
+                            <p class="empty-text">${error.message}</p>
+                            <div class="empty-instructions">
+                                <p>Para solucionar:</p>
+                                <ol>
+                                    <li>Abre la hoja en Google Sheets</li>
+                                    <li>Click en "Compartir"</li>
+                                    <li>Selecciona "Cualquier persona con el enlace"</li>
+                                    <li>Permisos de "Lector"</li>
+                                    <li>Actualiza esta página</li>
+                                </ol>
+                            </div>
+                        </div>
+                    `;
+                    grid.style.display = 'grid';
+                }
+            } finally {
+                loading.style.display = 'none';
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                }
+                
+                // Asegurar que el grid se muestre si hay datos
+                if (allData.length > 0) {
+                    grid.style.display = 'grid';
+                }
+                
+                // Iniciar auto-refresh solo después de la primera carga exitosa
+                if (isFirstLoad) {
+                    isFirstLoad = false;
+                    scheduleNextRefresh();
+                } else if (isAutoRefresh) {
+                    scheduleNextRefresh();
+                }
+            }
+        }
+
+        // Función para programar el próximo refresh
+        function scheduleNextRefresh() {
+            if (autoRefreshTimer) {
+                clearTimeout(autoRefreshTimer);
+            }
+            
+            autoRefreshTimer = setTimeout(() => {
+                loadData(true);
+            }, refreshInterval);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        function updateCorredorFilter(corredores) {
+            const filterSelect = document.getElementById('corredorFilter');
+            const currentValue = filterSelect.value;
+            
+            filterSelect.innerHTML = '<option value="">Todos los corredores</option>';
+            
+            Array.from(corredores).sort().forEach(corredor => {
+                const option = document.createElement('option');
+                option.value = corredor;
+                option.textContent = corredor;
+                filterSelect.appendChild(option);
+            });
+            
+            filterSelect.value = currentValue;
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const corredorFilter = document.getElementById('corredorFilter').value;
+
+            filteredData = allData.filter(item => {
+                const matchesSearch = searchTerm === '' || 
+                    item.corredor.toLowerCase().includes(searchTerm) ||
+                    item.codigo.toLowerCase().includes(searchTerm);
+                
+                const matchesCorredor = corredorFilter === '' || item.corredor === corredorFilter;
+
+                return matchesSearch && matchesCorredor;
+            });
+
+            renderGrid();
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allData.length;
+            document.getElementById('visibleCount').textContent = filteredData.length;
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+
+            if (filteredData.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <h2 class="empty-title">Sin resultados</h2>
+                        <p class="empty-text">No se encontraron asignaciones con estos filtros</p>
+                    </div>
+                `;
+                grid.style.display = 'grid';
+                return;
+            }
+
+            // Usar DocumentFragment para mejor rendimiento
+            const fragment = document.createDocumentFragment();
+            
+            filteredData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'property-card';
+                
+                card.innerHTML = `
+                    ${item.isTM ? '<div class="tm-badge">TuMatch</div>' : ''}
+                    
+                    <div class="card-header">
+                        <div class="agent-info">
+                            <div class="agent-avatar">${getInitials(item.corredor)}</div>
+                            <div class="agent-details">
+                                <h3>${item.corredor}</h3>
+                                <p class="agent-role">Corredor</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="property-details">
+                            <div class="detail-item">
+                                <div class="detail-icon">🏠</div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Código</div>
+                                    <div class="detail-value codigo-value">
+                                        <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                                           target="_blank" 
+                                           rel="noopener noreferrer" 
+                                           class="codigo-link"
+                                           title="Ver ficha pública">${item.codigo}</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-icon">👥</div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Referido</div>
+                                    <div class="detail-value">${item.referido}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <div class="detail-icon">📝</div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Captada por</div>
+                                    <div class="detail-value">${item.firmaOrden}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                fragment.appendChild(card);
+            });
+            
+            // Una sola operación DOM
+            grid.innerHTML = '';
+            grid.appendChild(fragment);
+            grid.style.display = 'grid';
+        }
+
+        // Función para mostrar notificación de actualización
+        function showUpdateNotification() {
+            // Crear notificación si no existe
+            let notification = document.querySelector('.update-notification');
+            if (!notification) {
+                notification = document.createElement('div');
+                notification.className = 'update-notification';
+                notification.innerHTML = `
+                    <span>✓</span>
+                    <span>Datos actualizados</span>
+                `;
+                document.body.appendChild(notification);
+            }
+            
+            // Mostrar notificación
+            notification.classList.add('show');
+            
+            // Ocultar después de 3 segundos
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Event listeners con debounce para búsqueda
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 150);
+        });
+        
+        document.getElementById('corredorFilter').addEventListener('change', applyFilters);
+
+        // Cargar datos inicialmente
+        loadData();
+    </script>
+</body>
+</html>
