@@ -43,11 +43,13 @@ exports.handler = async (event, context) => {
         const yearsToTry = [currentYear, currentYear - 1];
         const monthsToTry = [currentMonth, currentMonth - 1, currentMonth - 2, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8];
         
-        // GUIDs de ejemplo basados en el patrón observado
+        // GUIDs de ejemplo basados en el patrón observado (específicos para 2950)
         const commonGUIDs = [
             'f23b1e02-83a2-4d1c-9d9b-2c77cee47ddc',
             '4b48e910-f106-4b56-a4c0-130de3c676a8'
         ];
+        
+        const seenUrls = new Set();
         
         // Función para generar GUIDs pseudo-aleatorios basados en propertyId
         function generatePseudoGUIDs(propertyId) {
@@ -113,8 +115,9 @@ exports.handler = async (event, context) => {
                     const exists = await testImageExists(imageUrl);
                     tested++;
                     
-                    if (exists) {
+                    if (exists && !seenUrls.has(imageUrl)) {
                         console.log(`[find-property-images] ✅ Imagen encontrada: ${imageUrl}`);
+                        seenUrls.add(imageUrl);
                         foundImages.push({
                             url: imageUrl,
                             proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`,
