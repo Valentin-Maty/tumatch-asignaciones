@@ -41,37 +41,75 @@ exports.handler = async (event, context) => {
         const currentMonth = currentDate.getMonth() + 1;
         
         const yearsToTry = [currentYear, currentYear - 1];
-        const monthsToTry = [currentMonth, currentMonth - 1, currentMonth - 2, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8];
+        // Priorizar meses más recientes y el mes 9 (donde sabemos que están algunas imágenes)
+        const monthsToTry = [9, currentMonth, currentMonth - 1, currentMonth - 2, 10, 11, 12, 8, 7, 6, 5, 4, 3, 2, 1];
         
-        // Solo usar GUIDs conocidos para propiedades específicas
+        // GUIDs conocidos para propiedades específicas (como ejemplos)
         const knownPropertyGUIDs = {
             '2950': [
                 'f23b1e02-83a2-4d1c-9d9b-2c77cee47ddc',
                 '4b48e910-f106-4b56-a4c0-130de3c676a8'
             ]
-            // Agregar más propiedades solo cuando sepamos sus GUIDs reales
         };
         
-        // Si no tenemos GUIDs conocidos para esta propiedad, no buscar
-        if (!knownPropertyGUIDs[propertyId]) {
-            console.log(`[find-property-images] No hay GUIDs conocidos para propiedad ${propertyId}`);
-            return {
-                statusCode: 200,
-                headers: corsHeaders,
-                body: JSON.stringify({
-                    success: false,
-                    propertyId,
-                    totalImages: 0,
-                    images: [],
-                    mainImage: null,
-                    tested: 0,
-                    searchedAt: new Date().toISOString(),
-                    message: `No hay imágenes conocidas para la propiedad ${propertyId}`
-                })
-            };
+        // Función para generar GUIDs realistas basados en propertyId
+        function generateSmartGUIDs(propertyId) {
+            const guids = [];
+            
+            // Usar propertyId como semilla para generar GUIDs consistentes
+            const seed = parseInt(propertyId) || 1;
+            
+            // Generar GUIDs con diferentes estrategias
+            for (let i = 0; i < 15; i++) {
+                let guid = '';
+                
+                // Método 1: Basado en timestamp + propertyId
+                const timestamp = Date.now() + (seed * 1000) + (i * 100);
+                const hex = timestamp.toString(16).padStart(12, '0');
+                
+                // Método 2: Usar crypto-like generation con propertyId como semilla
+                const chars = '0123456789abcdef';
+                const sections = [8, 4, 4, 4, 12];
+                const guidParts = [];
+                
+                let currentSeed = seed + i;
+                
+                for (let sectionLength of sections) {
+                    let section = '';
+                    for (let j = 0; j < sectionLength; j++) {
+                        // Usar diferentes algoritmos para variación
+                        if (i < 5) {
+                            // Algoritmo 1: Simple multiplicador
+                            currentSeed = (currentSeed * 9 + 7) % 4096;
+                        } else if (i < 10) {
+                            // Algoritmo 2: XOR con timestamp
+                            currentSeed = currentSeed ^ (timestamp >> (j * 2));
+                        } else {
+                            // Algoritmo 3: Fibonacci-like
+                            currentSeed = (currentSeed + propertyId + j) * 31;
+                        }
+                        
+                        const index = Math.abs(currentSeed) % chars.length;
+                        section += chars[index];
+                    }
+                    guidParts.push(section);
+                }
+                
+                // Asegurar formato GUID válido (versión 4)
+                let guidString = guidParts.join('-');
+                guidString = guidString.substring(0, 14) + '4' + guidString.substring(15); // Versión 4
+                guidString = guidString.substring(0, 19) + 'a' + guidString.substring(20); // Variant bits
+                
+                guids.push(guidString);
+            }
+            
+            return guids;
         }
         
-        const allGUIDs = knownPropertyGUIDs[propertyId];
+        // Combinar GUIDs conocidos con GUIDs generados inteligentemente
+        const knownGUIDs = knownPropertyGUIDs[propertyId] || [];
+        const smartGUIDs = generateSmartGUIDs(propertyId);
+        const allGUIDs = [...knownGUIDs, ...smartGUIDs];
         const seenUrls = new Set();
         
         // Función para probar si una imagen existe
@@ -91,7 +129,7 @@ exports.handler = async (event, context) => {
         console.log(`[find-property-images] Probando ${yearsToTry.length} años x ${monthsToTry.length} meses x ${allGUIDs.length} GUIDs`);
         
         let tested = 0;
-        const maxTests = 50; // Limitar para evitar timeout
+        const maxTests = 30; // Limitar para evitar timeout pero dar oportunidad de encontrar
         
         for (const year of yearsToTry) {
             for (const month of monthsToTry) {
@@ -118,11 +156,12 @@ exports.handler = async (event, context) => {
                         });
                     }
                     
-                    if (tested >= maxTests) break;
+                    // Parar si encontramos al menos 2 imágenes o llegamos al límite
+                    if (foundImages.length >= 2 || tested >= maxTests) break;
                 }
-                if (tested >= maxTests) break;
+                if (foundImages.length >= 2 || tested >= maxTests) break;
             }
-            if (tested >= maxTests) break;
+            if (foundImages.length >= 2 || tested >= maxTests) break;
         }
         
         console.log(`[find-property-images] Pruebas completadas: ${tested}, Imágenes encontradas: ${foundImages.length}`);
