@@ -5,7 +5,11 @@
       "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(npm install:*)",
+      "Bash(where node)",
+      "Bash(npm start)",
+      "Bash(git init:*)"
     ],
     "deny": []
   }

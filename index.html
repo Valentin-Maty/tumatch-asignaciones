@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuMatch - Asignaciones</title>
+    <title>TuMatch - Portal de Asignaciones</title>
     
     <!-- Favicon TuMatch -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
@@ -11,60 +11,60 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* TuMatch Brand Colors */
-            --coral: #FF5A5F;
-            --coral-dark: #E74C51;
-            --coral-light: #FF7A7F;
-            --magenta: #FF3366;
-            --magenta-dark: #E02E5C;
-            --magenta-light: #FF5A8A;
-            
-            /* Supporting Colors */
-            --navy: #2A2D3E;
-            --navy-light: #3A3F56;
-            --slate: #475569;
-            --slate-light: #64748B;
-            --blue: #3B82F6;
-            --blue-light: #60A5FA;
-            --teal: #14B8A6;
-            --emerald: #10B981;
-            
-            /* Neutrals */
-            --gray-50: #F8FAFC;
-            --gray-100: #F1F5F9;
-            --gray-200: #E2E8F0;
-            --gray-300: #CBD5E1;
-            --gray-400: #94A3B8;
-            --gray-500: #64748B;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1E293B;
-            --gray-900: #0F172A;
-            --white: #FFFFFF;
-            
-            /* Semantic Colors */
-            --success: #10B981;
-            --warning: #F59E0B;
-            --error: #EF4444;
-            --info: #3B82F6;
-            
-            /* Gradients */
-            --gradient-primary: linear-gradient(135deg, var(--coral) 0%, var(--magenta) 100%);
-            --gradient-secondary: linear-gradient(135deg, var(--blue) 0%, var(--teal) 100%);
-            --gradient-accent: linear-gradient(135deg, var(--navy) 0%, var(--slate) 100%);
-            
-            /* Design System */
-            --border-radius: 8px;
-            --border-radius-lg: 12px;
-            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- NextUI/HeroUI -->
+    <link href="https://unpkg.com/@nextui-org/theme@latest/dist/components/button.css" rel="stylesheet">
+    <link href="https://unpkg.com/@nextui-org/theme@latest/dist/components/card.css" rel="stylesheet">
+    <link href="https://unpkg.com/@nextui-org/theme@latest/dist/components/input.css" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // Brand colors
+                        'brand': {
+                            'coral': '#FF6B47',
+                            'magenta': '#E91E63',
+                            'navy': '#0F172A',
+                            'navy-light': '#1E293B',
+                            'blue': '#3B82F6',
+                            'teal': '#0D9488',
+                            'emerald': '#059669',
+                            'amber': '#F59E0B',
+                            'purple': '#8B5CF6',
+                            'rose': '#F43F5E'
+                        },
+                        // Background gradients
+                        'bg-gradient': {
+                            'primary': 'linear-gradient(135deg, #FF6B47 0%, #E91E63 100%)',
+                            'blue': 'linear-gradient(135deg, #3B82F6 0%, #0D9488 100%)',
+                            'emerald': 'linear-gradient(135deg, #059669 0%, #0D9488 100%)',
+                            'amber': 'linear-gradient(135deg, #F59E0B 0%, #FF6B47 100%)',
+                            'purple': 'linear-gradient(135deg, #8B5CF6 0%, #E91E63 100%)',
+                            'rose': 'linear-gradient(135deg, #F43F5E 0%, #FF6B47 100%)'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+                    }
+                }
+            }
         }
-
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -72,773 +72,379 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--gray-50) 0%, #f0f4f8 100%);
-            color: var(--gray-900);
-            line-height: 1.5;
-            font-size: 14px;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
             min-height: 100vh;
-        }
-
-        /* Header animado */
-        .header {
-            background: var(--gradient-primary);
-            padding: 2rem 1rem 1.5rem;
-            color: white;
+            overflow-x: hidden;
             position: relative;
-            overflow: hidden;
-            animation: headerPulse 4s ease-in-out infinite;
+            animation: bodyBreathe 20s ease-in-out infinite;
         }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-            pointer-events: none;
-            animation: shimmer 3s ease-in-out infinite;
-        }
-
-        .header::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
-            animation: float 6s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes headerPulse {
-            0%, 100% { 
-                filter: brightness(1);
-            }
-            50% { 
-                filter: brightness(1.05);
-            }
-        }
-
-        @keyframes shimmer {
+        
+        @keyframes bodyBreathe {
             0% {
-                transform: translateX(-100%) rotate(45deg);
-                opacity: 0;
+                background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            }
+            25% {
+                background: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);
             }
             50% {
-                opacity: 1;
+                background: linear-gradient(135deg, #1E293B 0%, #374151 50%, #4B5563 100%);
+            }
+            75% {
+                background: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);
             }
             100% {
-                transform: translateX(100%) rotate(45deg);
-                opacity: 0;
+                background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
             }
         }
-
-        @keyframes float {
-            0%, 100% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 0.3;
-            }
-            50% {
-                transform: translate(-30%, -30%) scale(1.1);
-                opacity: 0.1;
-            }
+        
+        /* Dynamic background effects - SUPER ENHANCED */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 120%;
+            height: 120%;
+            background: 
+                radial-gradient(800px circle at 25% 25%, rgba(255, 107, 71, 0.25) 0%, transparent 60%),
+                radial-gradient(1000px circle at 75% 75%, rgba(233, 30, 99, 0.2) 0%, transparent 60%),
+                radial-gradient(600px circle at 50% 10%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
+                radial-gradient(500px circle at 90% 40%, rgba(13, 148, 136, 0.12) 0%, transparent 60%),
+                radial-gradient(700px circle at 10% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
+                radial-gradient(400px circle at 60% 30%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
+            animation: backgroundFloat 25s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            pointer-events: none;
+            z-index: -1;
         }
-
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
-            position: relative;
-            z-index: 2;
+        
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 120%;
+            height: 120%;
+            background: 
+                radial-gradient(450px circle at 80% 20%, rgba(244, 63, 94, 0.12) 0%, transparent 60%),
+                radial-gradient(600px circle at 20% 60%, rgba(5, 150, 105, 0.15) 0%, transparent 60%),
+                radial-gradient(350px circle at 60% 90%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
+                radial-gradient(500px circle at 30% 10%, rgba(255, 107, 71, 0.08) 0%, transparent 60%),
+                radial-gradient(750px circle at 85% 85%, rgba(233, 30, 99, 0.12) 0%, transparent 60%);
+            animation: backgroundFloat2 30s cubic-bezier(0.4, 0, 0.6, 1) infinite reverse;
+            pointer-events: none;
+            z-index: -1;
         }
-
-        .header h1 {
-            font-size: 1.75rem;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-            letter-spacing: -0.025em;
-            animation: titleBounce 2s ease-in-out infinite;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header-subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            font-weight: 400;
-            animation: subtitleFade 3s ease-in-out infinite;
-        }
-
-        @keyframes titleBounce {
-            0%, 100% {
-                transform: translateY(0);
+        
+        @keyframes backgroundFloat {
+            0% {
+                transform: translateX(-30px) translateY(-20px) scale(1) rotate(0deg);
+                opacity: 0.6;
             }
-            50% {
-                transform: translateY(-2px);
-            }
-        }
-
-        @keyframes subtitleFade {
-            0%, 100% {
-                opacity: 0.9;
-            }
-            50% {
+            16.66% {
+                transform: translateX(-10px) translateY(-10px) scale(1.05) rotate(60deg);
                 opacity: 0.7;
             }
+            33.33% {
+                transform: translateX(20px) translateY(-15px) scale(1.08) rotate(120deg);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateX(25px) translateY(10px) scale(1.1) rotate(180deg);
+                opacity: 0.85;
+            }
+            66.66% {
+                transform: translateX(10px) translateY(25px) scale(1.06) rotate(240deg);
+                opacity: 0.75;
+            }
+            83.33% {
+                transform: translateX(-15px) translateY(15px) scale(1.03) rotate(300deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateX(-30px) translateY(-20px) scale(1) rotate(360deg);
+                opacity: 0.6;
+            }
+        }
+        
+        @keyframes backgroundFloat2 {
+            0% {
+                transform: translateX(20px) translateY(25px) scale(1.05) rotate(0deg);
+                opacity: 0.5;
+            }
+            20% {
+                transform: translateX(-5px) translateY(5px) scale(1.02) rotate(-72deg);
+                opacity: 0.6;
+            }
+            40% {
+                transform: translateX(-25px) translateY(-10px) scale(0.98) rotate(-144deg);
+                opacity: 0.7;
+            }
+            60% {
+                transform: translateX(-15px) translateY(-30px) scale(1.08) rotate(-216deg);
+                opacity: 0.65;
+            }
+            80% {
+                transform: translateX(10px) translateY(-5px) scale(1.04) rotate(-288deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateX(20px) translateY(25px) scale(1.05) rotate(-360deg);
+                opacity: 0.5;
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #FF6B47, #E91E63);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #E91E63, #8B5CF6);
         }
 
-        /* Partículas animadas */
-        .header-particles {
-            position: absolute;
+        /* Floating particles animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fadeInUp {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .animate-pulse-custom {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        /* Floating particles for extra dynamism */
+        .floating-particles {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             pointer-events: none;
-            z-index: 1;
+            z-index: -1;
         }
-
+        
         .particle {
             position: absolute;
-            background: rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            animation: particleFloat 8s ease-in-out infinite;
+            background: linear-gradient(45deg, rgba(255, 107, 71, 0.1), rgba(233, 30, 99, 0.1));
+            animation: particleFloat 15s linear infinite;
         }
-
-        .particle-1 {
+        
+        .particle:nth-child(1) {
             width: 6px;
             height: 6px;
-            top: 20%;
             left: 10%;
+            top: -10px;
             animation-delay: 0s;
-            animation-duration: 6s;
+            animation-duration: 18s;
         }
-
-        .particle-2 {
+        
+        .particle:nth-child(2) {
             width: 4px;
             height: 4px;
-            top: 60%;
-            left: 80%;
-            animation-delay: 1s;
-            animation-duration: 8s;
+            left: 25%;
+            top: -10px;
+            animation-delay: 3s;
+            animation-duration: 22s;
         }
-
-        .particle-3 {
+        
+        .particle:nth-child(3) {
             width: 8px;
             height: 8px;
-            top: 30%;
-            left: 70%;
-            animation-delay: 2s;
-            animation-duration: 7s;
+            left: 40%;
+            top: -10px;
+            animation-delay: 6s;
+            animation-duration: 16s;
         }
-
-        .particle-4 {
+        
+        .particle:nth-child(4) {
             width: 5px;
             height: 5px;
-            top: 70%;
-            left: 20%;
-            animation-delay: 3s;
-            animation-duration: 9s;
+            left: 60%;
+            top: -10px;
+            animation-delay: 9s;
+            animation-duration: 20s;
         }
-
-        .particle-5 {
+        
+        .particle:nth-child(5) {
             width: 7px;
             height: 7px;
-            top: 40%;
-            left: 40%;
-            animation-delay: 4s;
-            animation-duration: 6s;
+            left: 75%;
+            top: -10px;
+            animation-delay: 12s;
+            animation-duration: 24s;
         }
-
+        
+        .particle:nth-child(6) {
+            width: 3px;
+            height: 3px;
+            left: 90%;
+            top: -10px;
+            animation-delay: 15s;
+            animation-duration: 19s;
+        }
+        
+        .particle:nth-child(7) {
+            width: 10px;
+            height: 10px;
+            left: 15%;
+            top: -10px;
+            animation-delay: 2s;
+            animation-duration: 25s;
+            background: linear-gradient(45deg, rgba(59, 130, 246, 0.15), rgba(13, 148, 136, 0.1));
+        }
+        
+        .particle:nth-child(8) {
+            width: 4px;
+            height: 4px;
+            left: 35%;
+            top: -10px;
+            animation-delay: 7s;
+            animation-duration: 17s;
+            background: linear-gradient(45deg, rgba(139, 92, 246, 0.12), rgba(244, 63, 94, 0.1));
+        }
+        
+        .particle:nth-child(9) {
+            width: 6px;
+            height: 6px;
+            left: 55%;
+            top: -10px;
+            animation-delay: 11s;
+            animation-duration: 21s;
+            background: linear-gradient(45deg, rgba(245, 158, 11, 0.15), rgba(255, 107, 71, 0.12));
+        }
+        
+        .particle:nth-child(10) {
+            width: 8px;
+            height: 8px;
+            left: 70%;
+            top: -10px;
+            animation-delay: 14s;
+            animation-duration: 23s;
+            background: linear-gradient(45deg, rgba(5, 150, 105, 0.12), rgba(233, 30, 99, 0.1));
+        }
+        
         @keyframes particleFloat {
-            0%, 100% {
-                transform: translateY(0) translateX(0) scale(1);
-                opacity: 0.3;
+            0% {
+                transform: translateY(-10px) translateX(0px) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            5% {
+                opacity: 1;
+                transform: translateY(5vh) translateX(10px) rotate(18deg) scale(1);
             }
             25% {
-                transform: translateY(-20px) translateX(10px) scale(1.2);
-                opacity: 0.6;
+                transform: translateY(25vh) translateX(-20px) rotate(90deg) scale(1.2);
+                opacity: 0.8;
             }
             50% {
-                transform: translateY(-10px) translateX(-15px) scale(0.8);
-                opacity: 0.4;
+                transform: translateY(50vh) translateX(30px) rotate(180deg) scale(0.9);
+                opacity: 1;
             }
             75% {
-                transform: translateY(-30px) translateX(5px) scale(1.1);
+                transform: translateY(75vh) translateX(-15px) rotate(270deg) scale(1.1);
                 opacity: 0.7;
             }
-        }
-
-        /* Controles limpios */
-        .controls {
-            background: var(--white);
-            border-bottom: 1px solid var(--gray-200);
-            padding: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .controls-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .search-bar {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--border-radius);
-            font-size: 0.875rem;
-            background: var(--white);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .search-input::placeholder {
-            color: var(--gray-400);
-        }
-
-        .filter-select {
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--gray-300);
-            border-radius: var(--border-radius);
-            font-size: 0.875rem;
-            background: var(--white);
-            cursor: pointer;
-            min-width: 180px;
-            color: var(--gray-700);
-        }
-
-        .filter-select:focus {
-            outline: none;
-            border-color: var(--teal);
-        }
-
-        .refresh-btn {
-            padding: 0.75rem 1.25rem;
-            background: var(--gradient-secondary);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 0.875rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .refresh-btn:hover {
-            background: var(--blue);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-
-        .refresh-btn:active {
-            transform: translateY(0);
-        }
-
-        .refresh-btn.loading {
-            pointer-events: none;
-        }
-
-        .refresh-btn.loading span:first-child {
-            animation: spin 1s linear infinite;
-        }
-
-        /* Stats minimalistas */
-        .stats {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .stat-card {
-            flex: 1;
-            background: var(--white);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--gray-200);
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-secondary);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--navy);
-            line-height: 1;
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--gray-500);
-            margin-top: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 500;
-        }
-
-        /* Container principal */
-        .container {
-            max-width: 1200px;
-            margin: 1.5rem auto;
-            padding: 0 1rem;
-        }
-
-        /* Loading */
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 3rem 1rem;
-            text-align: center;
-        }
-
-        .loading-spinner {
-            width: 32px;
-            height: 32px;
-            border: 2px solid var(--gray-200);
-            border-top: 2px solid var(--teal);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
+            95% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(110vh) translateX(40px) rotate(360deg) scale(0.3);
+                opacity: 0;
+            }
         }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        .loading-text {
-            color: var(--gray-500);
-            font-size: 0.875rem;
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
         }
 
-        /* Grid de propiedades */
-        .properties-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
+        /* Custom card animations */
+        .card-gradient {
+            background: linear-gradient(135deg, #1E293B 0%, #374151 100%);
+        }
+        
+        .icon-gradient-1 {
+            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 100%);
+        }
+        
+        .icon-gradient-2 {
+            background: linear-gradient(135deg, #3B82F6 0%, #0D9488 100%);
+        }
+        
+        .icon-gradient-3 {
+            background: linear-gradient(135deg, #059669 0%, #0D9488 100%);
+        }
+        
+        .icon-gradient-4 {
+            background: linear-gradient(135deg, #F59E0B 0%, #FF6B47 100%);
+        }
+        
+        .icon-gradient-5 {
+            background: linear-gradient(135deg, #8B5CF6 0%, #E91E63 100%);
+        }
+        
+        .icon-gradient-6 {
+            background: linear-gradient(135deg, #F43F5E 0%, #FF6B47 100%);
         }
 
-        .property-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            will-change: transform;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        }
-
-        .property-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(255, 90, 95, 0.15);
-            border-color: rgba(255, 90, 95, 0.3);
-            background: rgba(255, 255, 255, 0.98);
-        }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, rgba(255, 90, 95, 0.08) 0%, rgba(255, 51, 102, 0.08) 100%);
-            padding: 1.5rem;
-            color: var(--gray-800);
-            position: relative;
-            border-bottom: 1px solid rgba(255, 90, 95, 0.1);
-        }
-
-        .agent-info {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .agent-avatar {
-            width: 48px;
-            height: 48px;
-            background: var(--gradient-primary);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1rem;
-            color: white;
-            flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
-        }
-
-        .agent-details h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-            line-height: 1.3;
-            color: var(--gray-900);
-        }
-
-        .agent-role {
-            font-size: 0.875rem;
-            color: var(--coral);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .tm-badge {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: var(--gradient-primary);
-            color: white;
-            padding: 0.375rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            box-shadow: 0 2px 8px rgba(255, 90, 95, 0.4);
-        }
-
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .property-details {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        .detail-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            background: rgba(248, 250, 252, 0.8);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 90, 95, 0.08);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 0.5rem;
-        }
-
-        .detail-item:hover {
-            background: rgba(255, 90, 95, 0.04);
-            border-color: rgba(255, 90, 95, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.1);
-        }
-
-        .detail-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient-primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            margin-right: 1rem;
-            flex-shrink: 0;
-            color: white;
-            box-shadow: 0 2px 8px rgba(255, 90, 95, 0.25);
-        }
-
-        .detail-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .detail-label {
-            font-size: 0.75rem;
-            color: var(--gray-600);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-weight: 600;
-            margin-bottom: 0.25rem;
-        }
-
-        .detail-value {
-            font-size: 1rem;
-            color: var(--gray-900);
-            font-weight: 600;
-            word-break: break-word;
-            line-height: 1.4;
-        }
-
-        .codigo-value {
-            font-family: 'SF Mono', 'Monaco', monospace;
-            color: var(--coral);
-            font-weight: 600;
-        }
-
-        .codigo-link {
-            color: var(--coral);
-            text-decoration: underline;
-            text-decoration-color: var(--coral);
-            text-decoration-thickness: 2px;
-            text-underline-offset: 3px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.375rem;
-            position: relative;
-            background: rgba(255, 90, 95, 0.08);
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 90, 95, 0.15);
-        }
-
-        .codigo-link:hover {
-            color: var(--coral-dark);
-            background: rgba(255, 90, 95, 0.15);
-            border-color: var(--coral);
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(255, 90, 95, 0.2);
-        }
-
-        .codigo-link::before {
-            content: '🔗';
-            font-size: 0.8rem;
-            margin-right: 0.25rem;
-        }
-
-        .codigo-link::after {
-            content: 'Ver ficha';
-            font-size: 0.65rem;
-            color: var(--coral);
-            opacity: 0.8;
-            font-weight: 400;
-            margin-left: 0.25rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* Estados */
+        /* Empty state styles */
         .empty-state {
-            text-align: center;
-            padding: 3rem 1rem;
-            background: var(--white);
-            border-radius: var(--border-radius-lg);
-            border: 1px solid var(--gray-200);
-            grid-column: 1/-1;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .empty-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
-        }
-
-        .empty-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: var(--gray-900);
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-text {
-            font-size: 0.875rem;
-            color: var(--gray-500);
-            margin-bottom: 1rem;
-        }
-
-        .empty-instructions {
-            background: var(--gray-50);
-            padding: 1rem;
-            border-radius: var(--border-radius);
-            border-left: 3px solid var(--coral);
-            text-align: left;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .empty-instructions p {
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: var(--gray-700);
-        }
-
-        .empty-instructions ol {
-            margin: 0;
-            padding-left: 1rem;
-            font-size: 0.875rem;
-        }
-
-        .empty-instructions li {
-            margin-bottom: 0.25rem;
-            color: var(--gray-600);
-        }
-
-        /* Footer profesional */
-        .footer {
-            background: linear-gradient(135deg, var(--navy) 0%, #34495e 100%);
-            color: white;
-            padding: 40px 20px;
-            margin-top: 60px;
-            text-align: center;
-        }
-
-        .footer-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .footer-logo {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .footer-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 30px;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .footer-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
-        }
-
-        .footer-item a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-item a:hover {
-            color: #4da6ff !important;
-        }
-
-        .footer-systems {
-            margin: 30px 0;
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .footer-systems a {
-            padding: 12px 24px;
-            background: rgba(255,255,255,0.1);
-            border: 2px solid rgba(255,255,255,0.3);
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .footer-systems a:hover {
-            background: rgba(255,255,255,0.2);
-            color: #4da6ff !important;
-            border-color: rgba(255,255,255,0.5);
-        }
-
-        .footer-divider {
-            width: 100px;
-            height: 2px;
-            background: var(--gradient-primary);
-            margin: 30px auto;
-            border-radius: 1px;
-        }
-
-        .footer-copyright {
-            font-size: 13px;
-            color: rgba(255,255,255,0.6);
-        }
-
-        /* Last update badge */
-        .last-update {
-            text-align: center;
-            margin-top: 2rem;
-            padding: 1rem;
-            color: var(--gray-500);
-            font-size: 0.75rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.375rem;
-        }
-
-        .update-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--emerald);
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Notificación de actualización */
+        /* Notification styles */
         .update-notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: var(--emerald);
+            background: linear-gradient(135deg, #059669 0%, #0D9488 100%);
             color: white;
             padding: 0.75rem 1rem;
-            border-radius: var(--border-radius);
+            border-radius: 12px;
             font-size: 0.875rem;
             font-weight: 500;
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
             transform: translateX(100%);
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -846,225 +452,192 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
         }
-
+        
         .update-notification.show {
             transform: translateX(0);
             opacity: 1;
         }
 
-        /* Responsive */
+        /* Mobile responsive */
         @media (max-width: 768px) {
-            .header {
-                padding: 1.5rem 1rem 1rem;
-            }
-
-            .header h1 {
-                font-size: 1.5rem;
-            }
-
-            .header-subtitle {
-                font-size: 0.8rem;
-            }
-
-            .controls {
-                padding: 0.75rem;
-            }
-
-            .search-bar {
-                flex-direction: column;
-                gap: 0.75rem;
-                align-items: stretch;
-            }
-
-            .search-input,
-            .filter-select,
-            .refresh-btn {
-                width: 100%;
-            }
-
-            .refresh-btn {
-                justify-content: center;
-            }
-
-            .stats {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
-
-            .properties-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                margin: 1rem auto;
-                padding: 0 0.75rem;
+            body {
+                font-size: 14px;
             }
         }
-
+        
         @media (max-width: 480px) {
-            .header {
-                padding: 1.25rem 0.75rem 0.75rem;
-            }
-
-            .header h1 {
-                font-size: 1.375rem;
-            }
-
-            .controls {
-                padding: 0.5rem;
-            }
-
-            .search-input,
-            .filter-select,
-            .refresh-btn {
-                padding: 0.625rem 0.875rem;
-                font-size: 0.8rem;
-            }
-
-            .stat-card {
-                padding: 0.75rem;
-            }
-
-            .stat-value {
-                font-size: 1.25rem;
-            }
-
-            .card-header,
-            .card-body {
-                padding: 0.875rem;
-            }
-
-            .agent-avatar {
-                width: 32px;
-                height: 32px;
-                font-size: 0.75rem;
-            }
-
-            .agent-details h3 {
-                font-size: 0.825rem;
-            }
-
-            .detail-item {
-                padding: 0.625rem;
-            }
-
-            .detail-icon {
-                width: 28px;
-                height: 28px;
-                margin-right: 0.625rem;
-                font-size: 0.75rem;
-            }
-
-            .container {
-                padding: 0 0.5rem;
-            }
-
-            .update-notification {
-                top: 10px;
-                right: 10px;
-                font-size: 0.8rem;
-                padding: 0.5rem 0.75rem;
+            body {
+                font-size: 13px;
             }
         }
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="header-particles">
-            <div class="particle particle-1"></div>
-            <div class="particle particle-2"></div>
-            <div class="particle particle-3"></div>
-            <div class="particle particle-4"></div>
-            <div class="particle particle-5"></div>
+<body class="bg-slate-900 text-white min-h-screen">
+    <!-- Floating Particles -->
+    <div class="floating-particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    <!-- Hero Header -->
+    <header class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-gray-700">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-brand-coral to-brand-magenta rounded-full animate-pulse-custom"></div>
+            <div class="absolute top-40 right-32 w-24 h-24 bg-gradient-to-br from-brand-blue to-brand-teal rounded-full animate-float"></div>
+            <div class="absolute bottom-20 left-1/3 w-20 h-20 bg-gradient-to-br from-brand-purple to-brand-rose rounded-full animate-pulse-custom" style="animation-delay: 1s;"></div>
+            <div class="absolute top-32 left-1/2 w-16 h-16 bg-gradient-to-br from-brand-emerald to-brand-amber rounded-full animate-float" style="animation-delay: 2s;"></div>
         </div>
-        <div class="header-content">
-            <h1>Portal de Asignaciones</h1>
-            <p class="header-subtitle">TuMatch Inmobiliario</p>
+        
+        <!-- Content -->
+        <div class="relative z-10 max-w-7xl mx-auto px-6 py-12 lg:py-16">
+            <div class="text-center">
+                <h1 class="text-3xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent animate-fadeInUp">
+                    Portal de 
+                    <span class="bg-gradient-to-r from-brand-coral to-brand-magenta bg-clip-text text-transparent animate-pulse-custom">
+                        Asignaciones
+                    </span>
+                </h1>
+                <p class="text-lg lg:text-xl text-gray-300 font-medium animate-fadeInUp" style="animation-delay: 0.2s;">
+                    TuMatch Inmobiliario
+                </p>
+                <div class="mt-4 flex items-center justify-center gap-2 text-gray-400 animate-fadeInUp" style="animation-delay: 0.4s;">
+                    <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                    <span class="text-sm font-medium">Sistema en tiempo real</span>
+                </div>
+            </div>
         </div>
+        
+        <!-- Bottom Border -->
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-magenta to-brand-purple"></div>
     </header>
 
-    <div class="controls">
-        <div class="controls-container">
-            <div class="search-bar">
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    class="search-input" 
-                    placeholder="Buscar por corredor o código..."
+    <!-- Controls Section -->
+    <div class="sticky top-0 z-50 bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <!-- Search and Filters -->
+            <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:border-brand-coral focus:ring-2 focus:ring-brand-coral/20 focus:outline-none transition-all duration-300"
+                        placeholder="🔍 Buscar por corredor o código..."
+                    >
+                </div>
+                <div class="lg:w-64">
+                    <select class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:border-brand-magenta focus:ring-2 focus:ring-brand-magenta/20 focus:outline-none transition-all duration-300" id="corredorFilter">
+                        <option value="">👥 Todos los corredores</option>
+                    </select>
+                </div>
+                <button 
+                    class="px-6 py-3 bg-gradient-to-r from-brand-coral to-brand-magenta text-white font-semibold rounded-xl hover:from-brand-magenta hover:to-brand-purple transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
+                    onclick="loadData()"
                 >
-                <select class="filter-select" id="corredorFilter">
-                    <option value="">Todos los corredores</option>
-                </select>
-                <button class="refresh-btn" onclick="loadData()">
+                    <span class="loading-spinner hidden">⟳</span>
                     <span>↻</span>
                     <span>Actualizar</span>
                 </button>
             </div>
             
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalCount">0</div>
-                    <div class="stat-label">Total</div>
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-brand-coral" id="totalCount">0</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Total</div>
+                    <div class="w-full h-1 bg-gradient-to-r from-brand-coral to-brand-magenta rounded-full mt-2"></div>
                 </div>
-                
-                <div class="stat-card">
-                    <div class="stat-value" id="visibleCount">0</div>
-                    <div class="stat-label">Mostrando</div>
+                <div class="bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-xl p-4 text-center">
+                    <div class="text-2xl font-bold text-brand-blue" id="visibleCount">0</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Mostrando</div>
+                    <div class="w-full h-1 bg-gradient-to-r from-brand-blue to-brand-teal rounded-full mt-2"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <div id="loading" class="loading">
-            <div class="loading-spinner"></div>
-            <p class="loading-text">Cargando asignaciones...</p>
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="flex flex-col items-center justify-center py-20">
+            <div class="w-12 h-12 border-4 border-slate-600 border-t-brand-coral rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-400 font-medium">Cargando asignaciones...</p>
         </div>
 
-        <div id="grid" class="properties-grid" style="display: none;"></div>
+        <!-- Properties Grid -->
+        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fadeInUp" style="display: none;"></div>
         
-        <div class="last-update" id="lastUpdate">
-            <div class="update-dot"></div>
-            <span>Conectado</span>
+        <!-- Status Footer -->
+        <div class="flex items-center justify-center mt-12 py-6" id="lastUpdate">
+            <div class="flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
+                <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                <span class="text-sm text-gray-300 font-medium">Conectado</span>
+            </div>
         </div>
-    </div>
+    </main>
 
-    <footer class="footer">
-        <div class="footer-content">
-            <div class="footer-logo">🏠 TuMatch Inmobiliario</div>
-            <div class="footer-info">
-                <div class="footer-item">
-                    <span>📧</span>
-                    <a href="mailto:corretaje@tumatchinmobiliario.cl">
+    <!-- Footer -->
+    <footer class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 mt-20">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-10 left-20 w-20 h-20 bg-gradient-to-br from-brand-coral to-brand-magenta rounded-full"></div>
+            <div class="absolute bottom-10 right-20 w-16 h-16 bg-gradient-to-br from-brand-blue to-brand-teal rounded-full"></div>
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-brand-purple to-brand-rose rounded-full"></div>
+        </div>
+        
+        <!-- Top Border -->
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-magenta to-brand-purple"></div>
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-6 py-16">
+            <!-- Logo -->
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                    🏠 TuMatch Inmobiliario
+                </h3>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="flex items-center justify-center gap-3 p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl">
+                    <span class="text-2xl">📧</span>
+                    <a href="mailto:corretaje@tumatchinmobiliario.cl" class="text-gray-300 hover:text-brand-coral transition-colors duration-300">
                         corretaje@tumatchinmobiliario.cl
                     </a>
                 </div>
-                <div class="footer-item">
-                    <span>📱</span>
-                    <a href="https://wa.me/56934107448" target="_blank">
+                <div class="flex items-center justify-center gap-3 p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl">
+                    <span class="text-2xl">📱</span>
+                    <a href="https://wa.me/56934107448" target="_blank" class="text-gray-300 hover:text-brand-emerald transition-colors duration-300">
                         +56 9 3410 7448
                     </a>
                 </div>
-                <div class="footer-item">
-                    <span>🕐</span>
-                    <span>Lun-Vie 9:00-18:00</span>
+                <div class="flex items-center justify-center gap-3 p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl">
+                    <span class="text-2xl">🕐</span>
+                    <span class="text-gray-300">Lun-Vie 9:00-18:00</span>
                 </div>
             </div>
             
-            <div class="footer-systems">
-                <a href="https://backoffice.propital.com/#/login" target="_blank">
+            <!-- System Links -->
+            <div class="flex flex-col md:flex-row gap-4 justify-center mb-12">
+                <a href="https://backoffice.propital.com/#/login" target="_blank" 
+                   class="px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-teal text-white font-semibold rounded-xl hover:from-brand-teal hover:to-brand-emerald transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-center">
                     🔐 BackOffice Propital
                 </a>
-                <a href="https://app.2clics.cl/" target="_blank">
+                <a href="https://app.2clics.cl/" target="_blank" 
+                   class="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-rose text-white font-semibold rounded-xl hover:from-brand-rose hover:to-brand-coral transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-center">
                     📊 Sistema Multipublicador
                 </a>
             </div>
             
-            <div class="footer-divider"></div>
-            <p class="footer-copyright">
-                © 2024 TuMatch Inmobiliario. Todos los derechos reservados.
-            </p>
         </div>
     </footer>
 
@@ -1129,7 +702,11 @@
             
             // Indicar que está cargando en el botón solo si no es autorefresh
             if (refreshBtn && !isAutoRefresh) {
-                refreshBtn.classList.add('loading');
+                refreshBtn.innerHTML = `
+                    <span class="loading-spinner animate-spin">⟳</span>
+                    <span>Cargando...</span>
+                `;
+                refreshBtn.disabled = true;
             }
 
             try {
@@ -1183,11 +760,13 @@
                     updateCorredorFilter(corredores);
                     
                     document.getElementById('lastUpdate').innerHTML = `
-                        <div class="update-dot"></div>
-                        <span>Actualizado ${new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</span>
+                        <div class="flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
+                            <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-300 font-medium">Actualizado ${new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</span>
+                        </div>
                     `;
 
-                    applyFilters();
+                    await applyFilters();
                     
                     // Mostrar notificación sutil si es autorefresh y hay cambios
                     if (isAutoRefresh && allData.length > 0) {
@@ -1197,8 +776,10 @@
                     // Solo actualizar la hora si no hay cambios
                     const nextCheck = Math.round(refreshInterval / 1000);
                     document.getElementById('lastUpdate').innerHTML = `
-                        <div class="update-dot"></div>
-                        <span>Sin cambios - próxima verificación en ${nextCheck}s</span>
+                        <div class="flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
+                            <div class="w-2 h-2 bg-brand-amber rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-300 font-medium">Sin cambios - próxima verificación en ${nextCheck}s</span>
+                        </div>
                     `;
                 }
                 
@@ -1207,13 +788,13 @@
                 // Solo mostrar error si no hay datos previos
                 if (allData.length === 0) {
                     grid.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-icon">⚠️</div>
-                            <h2 class="empty-title">Error al cargar datos</h2>
-                            <p class="empty-text">${error.message}</p>
-                            <div class="empty-instructions">
-                                <p>Para solucionar:</p>
-                                <ol>
+                        <div class="col-span-full flex flex-col items-center justify-center py-20 empty-state rounded-2xl">
+                            <div class="text-6xl mb-6 opacity-50">⚠️</div>
+                            <h2 class="text-2xl font-bold text-white mb-4">Error al cargar datos</h2>
+                            <p class="text-gray-400 mb-6 max-w-md text-center">${error.message}</p>
+                            <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600/50 max-w-md">
+                                <p class="text-white font-semibold mb-3">Para solucionar:</p>
+                                <ol class="text-sm text-gray-300 space-y-2 list-decimal list-inside">
                                     <li>Abre la hoja en Google Sheets</li>
                                     <li>Click en "Compartir"</li>
                                     <li>Selecciona "Cualquier persona con el enlace"</li>
@@ -1227,8 +808,12 @@
                 }
             } finally {
                 loading.style.display = 'none';
-                if (refreshBtn) {
-                    refreshBtn.classList.remove('loading');
+                if (refreshBtn && !isAutoRefresh) {
+                    refreshBtn.innerHTML = `
+                        <span>↻</span>
+                        <span>Actualizar</span>
+                    `;
+                    refreshBtn.disabled = false;
                 }
                 
                 // Asegurar que el grid se muestre si hay datos
@@ -1295,7 +880,7 @@
             filterSelect.value = currentValue;
         }
 
-        function applyFilters() {
+        async function applyFilters() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const corredorFilter = document.getElementById('corredorFilter').value;
 
@@ -1309,7 +894,7 @@
                 return matchesSearch && matchesCorredor;
             });
 
-            renderGrid();
+            await renderGrid();
             updateStats();
         }
 
@@ -1318,15 +903,106 @@
             document.getElementById('visibleCount').textContent = filteredData.length;
         }
 
-        function renderGrid() {
+        // Función para obtener imagen REAL desde FichaPublica usando el servidor de scraping
+        async function getPropertyImage(codigo) {
+            try {
+                const propertyId = codigo.split('-').pop();
+                console.log('🔍 Obteniendo imagen REAL para:', codigo, 'ID:', propertyId);
+                
+                // Detectar si estamos en producción (Netlify) o desarrollo
+                const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+                
+                // URL del servidor de scraping (Netlify Function o localhost)
+                const scraperUrl = isProduction 
+                    ? `/api/scrape-image/${propertyId}` // Netlify Function
+                    : `http://localhost:3001/scrape-image/${propertyId}`; // Desarrollo local
+                
+                console.log('📡 Usando endpoint:', scraperUrl);
+                
+                try {
+                    const response = await fetch(scraperUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success && data.mainImage) {
+                        console.log('✅ Imagen REAL encontrada:', data.mainImage);
+                        console.log('📊 Método usado:', data.method || 'default');
+                        return data.mainImage;
+                    } else {
+                        console.log('❌ No se encontró imagen:', data.error);
+                        return null;
+                    }
+                    
+                } catch (fetchError) {
+                    console.error('❌ Error conectando al servidor de scraping:', fetchError.message);
+                    if (!isProduction) {
+                        console.log('💡 ¿Está ejecutándose el servidor en localhost:3001?');
+                    }
+                    
+                    // Fallback a placeholder si el servidor no está disponible
+                    return getPlaceholderImage(propertyId);
+                }
+                
+            } catch (error) {
+                console.error('❌ Error general:', error);
+                return getPlaceholderImage(propertyId);
+            }
+        }
+        
+        // Función fallback para imágenes placeholder
+        function getPlaceholderImage(propertyId) {
+            const placeholderUrls = [
+                `https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop&crop=center&auto=format&q=80`,
+                `https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop&crop=center&auto=format&q=80`,
+                `https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop&crop=center&auto=format&q=80`,
+                `https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=300&fit=crop&crop=center&auto=format&q=80`,
+                `https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=400&h=300&fit=crop&crop=center&auto=format&q=80`
+            ];
+            
+            const randomIndex = parseInt(propertyId) % placeholderUrls.length;
+            console.log('🖼️ Usando imagen placeholder para:', propertyId);
+            return placeholderUrls[randomIndex];
+        }
+        
+        // Función alternativa para intentar scraping real con un enfoque diferente
+        async function attemptRealScraping(codigo) {
+            try {
+                const propertyId = codigo.split('-').pop();
+                const fichaUrl = `https://cl.fichapublica.com/pub/propiedad/${propertyId}`;
+                
+                // Intentar con fetch directo (puede fallar por CORS pero vale la pena intentar)
+                try {
+                    const response = await fetch(fichaUrl, { mode: 'no-cors' });
+                    console.log('✅ Fetch directo exitoso para:', codigo);
+                } catch (corsError) {
+                    console.log('❌ CORS bloqueado para:', codigo);
+                }
+                
+                return null;
+            } catch (error) {
+                console.error('❌ Error en scraping real:', error);
+                return null;
+            }
+        }
+
+        async function renderGrid() {
             const grid = document.getElementById('grid');
 
             if (filteredData.length === 0) {
                 grid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">🔍</div>
-                        <h2 class="empty-title">Sin resultados</h2>
-                        <p class="empty-text">No se encontraron asignaciones con estos filtros</p>
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 empty-state rounded-2xl">
+                        <div class="text-6xl mb-6 opacity-50">🔍</div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Sin resultados</h2>
+                        <p class="text-gray-400">No se encontraron asignaciones con estos filtros</p>
                     </div>
                 `;
                 grid.style.display = 'grid';
@@ -1336,53 +1012,94 @@
             // Usar DocumentFragment para mejor rendimiento
             const fragment = document.createDocumentFragment();
             
+            // Array de gradientes para variedad visual
+            const gradients = [
+                'icon-gradient-1', 'icon-gradient-2', 'icon-gradient-3', 
+                'icon-gradient-4', 'icon-gradient-5', 'icon-gradient-6'
+            ];
+            
+            // Crear todas las cards primero sin imágenes
             filteredData.forEach((item, index) => {
                 const card = document.createElement('div');
-                card.className = 'property-card';
+                card.className = 'group relative bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl overflow-hidden hover:border-brand-coral/70 transition-all duration-700 hover:transform hover:scale-110 hover:rotate-1 hover:shadow-2xl hover:shadow-brand-coral/30 animate-fadeInUp hover:z-10';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                const gradientClass = gradients[index % gradients.length];
                 
                 card.innerHTML = `
-                    ${item.isTM ? '<div class="tm-badge">TuMatch</div>' : ''}
+                    ${item.isTM ? `
+                        <div class="absolute top-4 right-4 z-10">
+                            <div class="px-3 py-1 bg-gradient-to-r from-brand-coral to-brand-magenta text-white text-xs font-bold rounded-full shadow-lg">
+                                ✨ TuMatch
+                            </div>
+                        </div>
+                    ` : ''}
                     
-                    <div class="card-header">
-                        <div class="agent-info">
-                            <div class="agent-avatar">${getInitials(item.corredor)}</div>
-                            <div class="agent-details">
-                                <h3>${item.corredor}</h3>
-                                <p class="agent-role">Corredor</p>
+                    <!-- Property Image -->
+                    <div class="relative h-48 overflow-hidden property-image" data-codigo="${item.codigo}">
+                        <div class="w-full h-full ${gradientClass} flex items-center justify-center text-white text-6xl animate-pulse">
+                            🏠
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                    </div>
+                    
+                    <!-- Card Header -->
+                    <div class="card-gradient p-6 relative overflow-hidden">
+                        <!-- Background decoration -->
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full transform translate-x-16 -translate-y-16"></div>
+                        
+                        <div class="relative z-10 flex items-center space-x-4">
+                            <div class="w-12 h-12 ${gradientClass} rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                ${getInitials(item.corredor)}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-lg text-white truncate">${item.corredor}</h3>
+                                <p class="text-gray-300 text-sm font-medium uppercase tracking-wide">Corredor</p>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card-body">
-                        <div class="property-details">
-                            <div class="detail-item">
-                                <div class="detail-icon">🏠</div>
-                                <div class="detail-content">
-                                    <div class="detail-label">Código</div>
-                                    <div class="detail-value codigo-value">
-                                        <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
-                                           target="_blank" 
-                                           rel="noopener noreferrer" 
-                                           class="codigo-link"
-                                           title="Ver ficha pública">${item.codigo}</a>
-                                    </div>
-                                </div>
+                    <!-- Card Body -->
+                    <div class="p-6 space-y-4">
+                        <!-- Código de Propiedad -->
+                        <div class="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-brand-coral/50 transition-all duration-300 group/item">
+                            <div class="w-10 h-10 ${gradientClass} rounded-lg flex items-center justify-center text-white shadow-lg">
+                                🏠
                             </div>
-                            
-                            <div class="detail-item">
-                                <div class="detail-icon">👥</div>
-                                <div class="detail-content">
-                                    <div class="detail-label">Referido</div>
-                                    <div class="detail-value">${item.referido}</div>
-                                </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Código</p>
+                                <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer" 
+                                   class="inline-flex items-center gap-2 text-brand-coral hover:text-brand-magenta font-bold transition-colors duration-300 group-hover/item:underline"
+                                   title="Ver ficha pública">
+                                    <span class="font-mono">${item.codigo}</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
                             </div>
-                            
-                            <div class="detail-item">
-                                <div class="detail-icon">📝</div>
-                                <div class="detail-content">
-                                    <div class="detail-label">Captada por</div>
-                                    <div class="detail-value">${item.firmaOrden}</div>
-                                </div>
+                        </div>
+                        
+                        <!-- Referido -->
+                        <div class="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-brand-blue/50 transition-all duration-300">
+                            <div class="w-10 h-10 ${gradients[(index + 1) % gradients.length]} rounded-lg flex items-center justify-center text-white shadow-lg">
+                                👥
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Referido</p>
+                                <p class="text-white font-semibold truncate">${item.referido}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Captada por -->
+                        <div class="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-brand-emerald/50 transition-all duration-300">
+                            <div class="w-10 h-10 ${gradients[(index + 2) % gradients.length]} rounded-lg flex items-center justify-center text-white shadow-lg">
+                                📝
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Captada por</p>
+                                <p class="text-white font-semibold truncate">${item.firmaOrden}</p>
                             </div>
                         </div>
                     </div>
@@ -1395,6 +1112,126 @@
             grid.innerHTML = '';
             grid.appendChild(fragment);
             grid.style.display = 'grid';
+            
+            // Cargar imágenes de propiedades de forma asíncrona
+            loadPropertyImages();
+        }
+        
+        // Función para intentar URLs directas adicionales como fallback
+        function tryDirectImageUrls(propertyId) {
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
+            
+            const possibleUrls = [
+                // Patrones de Azure Blob Storage (más probables basado en el ejemplo)
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/${currentYear}/${currentMonth}/main.jpeg`,
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/${currentYear}/${currentMonth}/1.jpeg`,
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2025/9/main.jpeg`,
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2025/10/main.jpeg`,
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/main.jpeg`,
+                
+                // Otros años y meses comunes
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2024/12/main.jpeg`,
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2024/11/main.jpeg`,
+                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2024/10/main.jpeg`,
+                
+                // Fallback a patrones tradicionales
+                `https://images.fichapublica.com/properties/${propertyId}/main.jpg`,
+                `https://media.fichapublica.com/properties/${propertyId}/1.jpg`,
+                `https://cdn.fichapublica.com/properties/${propertyId}/main.webp`
+            ];
+            return possibleUrls;
+        }
+
+        // Función para cargar imágenes de propiedades después de renderizar
+        async function loadPropertyImages() {
+            const imageContainers = document.querySelectorAll('.property-image');
+            
+            for (let container of imageContainers) {
+                const codigo = container.dataset.codigo;
+                const propertyId = codigo.split('-').pop();
+                let imageLoaded = false;
+                
+                try {
+                    // Primero intentar obtener la imagen desde la página HTML
+                    console.log('Intentando obtener imagen para:', codigo);
+                    const imageUrl = await getPropertyImage(codigo);
+                    
+                    if (imageUrl) {
+                        imageLoaded = await tryLoadImage(container, imageUrl, codigo);
+                    }
+                    
+                    // Si no se pudo cargar desde HTML, intentar URLs directas
+                    if (!imageLoaded) {
+                        console.log('Intentando URLs directas para:', codigo);
+                        const directUrls = tryDirectImageUrls(propertyId);
+                        
+                        for (let url of directUrls) {
+                            if (!imageLoaded) {
+                                imageLoaded = await tryLoadImage(container, url, codigo);
+                                if (imageLoaded) {
+                                    console.log('Imagen cargada desde URL directa:', url);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Si aún no se cargó ninguna imagen, quitar animación de pulso
+                    if (!imageLoaded) {
+                        const placeholder = container.querySelector('div');
+                        if (placeholder) {
+                            placeholder.classList.remove('animate-pulse');
+                        }
+                    }
+                    
+                } catch (error) {
+                    console.error('Error cargando imagen para', codigo, ':', error);
+                    const placeholder = container.querySelector('div');
+                    if (placeholder) {
+                        placeholder.classList.remove('animate-pulse');
+                    }
+                }
+            }
+        }
+
+        // Función helper para intentar cargar una imagen específica
+        function tryLoadImage(container, imageUrl, codigo) {
+            return new Promise((resolve) => {
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = `Propiedad ${codigo}`;
+                img.className = 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-110';
+                img.style.opacity = '0';
+                
+                img.onload = () => {
+                    console.log('Imagen cargada exitosamente:', imageUrl);
+                    // Fade in la imagen cuando carga
+                    img.style.transition = 'opacity 0.5s ease-in-out';
+                    img.style.opacity = '1';
+                    // Remover el placeholder
+                    const placeholder = container.querySelector('div');
+                    if (placeholder) {
+                        placeholder.style.transition = 'opacity 0.3s ease-out';
+                        placeholder.style.opacity = '0';
+                        setTimeout(() => placeholder.remove(), 300);
+                    }
+                    container.appendChild(img);
+                    resolve(true);
+                };
+                
+                img.onerror = () => {
+                    console.log('Error cargando imagen:', imageUrl);
+                    resolve(false);
+                };
+                
+                // Timeout después de 5 segundos para ser más rápido
+                setTimeout(() => {
+                    if (img.complete === false) {
+                        resolve(false);
+                    }
+                }, 5000);
+            });
         }
 
         // Función para mostrar notificación de actualización
