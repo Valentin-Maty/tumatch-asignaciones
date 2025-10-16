@@ -5,17 +5,7 @@
 [functions]
   node_bundler = "esbuild"
 
-# Redirects para las funciones serverless
-[[redirects]]
-  from = "/api/scrape-image/*"
-  to = "/.netlify/functions/scrape-image/:splat"
-  status = 200
-
-[[redirects]]
-  from = "/api/extract-images/*"
-  to = "/.netlify/functions/extract-images/:splat"
-  status = 200
-
+# Redirects para las funciones serverless (solo para img-proxy que no usa query params)
 [[redirects]]
   from = "/api/img-proxy"
   to = "/.netlify/functions/img-proxy"

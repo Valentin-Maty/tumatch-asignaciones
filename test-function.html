@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Extract Images Function</title>
+</head>
+<body>
+    <h1>Test Extract Images Function</h1>
+    
+    <div>
+        <label>Property ID:</label>
+        <input type="text" id="propertyId" value="2950">
+        <button onclick="testFunction()">Test</button>
+    </div>
+    
+    <div id="result" style="margin-top: 20px;"></div>
+    
+    <script>
+        async function testFunction() {
+            const propertyId = document.getElementById('propertyId').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = 'Loading...';
+            
+            try {
+                const url = `/.netlify/functions/extract-images?propertyId=${propertyId}`;
+                console.log('Testing URL:', url);
+                
+                const response = await fetch(url);
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                const text = await response.text();
+                console.log('Response text:', text);
+                
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    data = { error: 'Invalid JSON', text: text };
+                }
+                
+                resultDiv.innerHTML = `
+                    <h3>Status: ${response.status}</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
