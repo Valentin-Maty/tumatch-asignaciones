@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agregar Nueva Propiedad con Imágenes</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-group { margin: 15px 0; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 8px; }
+        .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #e8f5e8; border-color: #4caf50; }
+        .error { background-color: #ffe8e8; border-color: #f44336; }
+        .guid-input { font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>Agregar Nueva Propiedad con Imágenes</h1>
+    
+    <p><strong>Instrucciones:</strong></p>
+    <ol>
+        <li>Ve a <code>https://cl.fichapublica.com/pub/propiedad/[ID]</code> de la propiedad</li>
+        <li>Abre las herramientas de desarrollador (F12)</li>
+        <li>En Console, busca imágenes con: <code>document.querySelectorAll('img[src*="blob.core.windows.net"]')</code></li>
+        <li>Copia las URLs completas de las imágenes</li>
+        <li>Extrae solo los GUIDs (la parte después del último /) y agrégalos aquí</li>
+    </ol>
+    
+    <form id="propertyForm">
+        <div class="form-group">
+            <label for="propertyId">Property ID:</label>
+            <input type="text" id="propertyId" placeholder="Ej: 3348" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="imageGuids">GUIDs de Imágenes (uno por línea):</label>
+            <textarea id="imageGuids" rows="5" class="guid-input" 
+                      placeholder="f23b1e02-83a2-4d1c-9d9b-2c77cee47ddc&#10;4b48e910-f106-4b56-a4c0-130de3c676a8" required></textarea>
+        </div>
+        
+        <button type="submit">Generar Código para Agregar</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('propertyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const propertyId = document.getElementById('propertyId').value.trim();
+            const imageGuids = document.getElementById('imageGuids').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!propertyId || !imageGuids) {
+                resultDiv.innerHTML = '<div class="result error">Por favor completa todos los campos</div>';
+                return;
+            }
+            
+            // Procesar GUIDs
+            const guids = imageGuids.split('\n')
+                .map(guid => guid.trim())
+                .filter(guid => guid.length > 0)
+                .filter(guid => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(guid));
+            
+            if (guids.length === 0) {
+                resultDiv.innerHTML = '<div class="result error">No se encontraron GUIDs válidos. Formato esperado: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</div>';
+                return;
+            }
+            
+            // Generar código para agregar a la función
+            const codeToAdd = `            '${propertyId}': [
+${guids.map(guid => `                '${guid}'`).join(',\n')}
+            ],`;
+            
+            // Generar URLs de prueba
+            const testUrls = guids.map(guid => 
+                `https://2clicsalmcl.blob.core.windows.net/chile/216/property-images/2025/9/${guid}.jpeg`
+            );
+            
+            resultDiv.innerHTML = `
+                <div class="result success">
+                    <h3>✅ Código Generado para Propiedad ${propertyId}</h3>
+                    
+                    <h4>1. Agregar este código al archivo find-property-images.js:</h4>
+                    <p>En la sección <code>knownPropertyGUIDs</code>, agregar:</p>
+                    <pre style="background: #f5f5f5; padding: 10px; overflow-x: auto;">${codeToAdd}</pre>
+                    
+                    <h4>2. URLs de imágenes generadas:</h4>
+                    ${testUrls.map((url, i) => `
+                        <div style="margin: 10px 0; padding: 10px; background: #f9f9f9;">
+                            <strong>Imagen ${i + 1}:</strong><br>
+                            <code style="word-break: break-all;">${url}</code><br>
+                            <img src="/.netlify/functions/img-proxy?url=${encodeURIComponent(url)}" 
+                                 style="max-width: 200px; max-height: 150px; margin-top: 5px;"
+                                 onerror="this.style.display='none'; this.nextSibling.style.display='inline';"
+                                 alt="Imagen ${i + 1}">
+                            <span style="color: red; display: none;">❌ Error cargando imagen</span>
+                        </div>
+                    `).join('')}
+                    
+                    <h4>3. Próximos pasos:</h4>
+                    <ol>
+                        <li>Verifica que las imágenes se cargan correctamente arriba</li>
+                        <li>Copia el código y agrégalo al archivo <code>find-property-images.js</code></li>
+                        <li>Haz commit y push de los cambios</li>
+                        <li>Prueba la propiedad ${propertyId} en la aplicación</li>
+                    </ol>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>

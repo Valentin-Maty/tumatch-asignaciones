@@ -43,46 +43,36 @@ exports.handler = async (event, context) => {
         const yearsToTry = [currentYear, currentYear - 1];
         const monthsToTry = [currentMonth, currentMonth - 1, currentMonth - 2, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8];
         
-        // GUIDs de ejemplo basados en el patrón observado (específicos para 2950)
-        const commonGUIDs = [
-            'f23b1e02-83a2-4d1c-9d9b-2c77cee47ddc',
-            '4b48e910-f106-4b56-a4c0-130de3c676a8'
-        ];
+        // Solo usar GUIDs conocidos para propiedades específicas
+        const knownPropertyGUIDs = {
+            '2950': [
+                'f23b1e02-83a2-4d1c-9d9b-2c77cee47ddc',
+                '4b48e910-f106-4b56-a4c0-130de3c676a8'
+            ]
+            // Agregar más propiedades solo cuando sepamos sus GUIDs reales
+        };
         
-        const seenUrls = new Set();
-        
-        // Función para generar GUIDs pseudo-aleatorios basados en propertyId
-        function generatePseudoGUIDs(propertyId) {
-            const guids = [];
-            const chars = '0123456789abcdef';
-            
-            // Usar propertyId como semilla para generar GUIDs consistentes
-            for (let i = 0; i < 10; i++) {
-                let guid = '';
-                const seed = parseInt(propertyId) + i;
-                
-                // Formato: xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-                const sections = [8, 4, 4, 4, 12];
-                let guidParts = [];
-                
-                for (let sectionLength of sections) {
-                    let section = '';
-                    for (let j = 0; j < sectionLength; j++) {
-                        const index = (seed + i + j) % chars.length;
-                        section += chars[index];
-                    }
-                    guidParts.push(section);
-                }
-                
-                guids.push(guidParts.join('-'));
-            }
-            
-            return guids;
+        // Si no tenemos GUIDs conocidos para esta propiedad, no buscar
+        if (!knownPropertyGUIDs[propertyId]) {
+            console.log(`[find-property-images] No hay GUIDs conocidos para propiedad ${propertyId}`);
+            return {
+                statusCode: 200,
+                headers: corsHeaders,
+                body: JSON.stringify({
+                    success: false,
+                    propertyId,
+                    totalImages: 0,
+                    images: [],
+                    mainImage: null,
+                    tested: 0,
+                    searchedAt: new Date().toISOString(),
+                    message: `No hay imágenes conocidas para la propiedad ${propertyId}`
+                })
+            };
         }
         
-        // Generar GUIDs basados en propertyId
-        const pseudoGUIDs = generatePseudoGUIDs(propertyId);
-        const allGUIDs = [...commonGUIDs, ...pseudoGUIDs];
+        const allGUIDs = knownPropertyGUIDs[propertyId];
+        const seenUrls = new Set();
         
         // Función para probar si una imagen existe
         async function testImageExists(url) {
