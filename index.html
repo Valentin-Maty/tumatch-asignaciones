@@ -923,32 +923,17 @@
                             const data = await response.json();
                             
                             if (data.success && data.images && data.images.length > 0) {
-                                // Usar la primera imagen con el proxy
+                                // Usar la primera imagen REAL encontrada
                                 const imageData = data.images[0];
-                                console.log('✅ Imagen encontrada:', imageData.source);
-                                
-                                // Si es placeholder, usar directamente
-                                if (imageData.source === 'placeholder') {
-                                    return imageData.url;
-                                }
-                                
-                                // Para imágenes reales, usar el proxy
+                                console.log('✅ Imagen REAL encontrada:', imageData.source);
                                 return imageData.proxyUrl;
+                            } else {
+                                console.log('❌ No se encontraron imágenes reales para:', propertyId);
+                                return null; // NO usar placeholder
                             }
                         }
                     } catch (error) {
                         console.error('Error con extract-images:', error);
-                    }
-                    
-                    // Fallback: intentar proxy directo con patrones conocidos
-                    const possibleUrls = [
-                        `https://2clicsalmcl.blob.core.windows.net/chile/216/property-images/2025/1/${propertyId}.jpeg`,
-                        `https://cl.fichapublica.com/images/properties/${propertyId}/main.jpg`
-                    ];
-                    
-                    for (const url of possibleUrls) {
-                        const proxyUrl = `/.netlify/functions/img-proxy?url=${encodeURIComponent(url)}`;
-                        return proxyUrl; // Intentar con el primero
                     }
                 } else {
                     // DESARROLLO: Usar servidor local si está disponible
@@ -967,16 +952,17 @@
                             }
                         }
                     } catch (error) {
-                        console.log('Servidor local no disponible, usando placeholders');
+                        console.log('Servidor local no disponible');
                     }
                 }
                 
-                // Fallback final a placeholder
-                return getPlaceholderImage(propertyId);
+                // Si no hay imagen real, retornar null (mostrar solo icono)
+                console.log('🏠 No hay imagen real para propiedad:', propertyId);
+                return null;
                 
             } catch (error) {
                 console.error('❌ Error general:', error);
-                return getPlaceholderImage(propertyId);
+                return null; // NO usar placeholder en caso de error
             }
         }
         
@@ -1175,35 +1161,28 @@
                 let imageLoaded = false;
                 
                 try {
-                    // Primero intentar obtener la imagen desde la página HTML
-                    console.log('Intentando obtener imagen para:', codigo);
+                    // Intentar obtener imagen REAL de la propiedad
+                    console.log('Buscando imagen REAL para:', codigo);
                     const imageUrl = await getPropertyImage(codigo);
                     
                     if (imageUrl) {
+                        // Solo cargar si encontramos una imagen real
                         imageLoaded = await tryLoadImage(container, imageUrl, codigo);
-                    }
-                    
-                    // Si no se pudo cargar desde HTML, intentar URLs directas
-                    if (!imageLoaded) {
-                        console.log('Intentando URLs directas para:', codigo);
-                        const directUrls = tryDirectImageUrls(propertyId);
-                        
-                        for (let url of directUrls) {
-                            if (!imageLoaded) {
-                                imageLoaded = await tryLoadImage(container, url, codigo);
-                                if (imageLoaded) {
-                                    console.log('Imagen cargada desde URL directa:', url);
-                                    break;
-                                }
-                            }
+                        if (imageLoaded) {
+                            console.log('✅ Imagen REAL cargada para:', codigo);
                         }
+                    } else {
+                        console.log('🏠 No hay imagen real para:', codigo, '- manteniendo solo icono');
                     }
                     
-                    // Si aún no se cargó ninguna imagen, quitar animación de pulso
+                    // Si no hay imagen real, mantener solo el icono de casa (quitar pulso)
                     if (!imageLoaded) {
                         const placeholder = container.querySelector('div');
                         if (placeholder) {
                             placeholder.classList.remove('animate-pulse');
+                            // Opcional: cambiar el icono para indicar que no hay imagen
+                            placeholder.innerHTML = '🏠';
+                            placeholder.classList.add('text-gray-400');
                         }
                     }
                     

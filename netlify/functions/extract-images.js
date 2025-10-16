@@ -153,34 +153,21 @@ exports.handler = async (event, context) => {
             }
         }
 
-        console.log(`[extract-images] Encontradas ${images.length} imágenes`);
+        console.log(`[extract-images] Encontradas ${images.length} imágenes reales`);
 
-        // Si no se encontraron imágenes, usar placeholders
-        if (images.length === 0) {
-            const placeholders = [
-                'https://images.unsplash.com/photo-1568605114967-8130f3a36994',
-                'https://images.unsplash.com/photo-1570129477492-45c003edd2be',
-                'https://images.unsplash.com/photo-1554995207-c18c203602cb'
-            ];
-            
-            const selectedPlaceholder = placeholders[parseInt(propertyId) % placeholders.length];
-            images.push({
-                url: `${selectedPlaceholder}?w=600&h=400&fit=crop&q=80`,
-                source: 'placeholder',
-                proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(`${selectedPlaceholder}?w=600&h=400&fit=crop&q=80`)}`
-            });
-        }
+        // NO usar placeholders - solo retornar imágenes reales encontradas
 
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
-                success: true,
+                success: images.length > 0,
                 propertyId,
                 fichaUrl,
                 totalImages: images.length,
                 images: images,
-                mainImage: images[0]?.proxyUrl || null,
+                mainImage: images.length > 0 ? images[0].proxyUrl : null,
+                message: images.length === 0 ? 'No se encontraron imágenes reales' : undefined,
                 extractedAt: new Date().toISOString()
             })
         };
@@ -195,7 +182,8 @@ exports.handler = async (event, context) => {
                 success: false,
                 error: error.message,
                 images: [],
-                mainImage: null
+                mainImage: null,
+                message: 'Error al extraer imágenes'
             })
         };
     }

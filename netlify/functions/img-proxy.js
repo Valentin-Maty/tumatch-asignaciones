@@ -70,20 +70,15 @@ exports.handler = async (event, context) => {
         if (!response.ok) {
             console.log('[img-proxy] Error al descargar imagen:', response.status);
             
-            // Si es 404 o error, devolver placeholder
-            const placeholderUrl = `https://via.placeholder.com/600x400/2a2a2a/ffffff?text=Imagen+No+Disponible`;
-            const placeholderResponse = await fetch(placeholderUrl);
-            const placeholderBuffer = await placeholderResponse.arrayBuffer();
-            
+            // NO devolver placeholder, devolver error
             return {
-                statusCode: 200,
-                headers: {
-                    ...corsHeaders,
-                    'Content-Type': 'image/png',
-                    'Cache-Control': 'public, max-age=3600'
-                },
-                body: Buffer.from(placeholderBuffer).toString('base64'),
-                isBase64Encoded: true
+                statusCode: response.status,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    error: 'Imagen no encontrada',
+                    status: response.status,
+                    url: imageUrl
+                })
             };
         }
 
@@ -119,29 +114,15 @@ exports.handler = async (event, context) => {
     } catch (error) {
         console.error('[img-proxy] Error general:', error);
         
-        // En caso de error, devolver imagen de error
-        const errorImageUrl = 'https://via.placeholder.com/600x400/ff0000/ffffff?text=Error+Cargando+Imagen';
-        try {
-            const errorResponse = await fetch(errorImageUrl);
-            const errorBuffer = await errorResponse.arrayBuffer();
-            
-            return {
-                statusCode: 200,
-                headers: {
-                    ...corsHeaders,
-                    'Content-Type': 'image/png',
-                    'Cache-Control': 'no-cache'
-                },
-                body: Buffer.from(errorBuffer).toString('base64'),
-                isBase64Encoded: true
-            };
-        } catch (e) {
-            // Si hasta el placeholder falla, devolver error JSON
-            return {
-                statusCode: 500,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ error: 'Error interno del servidor' })
-            };
-        }
+        // En caso de error, devolver error JSON (NO placeholder)
+        return {
+            statusCode: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                error: 'Error interno del servidor',
+                message: error.message,
+                url: event.queryStringParameters?.url || 'URL no proporcionada'
+            })
+        };
     }
 };
