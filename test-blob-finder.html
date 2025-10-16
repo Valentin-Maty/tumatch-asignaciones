@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Azure Blob Image Finder</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; }
+        .image-found { 
+            background: #e8f5e8; 
+            padding: 10px; 
+            margin: 5px 0; 
+            border-left: 3px solid #4caf50;
+        }
+        .image-preview {
+            max-width: 200px;
+            max-height: 150px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Azure Blob Image Finder</h1>
+    
+    <div>
+        <label>Property ID:</label>
+        <input type="text" id="propertyId" value="2950">
+        <button onclick="findImages()">Buscar Imágenes</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function findImages() {
+            const propertyId = document.getElementById('propertyId').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.innerHTML = 'Buscando imágenes en Azure Blob Storage...';
+            
+            try {
+                const url = `/.netlify/functions/find-property-images?propertyId=${propertyId}`;
+                console.log('Test URL:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    let html = `
+                        <div class="result">
+                            <h3>Búsqueda de Imágenes - Propiedad ${data.propertyId}</h3>
+                            <p><strong>Éxito:</strong> ${data.success ? '✅ SÍ' : '❌ NO'}</p>
+                            <p><strong>Imágenes encontradas:</strong> ${data.totalImages}</p>
+                            <p><strong>Pruebas realizadas:</strong> ${data.tested}</p>
+                            <p><strong>Búsqueda realizada:</strong> ${new Date(data.searchedAt).toLocaleString()}</p>
+                    `;
+                    
+                    if (data.message) {
+                        html += `<p><strong>Mensaje:</strong> ${data.message}</p>`;
+                    }
+                    
+                    if (data.images && data.images.length > 0) {
+                        html += `<h4>Imágenes encontradas:</h4>`;
+                        data.images.forEach((img, i) => {
+                            html += `
+                                <div class="image-found">
+                                    <strong>Imagen ${i+1}:</strong><br>
+                                    <strong>URL Original:</strong> ${img.url}<br>
+                                    <strong>Año/Mes:</strong> ${img.year}/${img.month}<br>
+                                    <strong>GUID:</strong> ${img.guid}<br>
+                                    <strong>Proxy URL:</strong> ${img.proxyUrl}<br>
+                                    <img src="${img.proxyUrl}" class="image-preview" alt="Propiedad ${propertyId}" 
+                                         onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                                    <p style="color: red; display: none;">Error cargando imagen</p>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    html += `</div>`;
+                    resultDiv.innerHTML = html;
+                    
+                } else {
+                    resultDiv.innerHTML = `<div class="result" style="color: red;">
+                        <h3>Error ${response.status}</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="result" style="color: red;">
+                    <h3>Error</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+    </script>
+</body>
+</html>

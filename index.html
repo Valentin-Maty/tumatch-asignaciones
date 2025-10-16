@@ -919,10 +919,10 @@
                     return null;
                 }
                 
-                // USAR el sistema de extracción Angular (solo en producción o netlify dev)
+                // USAR el nuevo sistema de búsqueda en Azure Blob Storage
                 try {
-                    const extractUrl = `/.netlify/functions/extract-images?propertyId=${propertyId}`;
-                    console.log('📡 Llamando a:', extractUrl);
+                    const extractUrl = `/.netlify/functions/find-property-images?propertyId=${propertyId}`;
+                    console.log('📡 Buscando en Azure Blob:', extractUrl);
                     
                     const response = await fetch(extractUrl);
                     
@@ -931,17 +931,18 @@
                         console.log('📊 Respuesta extract-images:', data);
                         
                         if (data.success && data.images && data.images.length > 0) {
-                            // Usar la primera imagen Angular REAL encontrada
+                            // Usar la primera imagen REAL encontrada en Azure Blob
                             const imageData = data.images[0];
-                            console.log('✅ Imagen Angular REAL encontrada:', {
-                                source: imageData.source,
+                            console.log('✅ Imagen Azure Blob REAL encontrada:', {
                                 url: imageData.url,
-                                proxyUrl: imageData.proxyUrl
+                                proxyUrl: imageData.proxyUrl,
+                                year: imageData.year,
+                                month: imageData.month
                             });
                             return imageData.proxyUrl;
                         } else {
-                            console.log('❌ No se encontraron imágenes Angular para:', propertyId);
-                            console.log('📋 Mensaje:', data.message);
+                            console.log('❌ No se encontraron imágenes en Azure Blob para:', propertyId);
+                            console.log('📋 Pruebas realizadas:', data.tested);
                             return null;
                         }
                     } else {
