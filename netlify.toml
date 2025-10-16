@@ -5,12 +5,33 @@
 [functions]
   node_bundler = "esbuild"
 
+# Redirects para las funciones serverless
 [[redirects]]
   from = "/api/scrape-image/*"
   to = "/.netlify/functions/scrape-image/:splat"
   status = 200
 
+[[redirects]]
+  from = "/api/extract-images/*"
+  to = "/.netlify/functions/extract-images/:splat"
+  status = 200
+
+[[redirects]]
+  from = "/api/img-proxy"
+  to = "/.netlify/functions/img-proxy"
+  status = 200
+
+# Headers CORS globales
 [[headers]]
   for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type"
+
+# Headers específicos para las funciones
+[[headers]]
+  for = "/.netlify/functions/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Cache-Control = "public, max-age=3600"
