@@ -903,66 +903,59 @@
             document.getElementById('visibleCount').textContent = filteredData.length;
         }
 
-        // Función mejorada para obtener imágenes usando el nuevo sistema de proxy
+        // Función simplificada para obtener imágenes Angular específicas
         async function getPropertyImage(codigo) {
             try {
                 const propertyId = codigo.split('-').pop();
-                console.log('🔍 Obteniendo imágenes para:', codigo, 'ID:', propertyId);
+                console.log('🔍 Extrayendo imágenes Angular para:', codigo, 'ID:', propertyId);
                 
-                // Detectar si estamos en producción (Netlify) o desarrollo
-                const isProduction = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+                // Detectar si estamos en desarrollo local sin Netlify Functions
+                const isLocalDevelopment = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+                const isNetlifyDev = window.location.port === '8888'; // Puerto por defecto de netlify dev
                 
-                if (isProduction) {
-                    // PRODUCCIÓN: Usar el nuevo sistema de extracción + proxy
-                    try {
-                        // Primero extraer todas las URLs de imágenes
-                        const extractUrl = `/.netlify/functions/extract-images/${propertyId}`;
-                        const response = await fetch(extractUrl);
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            
-                            if (data.success && data.images && data.images.length > 0) {
-                                // Usar la primera imagen REAL encontrada
-                                const imageData = data.images[0];
-                                console.log('✅ Imagen REAL encontrada:', imageData.source);
-                                return imageData.proxyUrl;
-                            } else {
-                                console.log('❌ No se encontraron imágenes reales para:', propertyId);
-                                return null; // NO usar placeholder
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error con extract-images:', error);
-                    }
-                } else {
-                    // DESARROLLO: Usar servidor local si está disponible
-                    try {
-                        const scraperUrl = `http://localhost:3001/scrape-image/${propertyId}`;
-                        const response = await fetch(scraperUrl, {
-                            method: 'GET',
-                            headers: { 'Content-Type': 'application/json' }
-                        });
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (data.success && data.mainImage) {
-                                console.log('✅ Imagen local encontrada');
-                                return data.mainImage;
-                            }
-                        }
-                    } catch (error) {
-                        console.log('Servidor local no disponible');
-                    }
+                if (isLocalDevelopment && !isNetlifyDev) {
+                    console.log('🔧 Desarrollo local detectado - funciones Netlify no disponibles');
+                    console.log('💡 Para usar las funciones: ejecuta "netlify dev" en lugar de Live Server');
+                    return null;
                 }
                 
-                // Si no hay imagen real, retornar null (mostrar solo icono)
-                console.log('🏠 No hay imagen real para propiedad:', propertyId);
-                return null;
+                // USAR el sistema de extracción Angular (solo en producción o netlify dev)
+                try {
+                    const extractUrl = `/.netlify/functions/extract-images?propertyId=${propertyId}`;
+                    console.log('📡 Llamando a:', extractUrl);
+                    
+                    const response = await fetch(extractUrl);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('📊 Respuesta extract-images:', data);
+                        
+                        if (data.success && data.images && data.images.length > 0) {
+                            // Usar la primera imagen Angular REAL encontrada
+                            const imageData = data.images[0];
+                            console.log('✅ Imagen Angular REAL encontrada:', {
+                                source: imageData.source,
+                                url: imageData.url,
+                                proxyUrl: imageData.proxyUrl
+                            });
+                            return imageData.proxyUrl;
+                        } else {
+                            console.log('❌ No se encontraron imágenes Angular para:', propertyId);
+                            console.log('📋 Mensaje:', data.message);
+                            return null;
+                        }
+                    } else {
+                        console.error('❌ Error HTTP extract-images:', response.status);
+                        return null;
+                    }
+                } catch (error) {
+                    console.error('❌ Error con extract-images:', error);
+                    return null;
+                }
                 
             } catch (error) {
                 console.error('❌ Error general:', error);
-                return null; // NO usar placeholder en caso de error
+                return null;
             }
         }
         

@@ -1,0 +1,27 @@
+{
+  "name": "netlify-image-proxy",
+  "version": "1.0.0",
+  "description": "Proyecto para mostrar imágenes de FichaPublica usando Netlify Functions",
+  "main": "index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'No build needed'",
+    "start": "netlify dev"
+  },
+  "keywords": [
+    "netlify",
+    "functions",
+    "proxy",
+    "images",
+    "cors",
+    "fichapublica"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}

@@ -1,8 +1,8 @@
 /**
- * Función Serverless para extraer imágenes específicas de FichaPublica
+ * Función Serverless para extraer imágenes de FichaPublica
  * 
- * Busca específicamente el patrón Angular:
- * <img _ngcontent-ng-c2394620781="" class="img_property_full ng-tns-c2394620781-0" src="https://2clicsalmcl.blob.core.windows.net/...">
+ * Esta función obtiene el HTML de una ficha de FichaPublica y extrae
+ * todas las URLs de imágenes que encuentra.
  * 
  * Uso: /.netlify/functions/extract-images?propertyId=2950
  */
@@ -69,116 +69,124 @@ exports.handler = async (event, context) => {
         }
 
         const html = data.contents;
-        console.log('[extract-images] HTML obtenido, buscando imágenes Angular...');
+        console.log('[extract-images] HTML obtenido, buscando imágenes...');
         
         const images = [];
         const seenUrls = new Set();
 
-        // PATRÓN ESPECÍFICO ANGULAR: img_property_full con atributos _ngcontent
-        // Buscar: <img _ngcontent-ng-c2394620781="" class="img_property_full ng-tns-c2394620781-0" src="https://2clicsalmcl.blob.core.windows.net/...">
-        
-        console.log('[extract-images] Buscando patrón Angular específico...');
-        
-        // Patrón 1: Búsqueda específica Angular
-        const angularImgPattern = /<img[^>]*_ngcontent[^>]*class=["'][^"']*img_property_full[^"']*["'][^>]*src=["']([^"']+)["']/gi;
-        
+        // PATRÓN 1: Buscar específicamente imágenes con class="img_property_full"
+        const imgPropertyFullPattern = /<img[^>]*class=["'][^"']*img_property_full[^"']*["'][^>]*src=["']([^"']+)["'][^>]*>/gi;
         let match;
-        while ((match = angularImgPattern.exec(html)) !== null) {
+        while ((match = imgPropertyFullPattern.exec(html)) !== null) {
             const imageUrl = match[1];
-            console.log('[extract-images] ✅ Imagen Angular encontrada:', imageUrl);
-            
-            if (!seenUrls.has(imageUrl) && imageUrl.includes('blob.core.windows.net')) {
+            if (!seenUrls.has(imageUrl)) {
                 seenUrls.add(imageUrl);
                 images.push({
                     url: imageUrl,
-                    source: 'angular-img_property_full',
+                    source: 'img_property_full',
                     proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`
                 });
             }
         }
 
-        // Patrón 2: Búsqueda simplificada de class="img_property_full"
-        console.log('[extract-images] Buscando img_property_full simplificado...');
-        
-        const simpleImgPattern = /class=["'][^"']*img_property_full[^"']*["'][^>]*src=["']([^"']+)["']/gi;
-        while ((match = simpleImgPattern.exec(html)) !== null) {
-            const imageUrl = match[1];
-            console.log('[extract-images] ✅ Imagen img_property_full encontrada:', imageUrl);
-            
-            if (!seenUrls.has(imageUrl) && imageUrl.includes('blob.core.windows.net')) {
-                seenUrls.add(imageUrl);
-                images.push({
-                    url: imageUrl,
-                    source: 'img_property_full_simple',
-                    proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`
-                });
-            }
-        }
-
-        // Patrón 3: Búsqueda directa de URLs de Azure Blob (2clicsalmcl.blob.core.windows.net)
-        console.log('[extract-images] Buscando URLs de Azure Blob directamente...');
-        
-        const azureBlobPattern = /https:\/\/2clicsalmcl\.blob\.core\.windows\.net\/chile\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp)/gi;
+        // PATRÓN 2: Buscar imágenes de Azure Blob Storage (blob.core.windows.net)
+        const azureBlobPattern = /https:\/\/[a-z0-9]+\.blob\.core\.windows\.net\/[^"'\s<>]+\.(?:jpg|jpeg|png|webp)/gi;
         const azureMatches = html.matchAll(azureBlobPattern);
-        
-        for (const blobMatch of azureMatches) {
-            const imageUrl = blobMatch[0];
-            console.log('[extract-images] ✅ Azure Blob encontrada:', imageUrl);
-            
+        for (const match of azureMatches) {
+            const imageUrl = match[0];
             if (!seenUrls.has(imageUrl)) {
                 seenUrls.add(imageUrl);
                 images.push({
                     url: imageUrl,
-                    source: 'azure-blob-direct',
+                    source: 'azure-blob',
                     proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`
                 });
             }
         }
 
-        // Patrón 4: Búsqueda inversa - encontrar src con blob.core.windows.net
-        console.log('[extract-images] Búsqueda inversa por src...');
-        
-        const srcBlobPattern = /src=["'](https:\/\/[^"']*blob\.core\.windows\.net[^"']+\.(?:jpg|jpeg|png|webp))["']/gi;
-        while ((match = srcBlobPattern.exec(html)) !== null) {
-            const imageUrl = match[1];
-            console.log('[extract-images] ✅ Src Blob encontrada:', imageUrl);
-            
+        // PATRÓN 3: Meta tag og:image
+        const ogImagePattern = /<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i;
+        const ogMatch = html.match(ogImagePattern);
+        if (ogMatch && ogMatch[1]) {
+            let imageUrl = ogMatch[1];
+            if (!imageUrl.startsWith('http')) {
+                imageUrl = 'https://cl.fichapublica.com' + (imageUrl.startsWith('/') ? '' : '/') + imageUrl;
+            }
             if (!seenUrls.has(imageUrl)) {
                 seenUrls.add(imageUrl);
                 images.push({
                     url: imageUrl,
-                    source: 'src-blob-inverse',
+                    source: 'og-image',
                     proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`
                 });
             }
         }
 
-        console.log(`[extract-images] Total encontradas: ${images.length} imágenes`);
+        // PATRÓN 4: Cualquier imagen en tags <img> que contenga extensiones válidas
+        const generalImgPattern = /<img[^>]+src=["']([^"']+\.(?:jpg|jpeg|png|webp))["'][^>]*>/gi;
+        const generalMatches = html.matchAll(generalImgPattern);
+        for (const match of generalMatches) {
+            let imageUrl = match[1];
+            
+            // Filtrar logos, iconos y elementos de UI
+            if (imageUrl.includes('logo') || 
+                imageUrl.includes('icon') || 
+                imageUrl.includes('avatar') ||
+                imageUrl.includes('btn_') ||
+                imageUrl.includes('button')) {
+                continue;
+            }
+            
+            // Completar URL relativa
+            if (!imageUrl.startsWith('http')) {
+                imageUrl = imageUrl.startsWith('//') 
+                    ? 'https:' + imageUrl
+                    : 'https://cl.fichapublica.com' + (imageUrl.startsWith('/') ? '' : '/') + imageUrl;
+            }
+            
+            if (!seenUrls.has(imageUrl)) {
+                seenUrls.add(imageUrl);
+                images.push({
+                    url: imageUrl,
+                    source: 'general-img',
+                    proxyUrl: `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`
+                });
+            }
+        }
+
+        // Filtrar y ordenar imágenes (priorizar img_property_full y azure-blob)
+        const priorityOrder = ['img_property_full', 'azure-blob', 'og-image', 'general-img'];
+        images.sort((a, b) => {
+            const priorityA = priorityOrder.indexOf(a.source);
+            const priorityB = priorityOrder.indexOf(b.source);
+            return priorityA - priorityB;
+        });
+
+        console.log(`[extract-images] Encontradas ${images.length} imágenes`);
         
-        // Log detallado para debug
+        // Log de debug de las imágenes encontradas
         images.forEach((img, index) => {
-            console.log(`[extract-images] ${index + 1}. [${img.source}] ${img.url.substring(0, 100)}...`);
+            console.log(`[extract-images] ${index + 1}. ${img.source}: ${img.url.substring(0, 80)}...`);
         });
 
         return {
             statusCode: 200,
             headers: corsHeaders,
             body: JSON.stringify({
-                success: images.length > 0,
+                success: true,
                 propertyId,
                 fichaUrl,
                 totalImages: images.length,
                 images: images,
                 mainImage: images.length > 0 ? images[0] : null,
                 extractedAt: new Date().toISOString(),
-                message: images.length === 0 ? 'No se encontraron imágenes con el patrón Angular especificado' : undefined,
                 debug: {
                     htmlLength: html.length,
                     searchPatterns: [
-                        'angular-img_property_full',
-                        'img_property_full_simple',
-                        'azure-blob-direct',
-                        'src-blob-inverse'
+                        'img_property_full',
+                        'azure-blob', 
+                        'og-image',
+                        'general-img'
                     ]
                 }
             })
