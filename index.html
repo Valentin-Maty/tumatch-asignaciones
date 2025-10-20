@@ -934,43 +934,34 @@
                 let fetchUrl = xmlUrl;
                 let usedProxy = false;
                 
-                if (isLocalDevelopment && !isNetlifyDev) {
-                    // En desarrollo local, usar datos mock para testing
-                    console.log('🔧 Desarrollo local detectado - usando datos mock');
-                    
-                    // Crear datos mock basados en los códigos TU del Google Sheets
-                    const mockListings = [
-                        { referenceId: '2917', images: ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop'] },
-                        { referenceId: '2918', images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop'] },
-                        { referenceId: '2950', images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop'] },
-                        { referenceId: '2959', images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=300&fit=crop'] },
-                        { referenceId: '2965', images: ['https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=400&h=300&fit=crop'] },
-                        { referenceId: '3030', images: ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop'] },
-                        { referenceId: '3085', images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop'] },
-                        { referenceId: '3108', images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop'] },
-                        { referenceId: '3112', images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=300&fit=crop'] }
-                    ];
-                    
-                    // Simular carga async
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    
-                    // Llenar el cache con datos mock
-                    xmlCache.propertiesMap.clear();
-                    mockListings.forEach(listing => {
-                        xmlCache.propertiesMap.set(listing.referenceId, listing.images);
-                    });
-                    
-                    // Actualizar cache timestamp
-                    xmlCache.timestamp = now;
-                    
-                    console.log(`✅ Datos mock cargados: ${mockListings.length} propiedades`);
-                    console.log(`📊 Reference_ids mock: ${mockListings.map(l => l.referenceId).join(', ')}`);
-                    
-                    return xmlCache.propertiesMap;
-                } else if (isLocalDevelopment && isNetlifyDev) {
-                    // Si tenemos netlify dev disponible, usar proxy
-                    fetchUrl = `/.netlify/functions/img-proxy?url=${encodeURIComponent(xmlUrl)}`;
-                    console.log('🌐 Usando proxy de Netlify para XML');
+                if (isLocalDevelopment) {
+                    // En desarrollo local, usar función de Netlify para XML
+                    if (isNetlifyDev) {
+                        fetchUrl = `/.netlify/functions/get-xml-feed`;
+                        console.log('🌐 Usando función Netlify para XML (netlify dev)');
+                    } else {
+                        console.log('🔧 Desarrollo local sin netlify dev - para usar XML real ejecuta: netlify dev');
+                        console.log('💡 Usando datos mock temporalmente...');
+                        
+                        // Datos mock solo como fallback
+                        const mockListings = [
+                            { referenceId: '2917', images: ['https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop'] },
+                            { referenceId: '2918', images: ['https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop'] },
+                            { referenceId: '2950', images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop'] },
+                            { referenceId: '2959', images: ['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=300&fit=crop'] },
+                            { referenceId: '2965', images: ['https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=400&h=300&fit=crop'] }
+                        ];
+                        
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                        xmlCache.propertiesMap.clear();
+                        mockListings.forEach(listing => {
+                            xmlCache.propertiesMap.set(listing.referenceId, listing.images);
+                        });
+                        xmlCache.timestamp = now;
+                        
+                        console.log(`⚠️ Usando datos mock: ${mockListings.length} propiedades`);
+                        return xmlCache.propertiesMap;
+                    }
                 }
                 
                 const response = await fetch(fetchUrl);
