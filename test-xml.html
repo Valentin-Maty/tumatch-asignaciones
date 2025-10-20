@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test XML Feed de Imágenes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🧪 Test XML Feed de Imágenes</h1>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Probar búsqueda de imágenes</h2>
+            <div class="flex gap-4">
+                <input 
+                    type="text" 
+                    id="propertyId" 
+                    placeholder="ID de propiedad (ej: 2950)"
+                    class="flex-1 px-4 py-2 bg-gray-700 rounded border border-gray-600 text-white"
+                    value="2950"
+                >
+                <button 
+                    onclick="testXML()"
+                    class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold transition"
+                >
+                    Buscar en XML
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-8">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+            <p class="mt-4">Consultando XML feed...</p>
+        </div>
+
+        <div id="results" class="space-y-6"></div>
+    </div>
+
+    <script>
+        async function testXML() {
+            const propertyId = document.getElementById('propertyId').value.trim();
+            if (!propertyId) {
+                alert('Por favor ingresa un ID de propiedad');
+                return;
+            }
+
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            loading.classList.remove('hidden');
+            results.innerHTML = '';
+
+            try {
+                // Test directo al XML
+                console.log('📋 Probando XML feed para propiedad:', propertyId);
+                
+                // Si estamos en desarrollo local, usar la función de Netlify
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                const baseUrl = isLocal && window.location.port !== '8888' 
+                    ? 'http://localhost:8888' // Asumiendo netlify dev
+                    : '';
+                
+                const response = await fetch(`${baseUrl}/.netlify/functions/get-xml-images?propertyId=${propertyId}`);
+                const data = await response.json();
+                
+                console.log('Respuesta:', data);
+                
+                // Mostrar resultados
+                let html = `
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h3 class="text-xl font-semibold mb-4">Resultados para ID: ${propertyId}</h3>
+                        <div class="space-y-2 mb-4">
+                            <p><span class="text-gray-400">Estado:</span> ${data.success ? '✅ Éxito' : '❌ No encontrado'}</p>
+                            <p><span class="text-gray-400">Total de imágenes:</span> ${data.totalImages || 0}</p>
+                            <p><span class="text-gray-400">Fuente:</span> ${data.source || 'xml-feed'}</p>
+                        </div>
+                `;
+                
+                if (data.images && data.images.length > 0) {
+                    html += '<div class="grid grid-cols-2 gap-4">';
+                    
+                    data.images.forEach((img, index) => {
+                        html += `
+                            <div class="bg-gray-700 rounded-lg p-4">
+                                <p class="text-sm text-gray-400 mb-2">Imagen ${index + 1}</p>
+                                <img 
+                                    src="${img.proxyUrl}" 
+                                    alt="Imagen ${index + 1}"
+                                    class="w-full h-48 object-cover rounded mb-2"
+                                    onerror="this.src='https://via.placeholder.com/400x300/1a1a1a/ffffff?text=Error'"
+                                >
+                                <div class="text-xs text-gray-400 break-all">
+                                    <p class="mb-1"><strong>URL Original:</strong></p>
+                                    <p class="font-mono">${img.url}</p>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                } else {
+                    html += `
+                        <div class="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
+                            <p class="text-yellow-400">⚠️ No se encontraron imágenes para esta propiedad en el XML</p>
+                        </div>
+                    `;
+                }
+                
+                html += '</div>';
+                
+                // Debug info
+                if (data.error) {
+                    html += `
+                        <div class="bg-red-900/20 border border-red-600 rounded-lg p-4 mt-4">
+                            <p class="text-red-400 font-semibold mb-2">Error:</p>
+                            <p class="font-mono text-sm">${data.error}</p>
+                        </div>
+                    `;
+                }
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                results.innerHTML = `
+                    <div class="bg-red-900/20 border border-red-600 rounded-lg p-4">
+                        <p class="text-red-400 font-semibold mb-2">Error de conexión:</p>
+                        <p class="font-mono text-sm">${error.message}</p>
+                        <p class="mt-2 text-gray-400">Asegúrate de estar ejecutando: <code class="bg-gray-700 px-2 py-1 rounded">netlify dev</code></p>
+                    </div>
+                `;
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        // Test automático al cargar
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🔧 Página de test cargada');
+            console.log('📍 URL base:', window.location.origin);
+            console.log('🌐 Para usar las funciones de Netlify en local, ejecuta: netlify dev');
+        });
+    </script>
+</body>
+</html>

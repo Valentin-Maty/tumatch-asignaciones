@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Simple - Imágenes</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group { 
+            margin: 15px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+        }
+        input { 
+            width: 300px; 
+            padding: 8px; 
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .result { 
+            margin-top: 20px; 
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .error {
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+        }
+        .success {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 4px;
+            border-left: 4px solid #4caf50;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Simple - Estado del Sistema</h1>
+        
+        <div class="info">
+            <h3>ℹ️ Información</h3>
+            <p>Esta página verifica si las funciones de Netlify están funcionando.</p>
+            <p><strong>Para que funcione completamente:</strong></p>
+            <ol>
+                <li>Instala Netlify CLI: <code>npm install -g netlify-cli</code></li>
+                <li>Ejecuta: <code>netlify dev</code></li>
+                <li>Abre: <code>http://localhost:8888/test-puppeteer.html</code></li>
+            </ol>
+        </div>
+        
+        <div class="form-group">
+            <label for="propertyId">Property ID para probar:</label>
+            <input type="text" id="propertyId" value="2950" placeholder="Ej: 2950">
+            <button onclick="testSystem()">Probar Sistema</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function testSystem() {
+            const propertyId = document.getElementById('propertyId').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!propertyId) {
+                alert('Por favor ingresa un Property ID');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="result">🔍 Probando sistema...</div>';
+            
+            // Detectar entorno
+            const isLocalFile = window.location.protocol === 'file:';
+            const isNetlifyDev = window.location.port === '8888';
+            const isProduction = window.location.hostname.includes('netlify.app');
+            
+            let html = `
+                <div class="result">
+                    <h3>📊 Estado del Sistema</h3>
+                    <p><strong>URL actual:</strong> ${window.location.href}</p>
+                    <p><strong>Protocolo:</strong> ${window.location.protocol}</p>
+                    <p><strong>Puerto:</strong> ${window.location.port || 'ninguno'}</p>
+                    <p><strong>Hostname:</strong> ${window.location.hostname}</p>
+                    
+                    <h4>🔍 Detección de entorno:</h4>
+                    <ul>
+                        <li>Archivo local: ${isLocalFile ? '✅ SÍ' : '❌ NO'}</li>
+                        <li>Netlify Dev: ${isNetlifyDev ? '✅ SÍ' : '❌ NO'}</li>
+                        <li>Producción: ${isProduction ? '✅ SÍ' : '❌ NO'}</li>
+                    </ul>
+                </div>
+            `;
+            
+            if (isLocalFile) {
+                html += `
+                    <div class="error">
+                        <h3>❌ Archivo local detectado</h3>
+                        <p>Las funciones de Netlify NO funcionan cuando abres el archivo directamente.</p>
+                        <h4>Soluciones:</h4>
+                        <ol>
+                            <li><strong>Opción 1 (Recomendada):</strong> Usa Netlify Dev
+                                <pre>npm install -g netlify-cli
+netlify dev</pre>
+                                Luego abre: <code>http://localhost:8888/test-puppeteer.html</code>
+                            </li>
+                            <li><strong>Opción 2:</strong> Sube a Netlify y prueba en producción</li>
+                        </ol>
+                    </div>
+                `;
+            } else {
+                // Intentar probar las funciones
+                html += await testFunctions(propertyId);
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        async function testFunctions(propertyId) {
+            let html = '<h3>🚀 Probando funciones...</h3>';
+            
+            const functions = [
+                { name: 'Puppeteer', url: `/.netlify/functions/extract-images-puppeteer?propertyId=${propertyId}` },
+                { name: 'Find Images', url: `/.netlify/functions/find-property-images?propertyId=${propertyId}` },
+                { name: 'Show HTML', url: `/.netlify/functions/show-html?propertyId=${propertyId}` }
+            ];
+            
+            for (const func of functions) {
+                try {
+                    html += `<p>🔍 Probando ${func.name}...</p>`;
+                    
+                    const response = await fetch(func.url);
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        const data = await response.json();
+                        html += `
+                            <div class="success">
+                                <h4>✅ ${func.name} - FUNCIONANDO</h4>
+                                <p><strong>Status:</strong> ${response.status}</p>
+                                <p><strong>Éxito:</strong> ${data.success ? 'SÍ' : 'NO'}</p>
+                                ${data.error ? `<p><strong>Error:</strong> ${data.error}</p>` : ''}
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="error">
+                                <h4>❌ ${func.name} - ERROR</h4>
+                                <p>Respuesta no es JSON (probablemente HTML de error)</p>
+                                <p><strong>Content-Type:</strong> ${contentType}</p>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    html += `
+                        <div class="error">
+                            <h4>❌ ${func.name} - ERROR</h4>
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            return html;
+        }
+        
+        // Auto-test al cargar
+        window.onload = () => {
+            testSystem();
+        };
+    </script>
+</body>
+</html>

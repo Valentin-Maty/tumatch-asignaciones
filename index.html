@@ -903,11 +903,11 @@
             document.getElementById('visibleCount').textContent = filteredData.length;
         }
 
-        // Función simplificada para obtener imágenes Angular específicas
+        // Función principal para obtener imágenes desde XML feed
         async function getPropertyImage(codigo) {
             try {
                 const propertyId = codigo.split('-').pop();
-                console.log('🔍 Extrayendo imágenes Angular para:', codigo, 'ID:', propertyId);
+                console.log('🔍 Buscando imágenes en XML feed para:', codigo, 'ID:', propertyId);
                 
                 // Detectar si estamos en desarrollo local sin Netlify Functions
                 const isLocalDevelopment = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
@@ -919,38 +919,36 @@
                     return null;
                 }
                 
-                // USAR el nuevo sistema de búsqueda en Azure Blob Storage
+                // Obtener imágenes desde el XML feed
                 try {
-                    const extractUrl = `/.netlify/functions/find-property-images?propertyId=${propertyId}`;
-                    console.log('📡 Buscando en Azure Blob:', extractUrl);
+                    const xmlUrl = `/.netlify/functions/get-xml-images?propertyId=${propertyId}`;
+                    console.log('📋 Consultando XML feed:', xmlUrl);
                     
-                    const response = await fetch(extractUrl);
+                    const response = await fetch(xmlUrl);
                     
                     if (response.ok) {
                         const data = await response.json();
-                        console.log('📊 Respuesta extract-images:', data);
+                        console.log('📊 Respuesta XML:', data);
                         
                         if (data.success && data.images && data.images.length > 0) {
-                            // Usar la primera imagen REAL encontrada en Azure Blob
+                            // Usar la primera imagen del XML
                             const imageData = data.images[0];
-                            console.log('✅ Imagen Azure Blob REAL encontrada:', {
+                            console.log('✅ Imagen encontrada en XML:', {
                                 url: imageData.url,
                                 proxyUrl: imageData.proxyUrl,
-                                year: imageData.year,
-                                month: imageData.month
+                                totalImages: data.totalImages
                             });
                             return imageData.proxyUrl;
                         } else {
-                            console.log('❌ No se encontraron imágenes en Azure Blob para:', propertyId);
-                            console.log('📋 Pruebas realizadas:', data.tested);
+                            console.log('❌ No se encontraron imágenes en XML para:', propertyId);
                             return null;
                         }
                     } else {
-                        console.error('❌ Error HTTP extract-images:', response.status);
+                        console.error('❌ Error HTTP XML:', response.status);
                         return null;
                     }
                 } catch (error) {
-                    console.error('❌ Error con extract-images:', error);
+                    console.error('❌ Error con XML feed:', error);
                     return null;
                 }
                 
@@ -975,26 +973,6 @@
             return placeholderUrls[randomIndex];
         }
         
-        // Función alternativa para intentar scraping real con un enfoque diferente
-        async function attemptRealScraping(codigo) {
-            try {
-                const propertyId = codigo.split('-').pop();
-                const fichaUrl = `https://cl.fichapublica.com/pub/propiedad/${propertyId}`;
-                
-                // Intentar con fetch directo (puede fallar por CORS pero vale la pena intentar)
-                try {
-                    const response = await fetch(fichaUrl, { mode: 'no-cors' });
-                    console.log('✅ Fetch directo exitoso para:', codigo);
-                } catch (corsError) {
-                    console.log('❌ CORS bloqueado para:', codigo);
-                }
-                
-                return null;
-            } catch (error) {
-                console.error('❌ Error en scraping real:', error);
-                return null;
-            }
-        }
 
         async function renderGrid() {
             const grid = document.getElementById('grid');
@@ -1119,31 +1097,6 @@
             loadPropertyImages();
         }
         
-        // Función para intentar URLs directas adicionales como fallback
-        function tryDirectImageUrls(propertyId) {
-            const currentYear = new Date().getFullYear();
-            const currentMonth = new Date().getMonth() + 1;
-            
-            const possibleUrls = [
-                // Patrones de Azure Blob Storage (más probables basado en el ejemplo)
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/${currentYear}/${currentMonth}/main.jpeg`,
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/${currentYear}/${currentMonth}/1.jpeg`,
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2025/9/main.jpeg`,
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2025/10/main.jpeg`,
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/main.jpeg`,
-                
-                // Otros años y meses comunes
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2024/12/main.jpeg`,
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2024/11/main.jpeg`,
-                `https://2clicsalmcl.blob.core.windows.net/chile/${propertyId}/property-images/2024/10/main.jpeg`,
-                
-                // Fallback a patrones tradicionales
-                `https://images.fichapublica.com/properties/${propertyId}/main.jpg`,
-                `https://media.fichapublica.com/properties/${propertyId}/1.jpg`,
-                `https://cdn.fichapublica.com/properties/${propertyId}/main.webp`
-            ];
-            return possibleUrls;
-        }
 
         // Función para cargar imágenes de propiedades después de renderizar
         async function loadPropertyImages() {
@@ -1155,26 +1108,25 @@
                 let imageLoaded = false;
                 
                 try {
-                    // Intentar obtener imagen REAL de la propiedad
-                    console.log('Buscando imagen REAL para:', codigo);
+                    // Obtener imagen desde XML feed
+                    console.log('Buscando imagen en XML para:', codigo);
                     const imageUrl = await getPropertyImage(codigo);
                     
                     if (imageUrl) {
-                        // Solo cargar si encontramos una imagen real
+                        // Cargar imagen encontrada en XML
                         imageLoaded = await tryLoadImage(container, imageUrl, codigo);
                         if (imageLoaded) {
-                            console.log('✅ Imagen REAL cargada para:', codigo);
+                            console.log('✅ Imagen XML cargada para:', codigo);
                         }
                     } else {
-                        console.log('🏠 No hay imagen real para:', codigo, '- manteniendo solo icono');
+                        console.log('🏠 Sin imagen en XML para:', codigo, '- manteniendo icono');
                     }
                     
-                    // Si no hay imagen real, mantener solo el icono de casa (quitar pulso)
+                    // Si no hay imagen, mantener el icono de casa (quitar animación)
                     if (!imageLoaded) {
                         const placeholder = container.querySelector('div');
                         if (placeholder) {
                             placeholder.classList.remove('animate-pulse');
-                            // Opcional: cambiar el icono para indicar que no hay imagen
                             placeholder.innerHTML = '🏠';
                             placeholder.classList.add('text-gray-400');
                         }

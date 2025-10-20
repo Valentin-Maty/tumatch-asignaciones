@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Puppeteer Image Extraction</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group { 
+            margin: 15px 0; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+        }
+        input, select { 
+            width: 300px; 
+            padding: 8px; 
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+        button:hover {
+            background: #005a8b;
+        }
+        .result { 
+            margin-top: 20px; 
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .success {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            background: #ffe8e8;
+            border: 1px solid #ffccd2;
+            color: #cc0000;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image-card {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .image-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .method-card {
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        .method-puppeteer { border-color: #4caf50; }
+        .method-fallback { border-color: #ff9800; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Test Puppeteer Image Extraction</h1>
+        <p>Prueba la nueva extracción de imágenes usando Puppeteer para renderizar Angular en FichaPublica</p>
+        
+        <div class="form-group">
+            <label for="propertyId">Property ID:</label>
+            <input type="text" id="propertyId" value="2950" placeholder="Ej: 2950, 2959, 3024">
+            <button onclick="testPuppeteer()">Test Puppeteer</button>
+            <button onclick="testFallback()">Test Fallback</button>
+            <button onclick="testBoth()">Test Ambos</button>
+        </div>
+        
+        <div id="result"></div>
+    </div>
+    
+    <script>
+        async function testPuppeteer() {
+            const propertyId = document.getElementById('propertyId').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!propertyId) {
+                alert('Por favor ingresa un Property ID');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">🚀 Probando extracción con Puppeteer...</div>';
+            
+            try {
+                const url = `/.netlify/functions/extract-images-puppeteer?propertyId=${propertyId}`;
+                console.log('Testing Puppeteer:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showPuppeteerResults(data);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">
+                        <h3>❌ Error Puppeteer</h3>
+                        <p>${data.error || 'Error desconocido'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="error">
+                    <h3>Error de conexión</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+        
+        async function testFallback() {
+            const propertyId = document.getElementById('propertyId').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!propertyId) {
+                alert('Por favor ingresa un Property ID');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">📡 Probando método fallback...</div>';
+            
+            try {
+                const url = `/.netlify/functions/find-property-images?propertyId=${propertyId}`;
+                console.log('Testing Fallback:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showFallbackResults(data);
+                } else {
+                    resultDiv.innerHTML = `<div class="error">
+                        <h3>❌ Error Fallback</h3>
+                        <p>${data.error || data.message || 'Error desconocido'}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="error">
+                    <h3>Error de conexión</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+        
+        async function testBoth() {
+            const propertyId = document.getElementById('propertyId').value.trim();
+            const resultDiv = document.getElementById('result');
+            
+            if (!propertyId) {
+                alert('Por favor ingresa un Property ID');
+                return;
+            }
+            
+            resultDiv.innerHTML = '<div class="loading">🔄 Probando ambos métodos...</div>';
+            
+            try {
+                // Ejecutar ambos en paralelo
+                const [puppeteerResponse, fallbackResponse] = await Promise.all([
+                    fetch(`/.netlify/functions/extract-images-puppeteer?propertyId=${propertyId}`),
+                    fetch(`/.netlify/functions/find-property-images?propertyId=${propertyId}`)
+                ]);
+                
+                const puppeteerData = await puppeteerResponse.json();
+                const fallbackData = await fallbackResponse.json();
+                
+                showComparison(puppeteerData, fallbackData, propertyId);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<div class="error">
+                    <h3>Error de conexión</h3>
+                    <p>${error.message}</p>
+                </div>`;
+            }
+        }
+        
+        function showPuppeteerResults(data) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = `
+                <div class="success">
+                    <h3>✅ Extracción Puppeteer - Propiedad ${data.propertyId}</h3>
+                    <p><strong>Método:</strong> ${data.extractionMethod}</p>
+                    <p><strong>Imágenes encontradas:</strong> ${data.totalImages}</p>
+                    <p><strong>Extraído:</strong> ${new Date(data.extractedAt).toLocaleString()}</p>
+                    ${data.debugInfo ? `<p><strong>Debug:</strong> ${JSON.stringify(data.debugInfo)}</p>` : ''}
+                </div>
+            `;
+            
+            if (data.images && data.images.length > 0) {
+                html += '<div class="image-grid">';
+                data.images.forEach((img, i) => {
+                    html += `
+                        <div class="image-card">
+                            <h4>Imagen ${i + 1}</h4>
+                            <img src="${img.proxyUrl}" class="image-preview" alt="Propiedad ${data.propertyId}" 
+                                 onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                            <p style="color: red; display: none;">❌ Error cargando imagen</p>
+                            <p><strong>URL:</strong> <code style="word-break: break-all;">${img.url}</code></p>
+                            <p><strong>GUID:</strong> <code>${img.guid || 'No disponible'}</code></p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        function showFallbackResults(data) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = `
+                <div class="success">
+                    <h3>📡 Método Fallback - Propiedad ${data.propertyId}</h3>
+                    <p><strong>Imágenes encontradas:</strong> ${data.totalImages}</p>
+                    <p><strong>Pruebas realizadas:</strong> ${data.tested}</p>
+                    <p><strong>Extraído:</strong> ${new Date(data.searchedAt).toLocaleString()}</p>
+                </div>
+            `;
+            
+            if (data.images && data.images.length > 0) {
+                html += '<div class="image-grid">';
+                data.images.forEach((img, i) => {
+                    html += `
+                        <div class="image-card">
+                            <h4>Imagen ${i + 1}</h4>
+                            <img src="${img.proxyUrl}" class="image-preview" alt="Propiedad ${data.propertyId}" 
+                                 onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                            <p style="color: red; display: none;">❌ Error cargando imagen</p>
+                            <p><strong>URL:</strong> <code style="word-break: break-all;">${img.url}</code></p>
+                            <p><strong>Año/Mes:</strong> ${img.year}/${img.month}</p>
+                            <p><strong>GUID:</strong> <code>${img.guid}</code></p>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        function showComparison(puppeteerData, fallbackData, propertyId) {
+            const resultDiv = document.getElementById('result');
+            
+            let html = `
+                <h3>🔄 Comparación de Métodos - Propiedad ${propertyId}</h3>
+                <div class="comparison">
+            `;
+            
+            // Puppeteer results
+            html += `
+                <div class="method-card method-puppeteer">
+                    <h4>🚀 Puppeteer (Angular)</h4>
+                    <p><strong>Estado:</strong> ${puppeteerData.success ? '✅ Éxito' : '❌ Falló'}</p>
+                    <p><strong>Imágenes:</strong> ${puppeteerData.totalImages || 0}</p>
+                    <p><strong>Método:</strong> ${puppeteerData.extractionMethod || 'N/A'}</p>
+                    ${puppeteerData.debugInfo ? `<p><strong>Debug:</strong> ${JSON.stringify(puppeteerData.debugInfo)}</p>` : ''}
+                    ${puppeteerData.error ? `<p style="color: red;"><strong>Error:</strong> ${puppeteerData.error}</p>` : ''}
+                </div>
+            `;
+            
+            // Fallback results
+            html += `
+                <div class="method-card method-fallback">
+                    <h4>📡 Fallback (Azure Blob)</h4>
+                    <p><strong>Estado:</strong> ${fallbackData.success ? '✅ Éxito' : '❌ Falló'}</p>
+                    <p><strong>Imágenes:</strong> ${fallbackData.totalImages || 0}</p>
+                    <p><strong>Pruebas:</strong> ${fallbackData.tested || 0}</p>
+                    ${fallbackData.message ? `<p><strong>Mensaje:</strong> ${fallbackData.message}</p>` : ''}
+                    ${fallbackData.error ? `<p style="color: red;"><strong>Error:</strong> ${fallbackData.error}</p>` : ''}
+                </div>
+            `;
+            
+            html += '</div>';
+            
+            // Show images from successful method
+            const successfulData = puppeteerData.success ? puppeteerData : (fallbackData.success ? fallbackData : null);
+            
+            if (successfulData && successfulData.images && successfulData.images.length > 0) {
+                html += `
+                    <h4>🖼️ Imágenes encontradas (método ${puppeteerData.success ? 'Puppeteer' : 'Fallback'}):</h4>
+                    <div class="image-grid">
+                `;
+                
+                successfulData.images.forEach((img, i) => {
+                    html += `
+                        <div class="image-card">
+                            <h4>Imagen ${i + 1}</h4>
+                            <img src="${img.proxyUrl}" class="image-preview" alt="Propiedad ${propertyId}" 
+                                 onerror="this.style.display='none'; this.nextSibling.style.display='block';">
+                            <p style="color: red; display: none;">❌ Error cargando imagen</p>
+                            <p><strong>URL:</strong> <code style="word-break: break-all;">${img.url}</code></p>
+                            <p><strong>GUID:</strong> <code>${img.guid || 'No disponible'}</code></p>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+            
+            resultDiv.innerHTML = html;
+        }
+        
+        // Auto-test al cargar
+        window.onload = () => {
+            console.log('Test Puppeteer cargado - listo para probar');
+        };
+    </script>
+</body>
+</html>
