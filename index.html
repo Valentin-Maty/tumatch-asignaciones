@@ -950,6 +950,12 @@
                 }
                 
                 const xmlText = await response.text();
+                console.log(`📥 XML descargado: ${Math.round(xmlText.length / 1024)} KB`);
+                
+                if (!xmlText || xmlText.length < 1000) {
+                    console.error('❌ XML muy pequeño o vacío:', xmlText.substring(0, 200));
+                    return xmlCache.propertiesMap;
+                }
                 
                 // Parsear XML
                 const parser = new DOMParser();
@@ -968,6 +974,12 @@
                 // Obtener todas las propiedades (buscar por <listing>)
                 const listings = xmlDoc.querySelectorAll('listing');
                 console.log(`📊 Total de listings en XML: ${listings.length}`);
+                
+                if (listings.length === 0) {
+                    console.error('❌ No se encontraron <listing> en el XML');
+                    console.log('🔍 Estructura del XML:', xmlDoc.documentElement?.tagName, xmlDoc.documentElement?.children?.length);
+                    return xmlCache.propertiesMap;
+                }
                 
                 listings.forEach((listing, index) => {
                     try {
