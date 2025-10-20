@@ -924,10 +924,25 @@
             console.log('📋 Descargando XML feed de propiedades (actualización cada 24h)...');
             
             try {
-                // URL del XML feed
+                // URL del XML feed - usar proxy para evitar CORS
                 const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
                 
-                const response = await fetch(xmlUrl);
+                // Detectar si estamos en desarrollo local y usar proxy de Netlify
+                const isLocalDevelopment = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+                const isNetlifyDev = window.location.port === '8888';
+                
+                let fetchUrl = xmlUrl;
+                if (isLocalDevelopment && !isNetlifyDev) {
+                    // En desarrollo local, usar CORS proxy
+                    fetchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(xmlUrl)}`;
+                    console.log('🔧 Desarrollo local detectado - usando CORS proxy');
+                } else if (isLocalDevelopment && isNetlifyDev) {
+                    // Si tenemos netlify dev disponible, usar proxy
+                    fetchUrl = `/.netlify/functions/img-proxy?url=${encodeURIComponent(xmlUrl)}`;
+                    console.log('🌐 Usando proxy de Netlify para XML');
+                }
+                
+                const response = await fetch(fetchUrl);
                 
                 if (!response.ok) {
                     console.error('❌ Error descargando XML:', response.status);
