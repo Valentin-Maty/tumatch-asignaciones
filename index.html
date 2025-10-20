@@ -658,8 +658,8 @@
         let xmlCache = {
             data: null,
             timestamp: 0,
-            ttl: 5 * 60 * 1000, // 5 minutos
-            propertiesMap: new Map() // Mapa de propertyId -> imágenes
+            ttl: 24 * 60 * 60 * 1000, // 24 horas
+            propertiesMap: new Map() // Mapa de reference_id -> imágenes
         };
 
         function getInitials(name) {
@@ -915,13 +915,13 @@
         async function loadXMLFeed() {
             const now = Date.now();
             
-            // Verificar cache
+            // Verificar cache (24 horas)
             if (xmlCache.data && (now - xmlCache.timestamp < xmlCache.ttl)) {
-                console.log('📋 Usando XML desde cache');
+                console.log('📋 Usando XML desde cache (válido por 24h)');
                 return xmlCache.propertiesMap;
             }
             
-            console.log('📋 Descargando XML feed de propiedades...');
+            console.log('📋 Descargando XML feed de propiedades (actualización cada 24h)...');
             
             try {
                 // URL del XML feed
@@ -950,41 +950,39 @@
                 // Limpiar mapa anterior
                 xmlCache.propertiesMap.clear();
                 
-                // Obtener todas las propiedades
-                const properties = xmlDoc.querySelectorAll('property');
-                console.log(`📊 Total de propiedades en XML: ${properties.length}`);
+                // Obtener todas las propiedades (buscar por <listing>)
+                const listings = xmlDoc.querySelectorAll('listing');
+                console.log(`📊 Total de listings en XML: ${listings.length}`);
                 
-                properties.forEach(property => {
+                listings.forEach(listing => {
                     try {
-                        // Obtener ID de la propiedad
-                        const idElement = property.querySelector('id');
-                        if (!idElement) return;
+                        // Obtener Reference ID de la propiedad
+                        const referenceIdElement = listing.querySelector('reference_id');
+                        if (!referenceIdElement) return;
                         
-                        const propertyId = idElement.textContent.trim();
+                        const referenceId = referenceIdElement.textContent.trim();
                         
-                        // Obtener todas las imágenes
+                        // Obtener todas las imágenes desde <pictures><url>
                         const images = [];
+                        const picturesElement = listing.querySelector('pictures');
                         
-                        // Buscar imagen principal
-                        const mainImage = property.querySelector('main_image');
-                        if (mainImage && mainImage.textContent) {
-                            images.push(mainImage.textContent.trim());
+                        if (picturesElement) {
+                            const urlElements = picturesElement.querySelectorAll('url');
+                            urlElements.forEach(urlElement => {
+                                const imageUrl = urlElement.textContent.trim();
+                                if (imageUrl) {
+                                    images.push(imageUrl);
+                                }
+                            });
                         }
-                        
-                        // Buscar todas las demás imágenes
-                        const imageElements = property.querySelectorAll('image');
-                        imageElements.forEach(img => {
-                            if (img.textContent) {
-                                images.push(img.textContent.trim());
-                            }
-                        });
                         
                         // Guardar en el mapa si hay imágenes
                         if (images.length > 0) {
-                            xmlCache.propertiesMap.set(propertyId, images);
+                            xmlCache.propertiesMap.set(referenceId, images);
+                            console.log(`✅ Mapeado reference_id ${referenceId} con ${images.length} imágenes`);
                         }
                     } catch (err) {
-                        console.error('Error procesando propiedad:', err);
+                        console.error('Error procesando listing:', err);
                     }
                 });
                 
@@ -993,6 +991,7 @@
                 xmlCache.timestamp = now;
                 
                 console.log(`✅ XML cacheado con ${xmlCache.propertiesMap.size} propiedades con imágenes`);
+                console.log(`🕐 Próxima actualización: ${new Date(now + xmlCache.ttl).toLocaleString()}`);
                 
                 return xmlCache.propertiesMap;
                 
@@ -1005,34 +1004,35 @@
         // Función principal para obtener imágenes desde XML feed (local)
         async function getPropertyImage(codigo) {
             try {
-                const propertyId = codigo.split('-').pop();
-                console.log('🔍 Buscando imágenes para:', codigo, 'ID:', propertyId);
+                // Extraer el reference_id del código (es la parte final después del último guión)
+                const referenceId = codigo.split('-').pop();
+                console.log('🔍 Buscando imágenes para código:', codigo, 'reference_id:', referenceId);
                 
-                // Cargar/obtener XML del cache
+                // Cargar/obtener XML del cache (se actualiza cada 24h)
                 const propertiesMap = await loadXMLFeed();
                 
-                // Buscar imágenes de esta propiedad
-                const images = propertiesMap.get(propertyId);
+                // Buscar imágenes de esta propiedad por reference_id
+                const images = propertiesMap.get(referenceId);
                 
                 if (images && images.length > 0) {
                     // Usar la primera imagen
                     const imageUrl = images[0];
                     console.log('✅ Imagen encontrada en XML:', {
-                        propertyId: propertyId,
+                        codigo: codigo,
+                        referenceId: referenceId,
                         url: imageUrl,
                         totalImages: images.length
                     });
                     
-                    // Verificar si necesitamos usar proxy para CORS
-                    // Si la imagen es de blob.core.windows.net, generalmente no necesita proxy
-                    if (imageUrl.includes('blob.core.windows.net')) {
-                        return imageUrl; // Usar URL directa
-                    } else {
-                        // Si es de otro dominio, usar proxy
-                        return `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`;
-                    }
+                    // Las imágenes del XML generalmente no necesitan proxy
+                    // Solo usar proxy si hay problemas de CORS específicos
+                    return imageUrl;
                 } else {
-                    console.log('❌ No se encontraron imágenes en XML para:', propertyId);
+                    console.log('❌ No se encontraron imágenes en XML para reference_id:', referenceId);
+                    
+                    // Log adicional para debugging
+                    console.log('🔍 Reference IDs disponibles en cache:', Array.from(propertiesMap.keys()).slice(0, 10));
+                    
                     return null;
                 }
                 

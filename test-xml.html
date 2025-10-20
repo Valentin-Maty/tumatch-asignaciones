@@ -16,9 +16,9 @@
                 <input 
                     type="text" 
                     id="propertyId" 
-                    placeholder="ID de propiedad (ej: 2950)"
+                    placeholder="Reference ID (ej: 11, 2950)"
                     class="flex-1 px-4 py-2 bg-gray-700 rounded border border-gray-600 text-white"
-                    value="2950"
+                    value="11"
                 >
                 <button 
                     onclick="testXML()"
@@ -42,8 +42,8 @@
         let xmlCache = {
             data: null,
             timestamp: 0,
-            ttl: 5 * 60 * 1000, // 5 minutos
-            propertiesMap: new Map() // Mapa de propertyId -> imágenes
+            ttl: 24 * 60 * 60 * 1000, // 24 horas
+            propertiesMap: new Map() // Mapa de reference_id -> imágenes
         };
 
         // Función para cargar y cachear el XML de propiedades (mismo que en index.html)
@@ -85,41 +85,38 @@
                 // Limpiar mapa anterior
                 xmlCache.propertiesMap.clear();
                 
-                // Obtener todas las propiedades
-                const properties = xmlDoc.querySelectorAll('property');
-                console.log(`📊 Total de propiedades en XML: ${properties.length}`);
+                // Obtener todas las propiedades (buscar por <listing>)
+                const listings = xmlDoc.querySelectorAll('listing');
+                console.log(`📊 Total de listings en XML: ${listings.length}`);
                 
-                properties.forEach(property => {
+                listings.forEach(listing => {
                     try {
-                        // Obtener ID de la propiedad
-                        const idElement = property.querySelector('id');
-                        if (!idElement) return;
+                        // Obtener Reference ID de la propiedad
+                        const referenceIdElement = listing.querySelector('reference_id');
+                        if (!referenceIdElement) return;
                         
-                        const propertyId = idElement.textContent.trim();
+                        const referenceId = referenceIdElement.textContent.trim();
                         
-                        // Obtener todas las imágenes
+                        // Obtener todas las imágenes desde <pictures><url>
                         const images = [];
+                        const picturesElement = listing.querySelector('pictures');
                         
-                        // Buscar imagen principal
-                        const mainImage = property.querySelector('main_image');
-                        if (mainImage && mainImage.textContent) {
-                            images.push(mainImage.textContent.trim());
+                        if (picturesElement) {
+                            const urlElements = picturesElement.querySelectorAll('url');
+                            urlElements.forEach(urlElement => {
+                                const imageUrl = urlElement.textContent.trim();
+                                if (imageUrl) {
+                                    images.push(imageUrl);
+                                }
+                            });
                         }
-                        
-                        // Buscar todas las demás imágenes
-                        const imageElements = property.querySelectorAll('image');
-                        imageElements.forEach(img => {
-                            if (img.textContent) {
-                                images.push(img.textContent.trim());
-                            }
-                        });
                         
                         // Guardar en el mapa si hay imágenes
                         if (images.length > 0) {
-                            xmlCache.propertiesMap.set(propertyId, images);
+                            xmlCache.propertiesMap.set(referenceId, images);
                         }
                     } catch (err) {
-                        console.error('Error procesando propiedad:', err);
+                        console.error('Error procesando listing:', err);
                     }
                 });
                 
@@ -138,9 +135,9 @@
         }
 
         async function testXML() {
-            const propertyId = document.getElementById('propertyId').value.trim();
-            if (!propertyId) {
-                alert('Por favor ingresa un ID de propiedad');
+            const referenceId = document.getElementById('propertyId').value.trim();
+            if (!referenceId) {
+                alert('Por favor ingresa un Reference ID');
                 return;
             }
 
@@ -152,22 +149,22 @@
 
             try {
                 // Test directo al XML (método local)
-                console.log('📋 Probando XML feed LOCAL para propiedad:', propertyId);
+                console.log('📋 Probando XML feed LOCAL para reference_id:', referenceId);
                 
                 // Cargar XML desde el frontend
                 const propertiesMap = await loadXMLFeed();
                 
-                // Buscar imágenes de esta propiedad
-                const images = propertiesMap.get(propertyId);
+                // Buscar imágenes de esta propiedad por reference_id
+                const images = propertiesMap.get(referenceId);
                 
                 let html = `
                     <div class="bg-gray-800 rounded-lg p-6">
-                        <h3 class="text-xl font-semibold mb-4">Resultados para ID: ${propertyId}</h3>
+                        <h3 class="text-xl font-semibold mb-4">Resultados para Reference ID: ${referenceId}</h3>
                         <div class="space-y-2 mb-4">
                             <p><span class="text-gray-400">Estado:</span> ${images && images.length > 0 ? '✅ Éxito' : '❌ No encontrado'}</p>
                             <p><span class="text-gray-400">Total de imágenes:</span> ${images ? images.length : 0}</p>
-                            <p><span class="text-gray-400">Fuente:</span> XML local (frontend)</p>
-                            <p><span class="text-gray-400">Total propiedades en cache:</span> ${propertiesMap.size}</p>
+                            <p><span class="text-gray-400">Fuente:</span> XML local (pictures/url) - Cache 24h</p>
+                            <p><span class="text-gray-400">Total reference_ids en cache:</span> ${propertiesMap.size}</p>
                         </div>
                 `;
                 
@@ -196,7 +193,8 @@
                 } else {
                     html += `
                         <div class="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
-                            <p class="text-yellow-400">⚠️ No se encontraron imágenes para esta propiedad en el XML</p>
+                            <p class="text-yellow-400">⚠️ No se encontraron imágenes para reference_id ${referenceId} en el XML</p>
+                            <p class="text-sm text-gray-400 mt-2">Reference IDs disponibles: ${Array.from(propertiesMap.keys()).slice(0, 5).join(', ')}${propertiesMap.size > 5 ? '...' : ''}</p>
                         </div>
                     `;
                 }
