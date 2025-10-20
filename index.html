@@ -653,6 +653,14 @@
         let consecutiveNoChanges = 0;
         let autoRefreshTimer = null;
         let isFirstLoad = true;
+        
+        // Cache para el XML de propiedades
+        let xmlCache = {
+            data: null,
+            timestamp: 0,
+            ttl: 5 * 60 * 1000, // 5 minutos
+            propertiesMap: new Map() // Mapa de propertyId -> imágenes
+        };
 
         function getInitials(name) {
             if (!name) return '??';
@@ -903,57 +911,133 @@
             document.getElementById('visibleCount').textContent = filteredData.length;
         }
 
-        // Función principal para obtener imágenes desde XML feed
+        // Función para cargar y cachear el XML de propiedades
+        async function loadXMLFeed() {
+            const now = Date.now();
+            
+            // Verificar cache
+            if (xmlCache.data && (now - xmlCache.timestamp < xmlCache.ttl)) {
+                console.log('📋 Usando XML desde cache');
+                return xmlCache.propertiesMap;
+            }
+            
+            console.log('📋 Descargando XML feed de propiedades...');
+            
+            try {
+                // URL del XML feed
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                
+                const response = await fetch(xmlUrl);
+                
+                if (!response.ok) {
+                    console.error('❌ Error descargando XML:', response.status);
+                    return xmlCache.propertiesMap; // Retornar cache anterior si existe
+                }
+                
+                const xmlText = await response.text();
+                
+                // Parsear XML
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                
+                // Verificar errores de parseo
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('❌ Error parseando XML:', parserError.textContent);
+                    return xmlCache.propertiesMap;
+                }
+                
+                // Limpiar mapa anterior
+                xmlCache.propertiesMap.clear();
+                
+                // Obtener todas las propiedades
+                const properties = xmlDoc.querySelectorAll('property');
+                console.log(`📊 Total de propiedades en XML: ${properties.length}`);
+                
+                properties.forEach(property => {
+                    try {
+                        // Obtener ID de la propiedad
+                        const idElement = property.querySelector('id');
+                        if (!idElement) return;
+                        
+                        const propertyId = idElement.textContent.trim();
+                        
+                        // Obtener todas las imágenes
+                        const images = [];
+                        
+                        // Buscar imagen principal
+                        const mainImage = property.querySelector('main_image');
+                        if (mainImage && mainImage.textContent) {
+                            images.push(mainImage.textContent.trim());
+                        }
+                        
+                        // Buscar todas las demás imágenes
+                        const imageElements = property.querySelectorAll('image');
+                        imageElements.forEach(img => {
+                            if (img.textContent) {
+                                images.push(img.textContent.trim());
+                            }
+                        });
+                        
+                        // Guardar en el mapa si hay imágenes
+                        if (images.length > 0) {
+                            xmlCache.propertiesMap.set(propertyId, images);
+                        }
+                    } catch (err) {
+                        console.error('Error procesando propiedad:', err);
+                    }
+                });
+                
+                // Actualizar cache
+                xmlCache.data = xmlText;
+                xmlCache.timestamp = now;
+                
+                console.log(`✅ XML cacheado con ${xmlCache.propertiesMap.size} propiedades con imágenes`);
+                
+                return xmlCache.propertiesMap;
+                
+            } catch (error) {
+                console.error('❌ Error cargando XML feed:', error);
+                return xmlCache.propertiesMap; // Retornar cache anterior si existe
+            }
+        }
+        
+        // Función principal para obtener imágenes desde XML feed (local)
         async function getPropertyImage(codigo) {
             try {
                 const propertyId = codigo.split('-').pop();
-                console.log('🔍 Buscando imágenes en XML feed para:', codigo, 'ID:', propertyId);
+                console.log('🔍 Buscando imágenes para:', codigo, 'ID:', propertyId);
                 
-                // Detectar si estamos en desarrollo local sin Netlify Functions
-                const isLocalDevelopment = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-                const isNetlifyDev = window.location.port === '8888'; // Puerto por defecto de netlify dev
+                // Cargar/obtener XML del cache
+                const propertiesMap = await loadXMLFeed();
                 
-                if (isLocalDevelopment && !isNetlifyDev) {
-                    console.log('🔧 Desarrollo local detectado - funciones Netlify no disponibles');
-                    console.log('💡 Para usar las funciones: ejecuta "netlify dev" en lugar de Live Server');
-                    return null;
-                }
+                // Buscar imágenes de esta propiedad
+                const images = propertiesMap.get(propertyId);
                 
-                // Obtener imágenes desde el XML feed
-                try {
-                    const xmlUrl = `/.netlify/functions/get-xml-images?propertyId=${propertyId}`;
-                    console.log('📋 Consultando XML feed:', xmlUrl);
+                if (images && images.length > 0) {
+                    // Usar la primera imagen
+                    const imageUrl = images[0];
+                    console.log('✅ Imagen encontrada en XML:', {
+                        propertyId: propertyId,
+                        url: imageUrl,
+                        totalImages: images.length
+                    });
                     
-                    const response = await fetch(xmlUrl);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('📊 Respuesta XML:', data);
-                        
-                        if (data.success && data.images && data.images.length > 0) {
-                            // Usar la primera imagen del XML
-                            const imageData = data.images[0];
-                            console.log('✅ Imagen encontrada en XML:', {
-                                url: imageData.url,
-                                proxyUrl: imageData.proxyUrl,
-                                totalImages: data.totalImages
-                            });
-                            return imageData.proxyUrl;
-                        } else {
-                            console.log('❌ No se encontraron imágenes en XML para:', propertyId);
-                            return null;
-                        }
+                    // Verificar si necesitamos usar proxy para CORS
+                    // Si la imagen es de blob.core.windows.net, generalmente no necesita proxy
+                    if (imageUrl.includes('blob.core.windows.net')) {
+                        return imageUrl; // Usar URL directa
                     } else {
-                        console.error('❌ Error HTTP XML:', response.status);
-                        return null;
+                        // Si es de otro dominio, usar proxy
+                        return `/.netlify/functions/img-proxy?url=${encodeURIComponent(imageUrl)}`;
                     }
-                } catch (error) {
-                    console.error('❌ Error con XML feed:', error);
+                } else {
+                    console.log('❌ No se encontraron imágenes en XML para:', propertyId);
                     return null;
                 }
                 
             } catch (error) {
-                console.error('❌ Error general:', error);
+                console.error('❌ Error obteniendo imagen:', error);
                 return null;
             }
         }

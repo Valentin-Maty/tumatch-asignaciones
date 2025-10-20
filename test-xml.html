@@ -38,6 +38,105 @@
     </div>
 
     <script>
+        // Cache para el XML de propiedades (mismo que en index.html)
+        let xmlCache = {
+            data: null,
+            timestamp: 0,
+            ttl: 5 * 60 * 1000, // 5 minutos
+            propertiesMap: new Map() // Mapa de propertyId -> imágenes
+        };
+
+        // Función para cargar y cachear el XML de propiedades (mismo que en index.html)
+        async function loadXMLFeed() {
+            const now = Date.now();
+            
+            // Verificar cache
+            if (xmlCache.data && (now - xmlCache.timestamp < xmlCache.ttl)) {
+                console.log('📋 Usando XML desde cache');
+                return xmlCache.propertiesMap;
+            }
+            
+            console.log('📋 Descargando XML feed de propiedades...');
+            
+            try {
+                // URL del XML feed
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                
+                const response = await fetch(xmlUrl);
+                
+                if (!response.ok) {
+                    console.error('❌ Error descargando XML:', response.status);
+                    return xmlCache.propertiesMap; // Retornar cache anterior si existe
+                }
+                
+                const xmlText = await response.text();
+                
+                // Parsear XML
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                
+                // Verificar errores de parseo
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('❌ Error parseando XML:', parserError.textContent);
+                    return xmlCache.propertiesMap;
+                }
+                
+                // Limpiar mapa anterior
+                xmlCache.propertiesMap.clear();
+                
+                // Obtener todas las propiedades
+                const properties = xmlDoc.querySelectorAll('property');
+                console.log(`📊 Total de propiedades en XML: ${properties.length}`);
+                
+                properties.forEach(property => {
+                    try {
+                        // Obtener ID de la propiedad
+                        const idElement = property.querySelector('id');
+                        if (!idElement) return;
+                        
+                        const propertyId = idElement.textContent.trim();
+                        
+                        // Obtener todas las imágenes
+                        const images = [];
+                        
+                        // Buscar imagen principal
+                        const mainImage = property.querySelector('main_image');
+                        if (mainImage && mainImage.textContent) {
+                            images.push(mainImage.textContent.trim());
+                        }
+                        
+                        // Buscar todas las demás imágenes
+                        const imageElements = property.querySelectorAll('image');
+                        imageElements.forEach(img => {
+                            if (img.textContent) {
+                                images.push(img.textContent.trim());
+                            }
+                        });
+                        
+                        // Guardar en el mapa si hay imágenes
+                        if (images.length > 0) {
+                            xmlCache.propertiesMap.set(propertyId, images);
+                        }
+                    } catch (err) {
+                        console.error('Error procesando propiedad:', err);
+                    }
+                });
+                
+                // Actualizar cache
+                xmlCache.data = xmlText;
+                xmlCache.timestamp = now;
+                
+                console.log(`✅ XML cacheado con ${xmlCache.propertiesMap.size} propiedades con imágenes`);
+                
+                return xmlCache.propertiesMap;
+                
+            } catch (error) {
+                console.error('❌ Error cargando XML feed:', error);
+                return xmlCache.propertiesMap; // Retornar cache anterior si existe
+            }
+        }
+
         async function testXML() {
             const propertyId = document.getElementById('propertyId').value.trim();
             if (!propertyId) {
@@ -52,47 +151,42 @@
             results.innerHTML = '';
 
             try {
-                // Test directo al XML
-                console.log('📋 Probando XML feed para propiedad:', propertyId);
+                // Test directo al XML (método local)
+                console.log('📋 Probando XML feed LOCAL para propiedad:', propertyId);
                 
-                // Si estamos en desarrollo local, usar la función de Netlify
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-                const baseUrl = isLocal && window.location.port !== '8888' 
-                    ? 'http://localhost:8888' // Asumiendo netlify dev
-                    : '';
+                // Cargar XML desde el frontend
+                const propertiesMap = await loadXMLFeed();
                 
-                const response = await fetch(`${baseUrl}/.netlify/functions/get-xml-images?propertyId=${propertyId}`);
-                const data = await response.json();
+                // Buscar imágenes de esta propiedad
+                const images = propertiesMap.get(propertyId);
                 
-                console.log('Respuesta:', data);
-                
-                // Mostrar resultados
                 let html = `
                     <div class="bg-gray-800 rounded-lg p-6">
                         <h3 class="text-xl font-semibold mb-4">Resultados para ID: ${propertyId}</h3>
                         <div class="space-y-2 mb-4">
-                            <p><span class="text-gray-400">Estado:</span> ${data.success ? '✅ Éxito' : '❌ No encontrado'}</p>
-                            <p><span class="text-gray-400">Total de imágenes:</span> ${data.totalImages || 0}</p>
-                            <p><span class="text-gray-400">Fuente:</span> ${data.source || 'xml-feed'}</p>
+                            <p><span class="text-gray-400">Estado:</span> ${images && images.length > 0 ? '✅ Éxito' : '❌ No encontrado'}</p>
+                            <p><span class="text-gray-400">Total de imágenes:</span> ${images ? images.length : 0}</p>
+                            <p><span class="text-gray-400">Fuente:</span> XML local (frontend)</p>
+                            <p><span class="text-gray-400">Total propiedades en cache:</span> ${propertiesMap.size}</p>
                         </div>
                 `;
                 
-                if (data.images && data.images.length > 0) {
+                if (images && images.length > 0) {
                     html += '<div class="grid grid-cols-2 gap-4">';
                     
-                    data.images.forEach((img, index) => {
+                    images.forEach((imageUrl, index) => {
                         html += `
                             <div class="bg-gray-700 rounded-lg p-4">
                                 <p class="text-sm text-gray-400 mb-2">Imagen ${index + 1}</p>
                                 <img 
-                                    src="${img.proxyUrl}" 
+                                    src="${imageUrl}" 
                                     alt="Imagen ${index + 1}"
                                     class="w-full h-48 object-cover rounded mb-2"
                                     onerror="this.src='https://via.placeholder.com/400x300/1a1a1a/ffffff?text=Error'"
                                 >
                                 <div class="text-xs text-gray-400 break-all">
-                                    <p class="mb-1"><strong>URL Original:</strong></p>
-                                    <p class="font-mono">${img.url}</p>
+                                    <p class="mb-1"><strong>URL:</strong></p>
+                                    <p class="font-mono">${imageUrl}</p>
                                 </div>
                             </div>
                         `;
@@ -109,16 +203,6 @@
                 
                 html += '</div>';
                 
-                // Debug info
-                if (data.error) {
-                    html += `
-                        <div class="bg-red-900/20 border border-red-600 rounded-lg p-4 mt-4">
-                            <p class="text-red-400 font-semibold mb-2">Error:</p>
-                            <p class="font-mono text-sm">${data.error}</p>
-                        </div>
-                    `;
-                }
-                
                 results.innerHTML = html;
                 
             } catch (error) {
@@ -127,7 +211,7 @@
                     <div class="bg-red-900/20 border border-red-600 rounded-lg p-4">
                         <p class="text-red-400 font-semibold mb-2">Error de conexión:</p>
                         <p class="font-mono text-sm">${error.message}</p>
-                        <p class="mt-2 text-gray-400">Asegúrate de estar ejecutando: <code class="bg-gray-700 px-2 py-1 rounded">netlify dev</code></p>
+                        <p class="mt-2 text-gray-400">El XML se descarga directamente desde el frontend - no necesita servidor local</p>
                     </div>
                 `;
             } finally {
@@ -139,7 +223,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             console.log('🔧 Página de test cargada');
             console.log('📍 URL base:', window.location.origin);
-            console.log('🌐 Para usar las funciones de Netlify en local, ejecuta: netlify dev');
+            console.log('🌐 Método: XML directo desde frontend (sin Netlify Functions)');
         });
     </script>
 </body>
