@@ -11,7 +11,9 @@
       "Bash(npm start)",
       "Bash(git init:*)",
       "WebFetch(domain:2clicsalmcl.blob.core.windows.net)",
-      "Bash(start \"C:\\Users\\rocko\\Desktop\\Listado de propiedades\\test-xml.html\")"
+      "Bash(start \"C:\\Users\\rocko\\Desktop\\Listado de propiedades\\test-xml.html\")",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-0k-60-sheets.googleusercontent.com)"
     ],
     "deny": []
   }

@@ -1008,6 +1008,11 @@
                 console.log(`✅ XML cacheado con ${xmlCache.propertiesMap.size} propiedades con imágenes`);
                 console.log(`🕐 Próxima actualización: ${new Date(now + xmlCache.ttl).toLocaleString()}`);
                 
+                // Log de rango de reference_ids para verificar que tenemos los números grandes
+                const allIds = Array.from(xmlCache.propertiesMap.keys()).map(id => parseInt(id)).sort((a, b) => a - b);
+                console.log(`📊 Rango de reference_ids: ${allIds[0]} - ${allIds[allIds.length - 1]}`);
+                console.log(`📊 Incluye códigos TU grandes (>2000): ${allIds.filter(id => id > 2000).length} propiedades`);
+                
                 return xmlCache.propertiesMap;
                 
             } catch (error) {
@@ -1019,9 +1024,16 @@
         // Función principal para obtener imágenes desde XML feed (local)
         async function getPropertyImage(codigo) {
             try {
-                // Extraer el reference_id del código (es la parte final después del último guión)
-                const referenceId = codigo.split('-').pop();
-                console.log('🔍 Buscando imágenes para código:', codigo, 'reference_id:', referenceId);
+                // Extraer el reference_id del código (parte después de TU -)
+                // Ejemplo: "TU -2917" → "2917"
+                let referenceId = codigo.replace(/^TU\s*-\s*/, '').trim();
+                
+                // Si el código no tiene el formato TU-, tomar la parte final
+                if (referenceId === codigo) {
+                    referenceId = codigo.split('-').pop().trim();
+                }
+                
+                console.log('🔍 Buscando imágenes para código:', codigo, '→ reference_id:', referenceId);
                 
                 // Cargar/obtener XML del cache (se actualiza cada 24h)
                 const propertiesMap = await loadXMLFeed();
@@ -1039,12 +1051,9 @@
                         codigo: codigo,
                         referenceId: referenceId,
                         url: imageUrl,
-                        totalImages: images.length,
-                        allImages: images
+                        totalImages: images.length
                     });
                     
-                    // Las imágenes del XML generalmente no necesitan proxy
-                    // Solo usar proxy si hay problemas de CORS específicos
                     return imageUrl;
                 } else {
                     console.log('❌ No se encontraron imágenes en XML para reference_id:', referenceId);
@@ -1052,15 +1061,10 @@
                     // Log adicional para debugging - mostrar IDs disponibles
                     const availableIds = Array.from(propertiesMap.keys());
                     console.log('🔍 Total reference_ids en cache:', availableIds.length);
-                    console.log('🔍 Primeros 20 reference_ids disponibles:', availableIds.slice(0, 20));
+                    console.log('🔍 Reference_ids disponibles en XML:', availableIds.sort((a, b) => parseInt(a) - parseInt(b)));
                     
-                    // Verificar si hay coincidencias parciales
-                    const partialMatches = availableIds.filter(id => 
-                        id.includes(referenceId) || referenceId.includes(id)
-                    );
-                    if (partialMatches.length > 0) {
-                        console.log('🔍 Posibles coincidencias parciales:', partialMatches);
-                    }
+                    // Mostrar la diferencia entre lo que buscamos y lo que existe
+                    console.log(`🔍 Buscando: ${referenceId} | Disponibles: ${availableIds.slice(0, 10).join(', ')}...`);
                     
                     return null;
                 }
@@ -1215,21 +1219,25 @@
         async function loadPropertyImages() {
             const imageContainers = document.querySelectorAll('.property-image');
             
+            console.log(`🖼️ Iniciando carga de imágenes para ${imageContainers.length} propiedades`);
+            
             for (let container of imageContainers) {
                 const codigo = container.dataset.codigo;
-                const propertyId = codigo.split('-').pop();
                 let imageLoaded = false;
                 
                 try {
                     // Obtener imagen desde XML feed
-                    console.log('Buscando imagen en XML para:', codigo);
+                    console.log('🔍 Buscando imagen en XML para:', codigo);
                     const imageUrl = await getPropertyImage(codigo);
                     
                     if (imageUrl) {
                         // Cargar imagen encontrada en XML
+                        console.log('📥 Intentando cargar imagen:', imageUrl);
                         imageLoaded = await tryLoadImage(container, imageUrl, codigo);
                         if (imageLoaded) {
                             console.log('✅ Imagen XML cargada para:', codigo);
+                        } else {
+                            console.log('❌ Error cargando imagen URL para:', codigo);
                         }
                     } else {
                         console.log('🏠 Sin imagen en XML para:', codigo, '- manteniendo icono');
@@ -1246,13 +1254,15 @@
                     }
                     
                 } catch (error) {
-                    console.error('Error cargando imagen para', codigo, ':', error);
+                    console.error('❌ Error cargando imagen para', codigo, ':', error);
                     const placeholder = container.querySelector('div');
                     if (placeholder) {
                         placeholder.classList.remove('animate-pulse');
                     }
                 }
             }
+            
+            console.log('🖼️ Carga de imágenes completada');
         }
 
         // Función helper para intentar cargar una imagen específica
