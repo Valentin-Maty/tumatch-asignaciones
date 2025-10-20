@@ -89,13 +89,14 @@
                 const listings = xmlDoc.querySelectorAll('listing');
                 console.log(`📊 Total de listings en XML: ${listings.length}`);
                 
-                listings.forEach(listing => {
+                listings.forEach((listing, index) => {
                     try {
-                        // Obtener Reference ID de la propiedad
+                        // Obtener Reference ID de la propiedad (maneja CDATA)
                         const referenceIdElement = listing.querySelector('reference_id');
                         if (!referenceIdElement) return;
                         
                         const referenceId = referenceIdElement.textContent.trim();
+                        if (!referenceId) return;
                         
                         // Obtener todas las imágenes desde <pictures><url>
                         const images = [];
@@ -105,18 +106,20 @@
                             const urlElements = picturesElement.querySelectorAll('url');
                             urlElements.forEach(urlElement => {
                                 const imageUrl = urlElement.textContent.trim();
-                                if (imageUrl) {
+                                if (imageUrl && imageUrl.startsWith('http')) {
                                     images.push(imageUrl);
                                 }
                             });
+                            
+                            console.log(`📊 Listing ${index + 1} (ref: ${referenceId}): ${images.length} imágenes válidas`);
                         }
                         
-                        // Guardar en el mapa si hay imágenes
+                        // Guardar en el mapa si hay imágenes válidas
                         if (images.length > 0) {
                             xmlCache.propertiesMap.set(referenceId, images);
                         }
                     } catch (err) {
-                        console.error('Error procesando listing:', err);
+                        console.error(`Error procesando listing ${index + 1}:`, err);
                     }
                 });
                 

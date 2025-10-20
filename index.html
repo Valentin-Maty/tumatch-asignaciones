@@ -954,13 +954,22 @@
                 const listings = xmlDoc.querySelectorAll('listing');
                 console.log(`📊 Total de listings en XML: ${listings.length}`);
                 
-                listings.forEach(listing => {
+                listings.forEach((listing, index) => {
                     try {
-                        // Obtener Reference ID de la propiedad
+                        // Obtener Reference ID de la propiedad (maneja CDATA)
                         const referenceIdElement = listing.querySelector('reference_id');
-                        if (!referenceIdElement) return;
+                        if (!referenceIdElement) {
+                            console.log(`⚠️ Listing ${index + 1}: Sin reference_id`);
+                            return;
+                        }
                         
+                        // Obtener texto del reference_id (maneja CDATA automáticamente)
                         const referenceId = referenceIdElement.textContent.trim();
+                        
+                        if (!referenceId) {
+                            console.log(`⚠️ Listing ${index + 1}: Reference_id vacío`);
+                            return;
+                        }
                         
                         // Obtener todas las imágenes desde <pictures><url>
                         const images = [];
@@ -970,19 +979,25 @@
                             const urlElements = picturesElement.querySelectorAll('url');
                             urlElements.forEach(urlElement => {
                                 const imageUrl = urlElement.textContent.trim();
-                                if (imageUrl) {
+                                if (imageUrl && imageUrl.startsWith('http')) {
                                     images.push(imageUrl);
                                 }
                             });
+                            
+                            console.log(`📊 Listing ${index + 1} (ref: ${referenceId}): ${urlElements.length} URLs encontradas, ${images.length} válidas`);
+                        } else {
+                            console.log(`⚠️ Listing ${index + 1} (ref: ${referenceId}): Sin elemento <pictures>`);
                         }
                         
-                        // Guardar en el mapa si hay imágenes
+                        // Guardar en el mapa si hay imágenes válidas
                         if (images.length > 0) {
                             xmlCache.propertiesMap.set(referenceId, images);
-                            console.log(`✅ Mapeado reference_id ${referenceId} con ${images.length} imágenes`);
+                            console.log(`✅ Mapeado reference_id "${referenceId}" con ${images.length} imágenes`);
+                        } else {
+                            console.log(`❌ Listing ${index + 1} (ref: ${referenceId}): Sin imágenes válidas`);
                         }
                     } catch (err) {
-                        console.error('Error procesando listing:', err);
+                        console.error(`❌ Error procesando listing ${index + 1}:`, err);
                     }
                 });
                 
@@ -1011,6 +1026,9 @@
                 // Cargar/obtener XML del cache (se actualiza cada 24h)
                 const propertiesMap = await loadXMLFeed();
                 
+                // Log de cache status
+                console.log(`📋 Cache contiene ${propertiesMap.size} reference_ids con imágenes`);
+                
                 // Buscar imágenes de esta propiedad por reference_id
                 const images = propertiesMap.get(referenceId);
                 
@@ -1021,7 +1039,8 @@
                         codigo: codigo,
                         referenceId: referenceId,
                         url: imageUrl,
-                        totalImages: images.length
+                        totalImages: images.length,
+                        allImages: images
                     });
                     
                     // Las imágenes del XML generalmente no necesitan proxy
@@ -1030,8 +1049,18 @@
                 } else {
                     console.log('❌ No se encontraron imágenes en XML para reference_id:', referenceId);
                     
-                    // Log adicional para debugging
-                    console.log('🔍 Reference IDs disponibles en cache:', Array.from(propertiesMap.keys()).slice(0, 10));
+                    // Log adicional para debugging - mostrar IDs disponibles
+                    const availableIds = Array.from(propertiesMap.keys());
+                    console.log('🔍 Total reference_ids en cache:', availableIds.length);
+                    console.log('🔍 Primeros 20 reference_ids disponibles:', availableIds.slice(0, 20));
+                    
+                    // Verificar si hay coincidencias parciales
+                    const partialMatches = availableIds.filter(id => 
+                        id.includes(referenceId) || referenceId.includes(id)
+                    );
+                    if (partialMatches.length > 0) {
+                        console.log('🔍 Posibles coincidencias parciales:', partialMatches);
+                    }
                     
                     return null;
                 }
