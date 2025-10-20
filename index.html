@@ -1271,33 +1271,48 @@
                 const img = document.createElement('img');
                 img.src = imageUrl;
                 img.alt = `Propiedad ${codigo}`;
-                img.className = 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-110';
+                img.className = 'absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110';
                 img.style.opacity = '0';
+                img.style.zIndex = '10'; // Asegurar que esté sobre el placeholder
                 
                 img.onload = () => {
-                    console.log('Imagen cargada exitosamente:', imageUrl);
-                    // Fade in la imagen cuando carga
-                    img.style.transition = 'opacity 0.5s ease-in-out';
-                    img.style.opacity = '1';
-                    // Remover el placeholder
-                    const placeholder = container.querySelector('div');
-                    if (placeholder) {
-                        placeholder.style.transition = 'opacity 0.3s ease-out';
-                        placeholder.style.opacity = '0';
-                        setTimeout(() => placeholder.remove(), 300);
-                    }
+                    console.log('✅ Imagen cargada exitosamente:', imageUrl);
+                    
+                    // Agregar la imagen PRIMERO (antes de animar)
                     container.appendChild(img);
+                    
+                    // Fade in la imagen
+                    setTimeout(() => {
+                        img.style.transition = 'opacity 0.5s ease-in-out';
+                        img.style.opacity = '1';
+                    }, 50);
+                    
+                    // Remover el placeholder DESPUÉS de que la imagen sea visible
+                    setTimeout(() => {
+                        const placeholder = container.querySelector('div');
+                        if (placeholder) {
+                            placeholder.style.transition = 'opacity 0.3s ease-out';
+                            placeholder.style.opacity = '0';
+                            setTimeout(() => {
+                                if (placeholder.parentNode) {
+                                    placeholder.remove();
+                                }
+                            }, 300);
+                        }
+                    }, 200);
+                    
                     resolve(true);
                 };
                 
                 img.onerror = () => {
-                    console.log('Error cargando imagen:', imageUrl);
+                    console.log('❌ Error cargando imagen:', imageUrl);
                     resolve(false);
                 };
                 
-                // Timeout después de 5 segundos para ser más rápido
+                // Timeout después de 5 segundos
                 setTimeout(() => {
                     if (img.complete === false) {
+                        console.log('⏱️ Timeout cargando imagen:', imageUrl);
                         resolve(false);
                     }
                 }, 5000);
