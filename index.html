@@ -927,19 +927,74 @@
                 // URL del XML feed - usar proxy para evitar CORS
                 const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
                 
-                // Detectar entorno
-                const isLocalDevelopment = window.location.hostname === '127.0.0.1' || 
-                                          window.location.hostname === 'localhost';
+                // Detectar entorno con logging detallado
+                const hostname = window.location.hostname;
+                const isLocalDevelopment = hostname === '127.0.0.1' || hostname === 'localhost';
                 const isNetlifyDev = window.location.port === '8888';
-                const isNetlifyProduction = window.location.hostname.includes('netlify.app') || 
-                                           window.location.hostname.includes('tumatch');
-                const isVercelProduction = window.location.hostname.includes('vercel.app') || 
-                                          window.location.hostname.includes('.vercel');
+                const isNetlifyProduction = hostname.includes('netlify.app');
+                const isVercelProduction = hostname.includes('vercel.app') || 
+                                          hostname.includes('.vercel') ||
+                                          hostname.includes('tumatch-asignaciones');
+                
+                console.log('🔍 Detección de entorno:', {
+                    hostname: hostname,
+                    isLocal: isLocalDevelopment,
+                    isNetlify: isNetlifyProduction,
+                    isVercel: isVercelProduction,
+                    fullURL: window.location.href
+                });
                 
                 let response;
                 
-                // 1. PRIORIDAD: Detectar y usar la función serverless correcta
-                if (isNetlifyProduction || isNetlifyDev) {
+                // 1. PRIORIDAD: Si estamos en Vercel, usar su función
+                if (isVercelProduction && !isLocalDevelopment) {
+                    console.log('🚀 VERCEL DETECTADO - Usando función Vercel');
+                    try {
+                        const fetchUrl = `/api/get-xml`;
+                        console.log('🌐 Llamando a:', fetchUrl);
+                        console.log('🔗 URL completa:', window.location.origin + fetchUrl);
+                        
+                        response = await fetch(fetchUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/xml, text/xml, */*',
+                                'Cache-Control': 'no-cache'
+                            }
+                        });
+                        
+                        console.log('📡 Respuesta Vercel:', {
+                            status: response.status,
+                            ok: response.ok,
+                            statusText: response.statusText,
+                            headers: Object.fromEntries(response.headers.entries()),
+                            url: response.url
+                        });
+                        
+                        if (response.ok) {
+                            console.log('✅ XML obtenido exitosamente vía función Vercel');
+                            // Verificar contenido
+                            const xmlPreview = await response.clone().text();
+                            console.log('📄 XML preview (primeros 200 chars):', xmlPreview.substring(0, 200));
+                        } else {
+                            const errorText = await response.text();
+                            console.error('❌ Error en función Vercel:', {
+                                status: response.status, 
+                                statusText: response.statusText,
+                                errorBody: errorText
+                            });
+                            response = null; // Force fallback
+                        }
+                    } catch (vercelError) {
+                        console.error('❌ Error llamando función Vercel:', {
+                            message: vercelError.message,
+                            stack: vercelError.stack,
+                            name: vercelError.name
+                        });
+                        response = null; // Force fallback
+                    }
+                } 
+                // 2. Si estamos en Netlify
+                else if (isNetlifyProduction || isNetlifyDev) {
                     try {
                         const fetchUrl = `/.netlify/functions/get-xml-feed`;
                         console.log('🌐 Usando función Netlify para obtener XML');
@@ -950,18 +1005,6 @@
                         }
                     } catch (netlifyError) {
                         console.log('⚠️ Error con función Netlify, intentando alternativas...');
-                    }
-                } else if (isVercelProduction) {
-                    try {
-                        const fetchUrl = `/api/get-xml`;
-                        console.log('🌐 Usando función Vercel para obtener XML');
-                        response = await fetch(fetchUrl);
-                        
-                        if (response.ok) {
-                            console.log('✅ XML obtenido vía función Vercel');
-                        }
-                    } catch (vercelError) {
-                        console.log('⚠️ Error con función Vercel, intentando alternativas...');
                     }
                 }
                 
