@@ -927,55 +927,75 @@
                 // URL del XML feed - usar proxy para evitar CORS
                 const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
                 
-                // Detectar si estamos en desarrollo local y usar proxy de Netlify
-                const isLocalDevelopment = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+                // Detectar entorno
+                const isLocalDevelopment = window.location.hostname === '127.0.0.1' || 
+                                          window.location.hostname === 'localhost';
                 const isNetlifyDev = window.location.port === '8888';
+                const isNetlifyProduction = window.location.hostname.includes('netlify.app') || 
+                                           window.location.hostname.includes('tumatch');
+                const isVercelProduction = window.location.hostname.includes('vercel.app') || 
+                                          window.location.hostname.includes('.vercel');
                 
-                // SOLO usar función de Netlify para obtener XML real
-                let fetchUrl;
                 let response;
                 
-                if (isLocalDevelopment) {
-                    // En desarrollo local, usar función de Netlify o proxy CORS público
-                    if (isNetlifyDev) {
-                        fetchUrl = `/.netlify/functions/get-xml-feed`;
-                        console.log('🌐 Usando función Netlify para XML real (netlify dev)');
+                // 1. PRIORIDAD: Detectar y usar la función serverless correcta
+                if (isNetlifyProduction || isNetlifyDev) {
+                    try {
+                        const fetchUrl = `/.netlify/functions/get-xml-feed`;
+                        console.log('🌐 Usando función Netlify para obtener XML');
                         response = await fetch(fetchUrl);
-                    } else {
-                        // Usar proxy CORS público como fallback
-                        console.log('🌐 Intentando con proxy CORS público...');
-                        const corsProxies = [
-                            'https://corsproxy.io/?',
-                            'https://api.allorigins.win/raw?url=',
-                            'https://cors-anywhere.herokuapp.com/'
-                        ];
                         
-                        for (const proxy of corsProxies) {
-                            try {
-                                fetchUrl = proxy + encodeURIComponent(xmlUrl);
-                                console.log('🔄 Probando proxy:', proxy);
-                                response = await fetch(fetchUrl);
-                                if (response.ok) {
-                                    console.log('✅ Proxy funcionando:', proxy);
-                                    break;
-                                }
-                            } catch (proxyError) {
-                                console.log('❌ Proxy falló:', proxy);
-                                continue;
-                            }
+                        if (response.ok) {
+                            console.log('✅ XML obtenido vía función Netlify');
                         }
+                    } catch (netlifyError) {
+                        console.log('⚠️ Error con función Netlify, intentando alternativas...');
+                    }
+                } else if (isVercelProduction) {
+                    try {
+                        const fetchUrl = `/api/get-xml`;
+                        console.log('🌐 Usando función Vercel para obtener XML');
+                        response = await fetch(fetchUrl);
                         
-                        if (!response || !response.ok) {
-                            console.error('❌ No se pudo acceder al XML con ningún proxy');
-                            console.log('💡 Solución: ejecuta "netlify dev" o despliega en Netlify');
-                            return xmlCache.propertiesMap; // Retornar cache vacío
+                        if (response.ok) {
+                            console.log('✅ XML obtenido vía función Vercel');
+                        }
+                    } catch (vercelError) {
+                        console.log('⚠️ Error con función Vercel, intentando alternativas...');
+                    }
+                }
+                
+                // 2. FALLBACK: Si no funciona Netlify, usar proxies CORS
+                if (!response || !response.ok) {
+                    console.log('🔄 Intentando con proxies CORS públicos...');
+                    const corsProxies = [
+                        'https://corsproxy.io/?',
+                        'https://api.allorigins.win/raw?url=',
+                        ''  // Intento directo sin proxy
+                    ];
+                    
+                    for (const proxy of corsProxies) {
+                        try {
+                            const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                            console.log(`🔄 Probando: ${proxy || 'directo'}`);
+                            response = await fetch(fetchUrl);
+                            
+                            if (response.ok) {
+                                console.log(`✅ XML obtenido con: ${proxy || 'conexión directa'}`);
+                                break;
+                            }
+                        } catch (proxyError) {
+                            console.log(`❌ Falló: ${proxy || 'directo'}`);
+                            continue;
                         }
                     }
-                } else {
-                    // En producción, usar función de Netlify
-                    fetchUrl = `/.netlify/functions/get-xml-feed`;
-                    console.log('🌐 Obteniendo XML real desde función Netlify');
-                    response = await fetch(fetchUrl);
+                }
+                
+                // Si ningún método funcionó
+                if (!response || !response.ok) {
+                    console.error('❌ No se pudo obtener el XML con ningún método');
+                    console.log('💡 Usando cache anterior si existe');
+                    return xmlCache.propertiesMap;
                 }
                 
                 if (!response.ok) {
@@ -1647,8 +1667,42 @@
         
         document.getElementById('corredorFilter').addEventListener('change', applyFilters);
 
-        // Cargar datos inicialmente
-        loadData();
+        // Inicialización mejorada con pre-carga del XML
+        async function initializeApp() {
+            console.log('🚀 Inicializando aplicación TuMatch...');
+            console.log('📍 Entorno detectado:', {
+                hostname: window.location.hostname,
+                port: window.location.port,
+                isProduction: !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'),
+                isNetlify: window.location.hostname.includes('netlify'),
+                isVercel: window.location.hostname.includes('vercel')
+            });
+            
+            try {
+                // Pre-cargar el XML feed para tenerlo en cache
+                console.log('🔄 Pre-cargando XML feed de imágenes...');
+                const startTime = Date.now();
+                await loadXMLFeed();
+                const loadTime = Date.now() - startTime;
+                
+                console.log(`✅ XML feed cargado en ${loadTime}ms`);
+                console.log(`📊 ${xmlCache.propertiesMap.size} propiedades con imágenes en cache`);
+                
+                // Mostrar las primeras 5 propiedades como ejemplo
+                const sampleIds = Array.from(xmlCache.propertiesMap.keys()).slice(0, 5);
+                console.log('🖼️ Ejemplos de reference_ids cargados:', sampleIds.join(', '));
+                
+            } catch (error) {
+                console.error('⚠️ Error pre-cargando XML:', error);
+                console.log('💡 Las imágenes se cargarán bajo demanda');
+            }
+            
+            // Cargar datos del spreadsheet
+            loadData();
+        }
+        
+        // Iniciar la aplicación
+        initializeApp();
     </script>
 </body>
 </html>
