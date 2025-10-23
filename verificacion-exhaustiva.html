@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Exhaustiva de Códigos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">🔬 Verificación Exhaustiva de Imágenes</h1>
+        <p class="text-gray-400 mb-8 text-center">Búsqueda ultra-detallada para TU -2965, TU -3176, TU -4955</p>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <div class="flex justify-center space-x-4">
+                <button onclick="runExhaustiveSearch()" 
+                        class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded font-semibold">
+                    🔍 Búsqueda Ultra-Exhaustiva
+                </button>
+                <button onclick="showAllXMLIds()" 
+                        class="px-6 py-3 bg-green-600 hover:bg-green-700 rounded font-semibold">
+                    📋 Mostrar TODO el XML
+                </button>
+                <button onclick="clearResults()" 
+                        class="px-6 py-3 bg-red-600 hover:bg-red-700 rounded font-semibold">
+                    🗑️ Limpiar
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-8 bg-gray-800 rounded-lg mb-6">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="mt-4">Analizando XML feed...</p>
+        </div>
+
+        <div id="results" class="space-y-6"></div>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">📊 Estadísticas del XML</h3>
+            <div id="xmlStats" class="grid md:grid-cols-4 gap-4 text-center">
+                <div class="bg-gray-700 rounded p-4">
+                    <div id="totalListings" class="text-2xl font-bold text-blue-400">-</div>
+                    <div class="text-sm text-gray-400">Total Listings</div>
+                </div>
+                <div class="bg-gray-700 rounded p-4">
+                    <div id="withImages" class="text-2xl font-bold text-green-400">-</div>
+                    <div class="text-sm text-gray-400">Con Imágenes</div>
+                </div>
+                <div class="bg-gray-700 rounded p-4">
+                    <div id="totalImages" class="text-2xl font-bold text-purple-400">-</div>
+                    <div class="text-sm text-gray-400">Total Imágenes</div>
+                </div>
+                <div class="bg-gray-700 rounded p-4">
+                    <div id="idRange" class="text-2xl font-bold text-yellow-400">-</div>
+                    <div class="text-sm text-gray-400">Rango IDs</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">📝 Logs Detallados</h3>
+            <div id="detailLog" class="bg-black rounded p-4 h-64 overflow-y-auto font-mono text-sm text-gray-300"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const detailLog = document.getElementById('detailLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-300',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400',
+                debug: 'text-blue-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            detailLog.appendChild(logEntry);
+            detailLog.scrollTop = detailLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        let xmlData = {
+            allIds: [],
+            idToImages: new Map(),
+            rawXML: null
+        };
+
+        async function loadCompleteXML() {
+            log('🔄 Cargando XML completo...', 'info');
+            
+            const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+            const corsProxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                ''
+            ];
+            
+            let xmlText = null;
+            
+            for (const proxy of corsProxies) {
+                try {
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                    log(`🌐 Probando: ${proxy || 'conexión directa'}`, 'debug');
+                    
+                    const response = await fetch(fetchUrl);
+                    
+                    if (response.ok) {
+                        xmlText = await response.text();
+                        log(`✅ XML obtenido usando: ${proxy || 'directo'} (${xmlText.length} caracteres)`, 'success');
+                        break;
+                    }
+                } catch (error) {
+                    log(`❌ Error con ${proxy || 'directo'}: ${error.message}`, 'error');
+                    continue;
+                }
+            }
+            
+            if (!xmlText) {
+                log('❌ No se pudo obtener el XML', 'error');
+                return false;
+            }
+            
+            xmlData.rawXML = xmlText;
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                log('❌ Error parseando XML', 'error');
+                return false;
+            }
+            
+            xmlData.allIds = [];
+            xmlData.idToImages.clear();
+            
+            const listings = xmlDoc.getElementsByTagName('listing');
+            log(`📊 Procesando ${listings.length} listings...`, 'info');
+            
+            let totalImages = 0;
+            let listingsWithImages = 0;
+            
+            for (let i = 0; i < listings.length; i++) {
+                const listing = listings[i];
+                
+                try {
+                    const referenceIdElement = listing.querySelector('reference_id');
+                    if (!referenceIdElement) {
+                        log(`⚠️ Listing ${i+1}: Sin reference_id`, 'warning');
+                        continue;
+                    }
+                    
+                    const referenceId = referenceIdElement.textContent.trim();
+                    if (!referenceId) {
+                        log(`⚠️ Listing ${i+1}: Reference_id vacío`, 'warning');
+                        continue;
+                    }
+                    
+                    xmlData.allIds.push(referenceId);
+                    
+                    const images = [];
+                    const picturesElement = listing.querySelector('pictures');
+                    
+                    if (picturesElement) {
+                        const urlElements = picturesElement.querySelectorAll('url');
+                        urlElements.forEach(urlElement => {
+                            const imageUrl = urlElement.textContent.trim();
+                            if (imageUrl && imageUrl.startsWith('http')) {
+                                images.push(imageUrl);
+                                totalImages++;
+                            }
+                        });
+                    }
+                    
+                    xmlData.idToImages.set(referenceId, images);
+                    
+                    if (images.length > 0) {
+                        listingsWithImages++;
+                    }
+                    
+                    log(`📝 ID ${referenceId}: ${images.length} imágenes`, 'debug');
+                    
+                } catch (error) {
+                    log(`❌ Error procesando listing ${i+1}: ${error.message}`, 'error');
+                }
+            }
+            
+            // Actualizar estadísticas
+            const ids = xmlData.allIds.map(id => parseInt(id)).filter(id => !isNaN(id)).sort((a,b) => a-b);
+            const minId = ids.length > 0 ? Math.min(...ids) : 0;
+            const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+            
+            document.getElementById('totalListings').textContent = listings.length;
+            document.getElementById('withImages').textContent = listingsWithImages;
+            document.getElementById('totalImages').textContent = totalImages;
+            document.getElementById('idRange').textContent = `${minId}-${maxId}`;
+            
+            log(`✅ XML completamente procesado: ${listings.length} listings, ${totalImages} imágenes`, 'success');
+            log(`📊 Rango de IDs: ${minId} - ${maxId}`, 'info');
+            
+            return true;
+        }
+
+        function searchForPatterns(targetCodes) {
+            log('🔍 Iniciando búsqueda exhaustiva de patrones...', 'info');
+            
+            const results = {};
+            
+            targetCodes.forEach(code => {
+                log(`🎯 Analizando código: ${code}`, 'info');
+                
+                results[code] = {
+                    exactMatches: [],
+                    partialMatches: [],
+                    numberVariations: [],
+                    fuzzyMatches: []
+                };
+                
+                // Extraer números del código
+                const numbers = code.match(/\d+/g) || [];
+                log(`🔢 Números extraídos: ${numbers.join(', ')}`, 'debug');
+                
+                numbers.forEach(num => {
+                    // Buscar coincidencias exactas
+                    if (xmlData.idToImages.has(num)) {
+                        results[code].exactMatches.push({
+                            searchFor: num,
+                            found: num,
+                            images: xmlData.idToImages.get(num).length
+                        });
+                        log(`✅ COINCIDENCIA EXACTA: ${num} tiene ${xmlData.idToImages.get(num).length} imágenes`, 'success');
+                    }
+                    
+                    // Buscar con ceros
+                    const variations = [
+                        num.padStart(4, '0'),
+                        num.padStart(5, '0'),
+                        num.padStart(6, '0'),
+                        num.replace(/^0+/, '') // quitar ceros
+                    ];
+                    
+                    variations.forEach(variation => {
+                        if (xmlData.idToImages.has(variation) && !results[code].exactMatches.find(m => m.found === variation)) {
+                            results[code].numberVariations.push({
+                                searchFor: num,
+                                found: variation,
+                                images: xmlData.idToImages.get(variation).length
+                            });
+                            log(`🔍 VARIACIÓN ENCONTRADA: ${num} → ${variation} con ${xmlData.idToImages.get(variation).length} imágenes`, 'success');
+                        }
+                    });
+                    
+                    // Buscar parciales
+                    xmlData.allIds.forEach(xmlId => {
+                        if (xmlId.includes(num) || num.includes(xmlId)) {
+                            if (!results[code].exactMatches.find(m => m.found === xmlId) && 
+                                !results[code].numberVariations.find(m => m.found === xmlId) &&
+                                !results[code].partialMatches.find(m => m.found === xmlId)) {
+                                
+                                results[code].partialMatches.push({
+                                    searchFor: num,
+                                    found: xmlId,
+                                    images: xmlData.idToImages.get(xmlId).length
+                                });
+                                log(`🔍 COINCIDENCIA PARCIAL: ${num} ↔ ${xmlId} con ${xmlData.idToImages.get(xmlId).length} imágenes`, 'warning');
+                            }
+                        }
+                    });
+                });
+                
+                // Buscar fuzzy matches (Levenshtein distance)
+                numbers.forEach(num => {
+                    xmlData.allIds.forEach(xmlId => {
+                        const distance = levenshteinDistance(num, xmlId);
+                        if (distance <= 2 && distance > 0) {
+                            if (!results[code].exactMatches.find(m => m.found === xmlId) && 
+                                !results[code].numberVariations.find(m => m.found === xmlId) &&
+                                !results[code].partialMatches.find(m => m.found === xmlId) &&
+                                !results[code].fuzzyMatches.find(m => m.found === xmlId)) {
+                                
+                                results[code].fuzzyMatches.push({
+                                    searchFor: num,
+                                    found: xmlId,
+                                    distance: distance,
+                                    images: xmlData.idToImages.get(xmlId).length
+                                });
+                                log(`🔍 FUZZY MATCH: ${num} ≈ ${xmlId} (distancia: ${distance}) con ${xmlData.idToImages.get(xmlId).length} imágenes`, 'warning');
+                            }
+                        }
+                    });
+                });
+                
+                const totalMatches = results[code].exactMatches.length + 
+                                  results[code].numberVariations.length + 
+                                  results[code].partialMatches.length + 
+                                  results[code].fuzzyMatches.length;
+                
+                log(`📊 Resumen ${code}: ${totalMatches} coincidencias totales`, 'info');
+            });
+            
+            return results;
+        }
+
+        function levenshteinDistance(str1, str2) {
+            const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+            
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+            
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j][i - 1] + 1,
+                        matrix[j - 1][i] + 1,
+                        matrix[j - 1][i - 1] + indicator
+                    );
+                }
+            }
+            
+            return matrix[str2.length][str1.length];
+        }
+
+        async function runExhaustiveSearch() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').innerHTML = '';
+            
+            const targetCodes = ['TU -2965', 'TU -3176', 'TU -4955'];
+            
+            try {
+                await loadCompleteXML();
+                const searchResults = searchForPatterns(targetCodes);
+                displayResults(searchResults);
+                
+            } catch (error) {
+                log(`❌ Error en búsqueda exhaustiva: ${error.message}`, 'error');
+            }
+            
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function displayResults(searchResults) {
+            const resultsDiv = document.getElementById('results');
+            
+            Object.entries(searchResults).forEach(([code, results]) => {
+                const hasAnyMatch = results.exactMatches.length > 0 || 
+                                  results.numberVariations.length > 0 || 
+                                  results.partialMatches.length > 0 || 
+                                  results.fuzzyMatches.length > 0;
+                
+                const resultCard = document.createElement('div');
+                resultCard.className = `bg-gray-800 rounded-lg p-6 border-l-4 ${hasAnyMatch ? 'border-green-500' : 'border-red-500'}`;
+                
+                resultCard.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 ${hasAnyMatch ? 'text-green-400' : 'text-red-400'}">
+                        ${hasAnyMatch ? '✅' : '❌'} ${code}
+                    </h3>
+                    
+                    ${results.exactMatches.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-green-400 mb-2">🎯 Coincidencias Exactas (${results.exactMatches.length})</h4>
+                            ${results.exactMatches.map(match => `
+                                <div class="bg-green-900 bg-opacity-30 rounded p-3 mb-2">
+                                    <p><strong>Buscando:</strong> ${match.searchFor} → <strong>Encontrado:</strong> ${match.found}</p>
+                                    <p><strong>Imágenes:</strong> ${match.images}</p>
+                                    ${match.images > 0 ? `<p class="text-green-400">¡TIENE IMÁGENES REALES!</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    ${results.numberVariations.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-blue-400 mb-2">🔢 Variaciones Numéricas (${results.numberVariations.length})</h4>
+                            ${results.numberVariations.map(match => `
+                                <div class="bg-blue-900 bg-opacity-30 rounded p-3 mb-2">
+                                    <p><strong>Buscando:</strong> ${match.searchFor} → <strong>Encontrado:</strong> ${match.found}</p>
+                                    <p><strong>Imágenes:</strong> ${match.images}</p>
+                                    ${match.images > 0 ? `<p class="text-blue-400">¡TIENE IMÁGENES REALES!</p>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    ${results.partialMatches.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-yellow-400 mb-2">🔍 Coincidencias Parciales (${results.partialMatches.length})</h4>
+                            ${results.partialMatches.slice(0, 10).map(match => `
+                                <div class="bg-yellow-900 bg-opacity-30 rounded p-2 mb-1 text-sm">
+                                    <p><strong>${match.searchFor}</strong> ↔ <strong>${match.found}</strong> (${match.images} imgs)</p>
+                                </div>
+                            `).join('')}
+                            ${results.partialMatches.length > 10 ? `<p class="text-sm text-gray-400">...y ${results.partialMatches.length - 10} más</p>` : ''}
+                        </div>
+                    ` : ''}
+                    
+                    ${results.fuzzyMatches.length > 0 ? `
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-purple-400 mb-2">🔍 Coincidencias Fuzzy (${results.fuzzyMatches.length})</h4>
+                            ${results.fuzzyMatches.slice(0, 5).map(match => `
+                                <div class="bg-purple-900 bg-opacity-30 rounded p-2 mb-1 text-sm">
+                                    <p><strong>${match.searchFor}</strong> ≈ <strong>${match.found}</strong> (dist: ${match.distance}, ${match.images} imgs)</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    ${!hasAnyMatch ? `
+                        <div class="bg-red-900 bg-opacity-30 border border-red-500 rounded p-4">
+                            <p class="text-red-400 font-bold">❌ CONFIRMADO: Este código NO existe en el XML</p>
+                            <p class="text-gray-300 mt-2">No se encontraron coincidencias de ningún tipo en el feed oficial.</p>
+                            <p class="text-gray-300">✅ Es correcto usar fallback (web scraping + placeholder)</p>
+                        </div>
+                    ` : ''}
+                `;
+                
+                resultsDiv.appendChild(resultCard);
+            });
+        }
+
+        async function showAllXMLIds() {
+            document.getElementById('loading').classList.remove('hidden');
+            
+            if (xmlData.allIds.length === 0) {
+                await loadCompleteXML();
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            
+            const allIdsCard = document.createElement('div');
+            allIdsCard.className = 'bg-gray-800 rounded-lg p-6';
+            
+            const sortedIds = xmlData.allIds.map(id => parseInt(id)).filter(id => !isNaN(id)).sort((a,b) => a-b);
+            
+            allIdsCard.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 text-blue-400">📋 TODOS los Reference IDs en el XML</h3>
+                <div class="mb-4">
+                    <p class="text-gray-300">Total: ${xmlData.allIds.length} reference_ids</p>
+                    <p class="text-gray-300">Rango numérico: ${Math.min(...sortedIds)} - ${Math.max(...sortedIds)}</p>
+                </div>
+                <div class="bg-black rounded p-4 max-h-96 overflow-y-auto">
+                    <div class="grid grid-cols-8 gap-2 text-sm font-mono">
+                        ${sortedIds.map(id => {
+                            const imageCount = xmlData.idToImages.get(id.toString())?.length || 0;
+                            return `<span class="${imageCount > 0 ? 'text-green-400' : 'text-red-400'}" title="${imageCount} imágenes">${id}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+                <div class="mt-4 text-sm text-gray-400">
+                    <p>🟢 Verde: Tiene imágenes | 🔴 Rojo: Sin imágenes</p>
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = '';
+            resultsDiv.appendChild(allIdsCard);
+            
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('detailLog').innerHTML = '';
+        }
+
+        // Inicializar
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Verificación exhaustiva iniciada', 'success');
+            log('🎯 Códigos objetivo: TU -2965, TU -3176, TU -4955', 'info');
+        });
+    </script>
+</body>
+</html>

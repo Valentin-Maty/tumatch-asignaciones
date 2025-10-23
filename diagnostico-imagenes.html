@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnóstico de Imágenes Faltantes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-4xl font-bold mb-2 text-center">🔍 Diagnóstico de Imágenes Faltantes</h1>
+        <p class="text-gray-400 mb-8 text-center">Analiza qué propiedades no tienen imágenes y por qué razón</p>
+        
+        <div class="grid lg:grid-cols-3 gap-6 mb-6">
+            <!-- Panel de control -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-400">🎛️ Control</h2>
+                <div class="space-y-4">
+                    <button onclick="runDiagnostic()" 
+                            class="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded font-semibold transition">
+                        🔍 Ejecutar Diagnóstico
+                    </button>
+                    <button onclick="testSpecificProperty()" 
+                            class="w-full px-4 py-3 bg-green-600 hover:bg-green-700 rounded font-semibold transition">
+                        🧪 Probar Propiedad Específica
+                    </button>
+                    <button onclick="showMissingOnly()" 
+                            class="w-full px-4 py-3 bg-yellow-600 hover:bg-yellow-700 rounded font-semibold transition">
+                        ⚠️ Solo Sin Imágenes
+                    </button>
+                    <button onclick="exportReport()" 
+                            class="w-full px-4 py-3 bg-purple-600 hover:bg-purple-700 rounded font-semibold transition">
+                        📊 Exportar Reporte
+                    </button>
+                </div>
+                
+                <div class="mt-6 pt-4 border-t border-gray-700">
+                    <label class="block text-sm text-gray-400 mb-2">Probar código específico:</label>
+                    <input type="text" id="testCode" placeholder="ej: TU -2917" 
+                           class="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 text-white">
+                </div>
+            </div>
+            
+            <!-- Estadísticas generales -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-400">📊 Estadísticas</h2>
+                <div id="generalStats" class="space-y-3 text-gray-300">
+                    <p>Iniciando análisis...</p>
+                </div>
+            </div>
+            
+            <!-- Estado del XML -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-yellow-400">📡 Estado del XML</h2>
+                <div id="xmlStatus" class="space-y-3 text-gray-300">
+                    <p>Verificando conexión...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-8 bg-gray-800 rounded-lg mb-6">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <p class="mt-4 text-lg">Ejecutando diagnóstico completo...</p>
+        </div>
+
+        <!-- Resultados del diagnóstico -->
+        <div id="diagnosticResults" class="hidden space-y-6">
+            <!-- Resumen de problemas -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-red-400">❌ Propiedades Sin Imágenes</h3>
+                <div id="missingImages" class="space-y-3"></div>
+            </div>
+            
+            <!-- Propiedades con imágenes -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-green-400">✅ Propiedades Con Imágenes</h3>
+                <div id="foundImages" class="space-y-3"></div>
+            </div>
+            
+            <!-- Análisis de patrones -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h3 class="text-xl font-semibold mb-4 text-blue-400">🔍 Análisis de Patrones</h3>
+                <div id="patternAnalysis" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Test de propiedad específica -->
+        <div id="specificTest" class="hidden bg-gray-800 rounded-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4 text-purple-400">🧪 Test de Propiedad Específica</h3>
+            <div id="specificTestResults"></div>
+        </div>
+
+        <!-- Logs detallados -->
+        <div class="bg-gray-800 rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">📝 Logs Detallados</h3>
+            <div id="detailLog" class="bg-black rounded p-4 h-80 overflow-y-auto font-mono text-sm text-gray-300"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de logging
+        function log(message, type = 'info') {
+            const detailLog = document.getElementById('detailLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-300',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400',
+                debug: 'text-blue-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            detailLog.appendChild(logEntry);
+            detailLog.scrollTop = detailLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        // Variables globales
+        let xmlCache = {
+            propertiesMap: new Map(),
+            lastUpdate: null
+        };
+        
+        let csvData = [];
+        let diagnosticReport = {
+            total: 0,
+            withImages: 0,
+            withoutImages: 0,
+            failedLoads: 0,
+            patterns: {}
+        };
+
+        // Cargar XML del feed
+        async function loadXMLFeed() {
+            log('🔄 Cargando XML feed...', 'info');
+            
+            const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+            const corsProxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                'https://cors-anywhere.herokuapp.com/',
+                ''
+            ];
+            
+            let xmlText = null;
+            let usedProxy = null;
+            
+            for (const proxy of corsProxies) {
+                try {
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                    log(`🌐 Probando: ${proxy || 'conexión directa'}`, 'debug');
+                    
+                    const response = await fetch(fetchUrl);
+                    
+                    if (response.ok) {
+                        xmlText = await response.text();
+                        usedProxy = proxy || 'directo';
+                        log(`✅ XML obtenido usando: ${usedProxy}`, 'success');
+                        break;
+                    }
+                } catch (error) {
+                    log(`❌ Error con ${proxy || 'directo'}: ${error.message}`, 'error');
+                    continue;
+                }
+            }
+            
+            if (!xmlText) {
+                log('❌ No se pudo obtener el XML', 'error');
+                updateXMLStatus('❌ Error al cargar XML', 'error');
+                return false;
+            }
+            
+            // Parsear XML
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                log('❌ Error parseando XML', 'error');
+                updateXMLStatus('❌ Error al parsear XML', 'error');
+                return false;
+            }
+            
+            // Limpiar cache
+            xmlCache.propertiesMap.clear();
+            
+            // Procesar listings
+            const listings = xmlDoc.getElementsByTagName('listing');
+            log(`📊 Procesando ${listings.length} listings`, 'info');
+            
+            let processedCount = 0;
+            let imageCount = 0;
+            
+            for (let listing of listings) {
+                try {
+                    const referenceIdElement = listing.querySelector('reference_id');
+                    if (!referenceIdElement) continue;
+                    
+                    const referenceId = referenceIdElement.textContent.trim();
+                    if (!referenceId) continue;
+                    
+                    const images = [];
+                    const picturesElement = listing.querySelector('pictures');
+                    
+                    if (picturesElement) {
+                        const urlElements = picturesElement.querySelectorAll('url');
+                        urlElements.forEach(urlElement => {
+                            const imageUrl = urlElement.textContent.trim();
+                            if (imageUrl && imageUrl.startsWith('http')) {
+                                images.push(imageUrl);
+                                imageCount++;
+                            }
+                        });
+                    }
+                    
+                    if (images.length > 0) {
+                        xmlCache.propertiesMap.set(referenceId, images);
+                        processedCount++;
+                    }
+                } catch (error) {
+                    log(`⚠️ Error procesando listing: ${error.message}`, 'warning');
+                }
+            }
+            
+            xmlCache.lastUpdate = new Date();
+            
+            log(`✅ XML procesado: ${processedCount} propiedades con ${imageCount} imágenes`, 'success');
+            updateXMLStatus(`✅ ${processedCount} propiedades, ${imageCount} imágenes`, 'success');
+            
+            return true;
+        }
+
+        // Cargar datos del CSV (simulado - necesitarías adaptarlo a tu fuente real)
+        async function loadCSVData() {
+            log('📊 Cargando datos del CSV...', 'info');
+            
+            // Aquí simularemos algunos códigos de propiedades típicos
+            // En la implementación real, deberías cargar desde tu Google Sheets
+            const sampleCodes = [
+                'TU -2917', 'TU -2950', 'TU -11', 'TU -3456', 'TU -1234',
+                '2917', '2950', '11', '3456', '1234',
+                'TU-5678', 'TU 9012', 'PROP-3456', '0011', '00123'
+            ];
+            
+            csvData = sampleCodes.map((codigo, index) => ({
+                codigo: codigo,
+                corredor: `Corredor ${index + 1}`,
+                referido: index % 3 === 0 ? 'TuMatch' : `Cliente ${index}`,
+                isTM: index % 3 === 0
+            }));
+            
+            log(`📊 Cargados ${csvData.length} registros de prueba`, 'info');
+            return true;
+        }
+
+        // Función mejorada de búsqueda de imágenes
+        async function findPropertyImages(codigo) {
+            log(`🔍 Analizando código: "${codigo}"`, 'debug');
+            
+            const strategies = [];
+            
+            // Estrategia 1: TU -XXXX
+            const tuMatch = codigo.match(/TU\s*-\s*(\d+)/i);
+            if (tuMatch) {
+                strategies.push({ name: 'TU-format', id: tuMatch[1] });
+            }
+            
+            // Estrategia 2: Números al final
+            const endNumber = codigo.match(/(\d+)$/);
+            if (endNumber) {
+                strategies.push({ name: 'end-number', id: endNumber[1] });
+            }
+            
+            // Estrategia 3: Después de guión
+            const afterDash = codigo.match(/-\s*(\d+)/);
+            if (afterDash) {
+                strategies.push({ name: 'after-dash', id: afterDash[1] });
+            }
+            
+            // Estrategia 4: Todos los números
+            const allNumbers = codigo.match(/\d+/g);
+            if (allNumbers) {
+                allNumbers.forEach(num => {
+                    strategies.push({ name: 'all-numbers', id: num });
+                });
+            }
+            
+            // Estrategia 5: Código completo
+            strategies.push({ name: 'full-code', id: codigo.replace(/\s+/g, '') });
+            strategies.push({ name: 'original', id: codigo });
+            
+            // Eliminar duplicados
+            const uniqueStrategies = strategies.filter((strategy, index, self) =>
+                index === self.findIndex(s => s.id === strategy.id)
+            );
+            
+            log(`🎯 Probando ${uniqueStrategies.length} estrategias para: ${codigo}`, 'debug');
+            
+            // Probar cada estrategia
+            for (const strategy of uniqueStrategies) {
+                const { name, id } = strategy;
+                
+                // Búsqueda exacta
+                let images = xmlCache.propertiesMap.get(id);
+                if (images) {
+                    log(`✅ Encontrado con ${name}: ${id}`, 'success');
+                    return { 
+                        success: true, 
+                        referenceId: id, 
+                        images, 
+                        strategy: name,
+                        matchType: 'exact'
+                    };
+                }
+                
+                // Probar con padding de ceros
+                for (let zeros = 1; zeros <= 3; zeros++) {
+                    const paddedId = id.padStart(id.length + zeros, '0');
+                    images = xmlCache.propertiesMap.get(paddedId);
+                    if (images) {
+                        log(`✅ Encontrado con padding (${name}): ${paddedId}`, 'success');
+                        return { 
+                            success: true, 
+                            referenceId: paddedId, 
+                            images, 
+                            strategy: `${name}-padded`,
+                            matchType: 'padded'
+                        };
+                    }
+                }
+                
+                // Probar sin ceros al inicio
+                if (id.startsWith('0')) {
+                    const withoutZeros = id.replace(/^0+/, '');
+                    images = xmlCache.propertiesMap.get(withoutZeros);
+                    if (images) {
+                        log(`✅ Encontrado sin ceros (${name}): ${withoutZeros}`, 'success');
+                        return { 
+                            success: true, 
+                            referenceId: withoutZeros, 
+                            images, 
+                            strategy: `${name}-no-zeros`,
+                            matchType: 'no-zeros'
+                        };
+                    }
+                }
+            }
+            
+            // Búsqueda de coincidencias parciales
+            const availableIds = Array.from(xmlCache.propertiesMap.keys());
+            for (const strategy of uniqueStrategies) {
+                const { name, id } = strategy;
+                const partialMatches = availableIds.filter(availableId => 
+                    availableId.includes(id) || id.includes(availableId)
+                );
+                
+                if (partialMatches.length > 0) {
+                    log(`🔍 Coincidencia parcial (${name}): ${partialMatches[0]}`, 'warning');
+                    const images = xmlCache.propertiesMap.get(partialMatches[0]);
+                    return { 
+                        success: true, 
+                        referenceId: partialMatches[0], 
+                        images, 
+                        strategy: `${name}-partial`,
+                        matchType: 'partial',
+                        allMatches: partialMatches
+                    };
+                }
+            }
+            
+            log(`❌ No se encontró imagen para: ${codigo}`, 'error');
+            return { 
+                success: false, 
+                codigo, 
+                strategies: uniqueStrategies.map(s => s.id),
+                availableCount: availableIds.length
+            };
+        }
+
+        // Ejecutar diagnóstico completo
+        async function runDiagnostic() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('diagnosticResults').classList.add('hidden');
+            
+            log('🚀 Iniciando diagnóstico completo', 'info');
+            
+            try {
+                // Cargar datos
+                await loadXMLFeed();
+                await loadCSVData();
+                
+                // Reiniciar reporte
+                diagnosticReport = {
+                    total: csvData.length,
+                    withImages: 0,
+                    withoutImages: 0,
+                    failedLoads: 0,
+                    patterns: {},
+                    missingCodes: [],
+                    foundCodes: [],
+                    strategies: {}
+                };
+                
+                // Analizar cada propiedad
+                for (const property of csvData) {
+                    const result = await findPropertyImages(property.codigo);
+                    
+                    if (result.success) {
+                        diagnosticReport.withImages++;
+                        diagnosticReport.foundCodes.push({
+                            ...property,
+                            ...result
+                        });
+                        
+                        // Contar estrategias exitosas
+                        if (!diagnosticReport.strategies[result.strategy]) {
+                            diagnosticReport.strategies[result.strategy] = 0;
+                        }
+                        diagnosticReport.strategies[result.strategy]++;
+                        
+                    } else {
+                        diagnosticReport.withoutImages++;
+                        diagnosticReport.missingCodes.push({
+                            ...property,
+                            ...result
+                        });
+                    }
+                    
+                    // Analizar patrones de códigos
+                    const pattern = analyzeCodePattern(property.codigo);
+                    if (!diagnosticReport.patterns[pattern]) {
+                        diagnosticReport.patterns[pattern] = { total: 0, found: 0 };
+                    }
+                    diagnosticReport.patterns[pattern].total++;
+                    if (result.success) {
+                        diagnosticReport.patterns[pattern].found++;
+                    }
+                }
+                
+                // Mostrar resultados
+                displayDiagnosticResults();
+                updateGeneralStats();
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('diagnosticResults').classList.remove('hidden');
+                
+                log('✅ Diagnóstico completado', 'success');
+                
+            } catch (error) {
+                log(`❌ Error en diagnóstico: ${error.message}`, 'error');
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        // Analizar patrón de código
+        function analyzeCodePattern(codigo) {
+            if (/^TU\s*-\s*\d+$/i.test(codigo)) return 'TU-NUMERO';
+            if (/^\d+$/.test(codigo)) return 'SOLO-NUMERO';
+            if (/^TU\d+$/i.test(codigo)) return 'TU-SIN-GUION';
+            if (/^\w+-\d+$/.test(codigo)) return 'TEXTO-GUION-NUMERO';
+            if (/^0+\d+$/.test(codigo)) return 'CON-CEROS-INICIAL';
+            return 'OTRO';
+        }
+
+        // Mostrar resultados del diagnóstico
+        function displayDiagnosticResults() {
+            // Propiedades sin imágenes
+            const missingDiv = document.getElementById('missingImages');
+            missingDiv.innerHTML = diagnosticReport.missingCodes.map(item => `
+                <div class="bg-red-900 bg-opacity-30 border border-red-500 rounded p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-mono text-lg font-bold text-red-400">${item.codigo}</span>
+                        <span class="text-sm text-gray-400">${item.corredor}</span>
+                    </div>
+                    <div class="text-sm space-y-1 text-gray-300">
+                        <p><strong>Estrategias probadas:</strong> ${item.strategies?.join(', ')}</p>
+                        <p><strong>IDs disponibles en XML:</strong> ${item.availableCount}</p>
+                        <button onclick="testSpecificCode('${item.codigo}')" 
+                                class="mt-2 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm">
+                            🔍 Analizar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Propiedades con imágenes
+            const foundDiv = document.getElementById('foundImages');
+            foundDiv.innerHTML = diagnosticReport.foundCodes.map(item => `
+                <div class="bg-green-900 bg-opacity-30 border border-green-500 rounded p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-mono text-lg font-bold text-green-400">${item.codigo}</span>
+                        <span class="text-sm text-gray-400">${item.corredor}</span>
+                    </div>
+                    <div class="text-sm space-y-1 text-gray-300">
+                        <p><strong>Encontrado como:</strong> ${item.referenceId}</p>
+                        <p><strong>Estrategia:</strong> ${item.strategy}</p>
+                        <p><strong>Tipo:</strong> ${item.matchType}</p>
+                        <p><strong>Imágenes:</strong> ${item.images.length}</p>
+                        ${item.images.length > 0 ? `
+                            <img src="${item.images[0]}" alt="Preview" 
+                                 class="w-20 h-20 object-cover rounded mt-2 cursor-pointer"
+                                 onclick="window.open('${item.images[0]}', '_blank')">
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Análisis de patrones
+            const patternDiv = document.getElementById('patternAnalysis');
+            const patternEntries = Object.entries(diagnosticReport.patterns);
+            patternDiv.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-4">
+                    ${patternEntries.map(([pattern, data]) => `
+                        <div class="bg-gray-700 rounded p-4">
+                            <h4 class="font-bold mb-2">${pattern}</h4>
+                            <div class="text-sm space-y-1">
+                                <p>Total: ${data.total}</p>
+                                <p>Con imagen: ${data.found}</p>
+                                <p>Éxito: ${((data.found / data.total) * 100).toFixed(1)}%</p>
+                                <div class="w-full bg-gray-600 rounded-full h-2 mt-2">
+                                    <div class="bg-green-500 h-2 rounded-full" 
+                                         style="width: ${(data.found / data.total) * 100}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="mt-6 bg-gray-700 rounded p-4">
+                    <h4 class="font-bold mb-3">Estrategias más exitosas:</h4>
+                    <div class="space-y-2">
+                        ${Object.entries(diagnosticReport.strategies)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([strategy, count]) => `
+                                <div class="flex justify-between">
+                                    <span>${strategy}</span>
+                                    <span class="font-bold">${count}</span>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Actualizar estadísticas generales
+        function updateGeneralStats() {
+            const statsDiv = document.getElementById('generalStats');
+            const successRate = ((diagnosticReport.withImages / diagnosticReport.total) * 100).toFixed(1);
+            
+            statsDiv.innerHTML = `
+                <p>📊 <strong>Total propiedades:</strong> ${diagnosticReport.total}</p>
+                <p>✅ <strong>Con imágenes:</strong> ${diagnosticReport.withImages}</p>
+                <p>❌ <strong>Sin imágenes:</strong> ${diagnosticReport.withoutImages}</p>
+                <p>📈 <strong>Tasa de éxito:</strong> ${successRate}%</p>
+                <p>🗂️ <strong>En XML:</strong> ${xmlCache.propertiesMap.size} propiedades</p>
+                <div class="mt-3 w-full bg-gray-600 rounded-full h-3">
+                    <div class="bg-green-500 h-3 rounded-full" 
+                         style="width: ${successRate}%"></div>
+                </div>
+            `;
+        }
+
+        // Actualizar estado del XML
+        function updateXMLStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('xmlStatus');
+            const colors = {
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400',
+                info: 'text-blue-400'
+            };
+            
+            statusDiv.innerHTML = `
+                <p class="${colors[type]}">${message}</p>
+                ${xmlCache.lastUpdate ? `
+                    <p class="text-gray-400 text-sm">Última actualización: ${xmlCache.lastUpdate.toLocaleTimeString()}</p>
+                ` : ''}
+                <p class="text-gray-400 text-sm">Propiedades en cache: ${xmlCache.propertiesMap.size}</p>
+            `;
+        }
+
+        // Probar código específico
+        async function testSpecificProperty() {
+            const codigo = document.getElementById('testCode').value.trim();
+            if (!codigo) {
+                alert('Ingresa un código para probar');
+                return;
+            }
+            
+            await testSpecificCode(codigo);
+        }
+
+        async function testSpecificCode(codigo) {
+            log(`🧪 Probando código específico: ${codigo}`, 'info');
+            
+            if (xmlCache.propertiesMap.size === 0) {
+                await loadXMLFeed();
+            }
+            
+            const result = await findPropertyImages(codigo);
+            
+            const specificDiv = document.getElementById('specificTest');
+            const resultsDiv = document.getElementById('specificTestResults');
+            
+            if (result.success) {
+                resultsDiv.innerHTML = `
+                    <div class="bg-green-900 bg-opacity-50 border border-green-500 rounded p-6">
+                        <h4 class="text-xl font-bold text-green-400 mb-4">✅ Imagen Encontrada</h4>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="space-y-3">
+                                <p><strong>Código original:</strong> ${codigo}</p>
+                                <p><strong>Reference ID:</strong> ${result.referenceId}</p>
+                                <p><strong>Estrategia:</strong> ${result.strategy}</p>
+                                <p><strong>Tipo de match:</strong> ${result.matchType}</p>
+                                <p><strong>Imágenes disponibles:</strong> ${result.images.length}</p>
+                                ${result.allMatches ? `<p><strong>Otras coincidencias:</strong> ${result.allMatches.join(', ')}</p>` : ''}
+                            </div>
+                            <div>
+                                ${result.images.length > 0 ? `
+                                    <img src="${result.images[0]}" alt="Imagen de ${codigo}" 
+                                         class="w-full max-w-xs rounded border border-green-500 cursor-pointer"
+                                         onclick="window.open('${result.images[0]}', '_blank')">
+                                    <p class="text-sm text-gray-400 mt-2">Clic para ver en tamaño completo</p>
+                                ` : '<p>No hay imágenes disponibles</p>'}
+                            </div>
+                        </div>
+                        ${result.images.length > 1 ? `
+                            <div class="mt-4">
+                                <p class="font-bold mb-2">Todas las imágenes:</p>
+                                <div class="flex flex-wrap gap-2">
+                                    ${result.images.map((img, index) => `
+                                        <img src="${img}" alt="Imagen ${index + 1}" 
+                                             class="w-16 h-16 object-cover rounded cursor-pointer border border-gray-600"
+                                             onclick="window.open('${img}', '_blank')">
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                const availableIds = Array.from(xmlCache.propertiesMap.keys()).slice(0, 20);
+                resultsDiv.innerHTML = `
+                    <div class="bg-red-900 bg-opacity-50 border border-red-500 rounded p-6">
+                        <h4 class="text-xl font-bold text-red-400 mb-4">❌ No se encontró imagen</h4>
+                        <div class="space-y-3">
+                            <p><strong>Código probado:</strong> ${codigo}</p>
+                            <p><strong>Estrategias utilizadas:</strong> ${result.strategies.join(', ')}</p>
+                            <p><strong>IDs disponibles en XML:</strong> ${result.availableCount}</p>
+                            
+                            <div class="mt-4 p-4 bg-gray-800 rounded">
+                                <p class="font-bold mb-2">Primeros 20 IDs disponibles:</p>
+                                <div class="text-sm font-mono text-gray-300 max-h-40 overflow-y-auto">
+                                    ${availableIds.join(', ')}
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 p-4 bg-yellow-900 bg-opacity-50 border border-yellow-500 rounded">
+                                <p class="font-bold text-yellow-400 mb-2">Sugerencias:</p>
+                                <ul class="text-sm space-y-1">
+                                    <li>• Verifica que el código sea correcto</li>
+                                    <li>• Prueba con solo el número (ej: 2917 en lugar de TU -2917)</li>
+                                    <li>• Verifica si la propiedad existe en el XML</li>
+                                    <li>• Considera que puede haber diferencias en el formato</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            specificDiv.classList.remove('hidden');
+        }
+
+        // Mostrar solo propiedades sin imágenes
+        function showMissingOnly() {
+            const missingDiv = document.getElementById('missingImages');
+            const foundDiv = document.getElementById('foundImages');
+            const patternDiv = document.getElementById('patternAnalysis');
+            
+            if (diagnosticReport.missingCodes.length === 0) {
+                alert('Ejecuta primero el diagnóstico completo');
+                return;
+            }
+            
+            // Ocultar las que tienen imágenes
+            foundDiv.parentElement.style.display = 'none';
+            patternDiv.parentElement.style.display = 'none';
+            
+            document.getElementById('diagnosticResults').classList.remove('hidden');
+        }
+
+        // Exportar reporte
+        function exportReport() {
+            if (diagnosticReport.total === 0) {
+                alert('Ejecuta primero el diagnóstico completo');
+                return;
+            }
+            
+            const report = {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    total: diagnosticReport.total,
+                    withImages: diagnosticReport.withImages,
+                    withoutImages: diagnosticReport.withoutImages,
+                    successRate: ((diagnosticReport.withImages / diagnosticReport.total) * 100).toFixed(2)
+                },
+                patterns: diagnosticReport.patterns,
+                strategies: diagnosticReport.strategies,
+                missingProperties: diagnosticReport.missingCodes,
+                foundProperties: diagnosticReport.foundCodes.map(item => ({
+                    codigo: item.codigo,
+                    referenceId: item.referenceId,
+                    strategy: item.strategy,
+                    matchType: item.matchType,
+                    imageCount: item.images.length
+                }))
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diagnostico-imagenes-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            log('📊 Reporte exportado', 'success');
+        }
+
+        // Inicializar
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Diagnóstico de imágenes iniciado', 'info');
+            updateXMLStatus('⏳ Listo para cargar XML', 'info');
+        });
+
+        // Enter para probar código específico
+        document.getElementById('testCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testSpecificProperty();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Mejorado - Extracción de Imágenes XML</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold mb-2">🔍 Test Mejorado de Extracción de Imágenes</h1>
+        <p class="text-gray-400 mb-8">Prueba diferentes formatos de códigos para encontrar imágenes en el XML</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <!-- Panel de búsqueda -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-400">🔎 Buscar Propiedad</h2>
+                <div class="space-y-4">
+                    <input 
+                        type="text" 
+                        id="propertyCode" 
+                        placeholder="Código (ej: TU -2917, 2917, etc.)"
+                        class="w-full px-4 py-3 bg-gray-700 rounded border border-gray-600 text-white focus:border-blue-500 focus:outline-none"
+                        value="TU -2917"
+                    >
+                    <div class="flex gap-2">
+                        <button 
+                            onclick="testSearch()"
+                            class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded font-semibold transition"
+                        >
+                            🔍 Buscar
+                        </button>
+                        <button 
+                            onclick="loadAllProperties()"
+                            class="flex-1 px-4 py-3 bg-green-600 hover:bg-green-700 rounded font-semibold transition"
+                        >
+                            📋 Ver Todas
+                        </button>
+                    </div>
+                    
+                    <!-- Ejemplos rápidos -->
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <p class="text-sm text-gray-400 mb-2">Ejemplos rápidos:</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="document.getElementById('propertyCode').value='TU -2917'; testSearch()" 
+                                    class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm">TU -2917</button>
+                            <button onclick="document.getElementById('propertyCode').value='2917'; testSearch()" 
+                                    class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm">2917</button>
+                            <button onclick="document.getElementById('propertyCode').value='11'; testSearch()" 
+                                    class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm">11</button>
+                            <button onclick="document.getElementById('propertyCode').value='2950'; testSearch()" 
+                                    class="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm">2950</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Panel de estadísticas -->
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-400">📊 Estadísticas del XML</h2>
+                <div id="stats" class="space-y-2 text-gray-300">
+                    <p>Cargando estadísticas...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-8 bg-gray-800 rounded-lg">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <p class="mt-4 text-lg">Cargando XML feed...</p>
+        </div>
+
+        <!-- Resultados de búsqueda -->
+        <div id="searchResults" class="hidden bg-gray-800 rounded-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4 text-yellow-400">🔍 Resultado de Búsqueda</h3>
+            <div id="searchContent"></div>
+        </div>
+
+        <!-- Lista de todas las propiedades -->
+        <div id="allProperties" class="hidden">
+            <div class="bg-gray-800 rounded-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold mb-4 text-purple-400">📋 Todas las Propiedades con Imágenes</h3>
+                <div id="propertiesGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Logs de depuración -->
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">🔧 Logs de Depuración</h3>
+            <div id="debugLog" class="bg-black rounded p-4 h-64 overflow-y-auto font-mono text-sm text-gray-300"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de logging mejorado
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-300',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            debugLog.appendChild(logEntry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        // Cache para el XML
+        let xmlCache = {
+            data: null,
+            propertiesMap: new Map()
+        };
+
+        // Función mejorada para cargar XML con múltiples estrategias
+        async function loadXMLFeed() {
+            log('🔄 Iniciando carga del XML feed...', 'info');
+            
+            const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+            
+            // Intentar con múltiples proxies CORS
+            const corsProxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                'https://cors-anywhere.herokuapp.com/',
+                '' // Intento directo sin proxy
+            ];
+            
+            let xmlText = null;
+            
+            for (const proxy of corsProxies) {
+                try {
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                    log(`🌐 Intentando con: ${proxy || 'conexión directa'}`, 'info');
+                    
+                    const response = await fetch(fetchUrl);
+                    
+                    if (response.ok) {
+                        xmlText = await response.text();
+                        log(`✅ XML obtenido con éxito usando: ${proxy || 'conexión directa'}`, 'success');
+                        break;
+                    }
+                } catch (error) {
+                    log(`❌ Error con ${proxy || 'conexión directa'}: ${error.message}`, 'error');
+                    continue;
+                }
+            }
+            
+            if (!xmlText) {
+                log('❌ No se pudo obtener el XML con ningún método', 'error');
+                return xmlCache.propertiesMap;
+            }
+            
+            // Parsear XML
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            
+            // Verificar errores de parseo
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                log('❌ Error al parsear el XML', 'error');
+                return xmlCache.propertiesMap;
+            }
+            
+            // Limpiar cache anterior
+            xmlCache.propertiesMap.clear();
+            
+            // Obtener listings
+            const listings = xmlDoc.getElementsByTagName('listing');
+            log(`📊 Total de listings encontrados: ${listings.length}`, 'success');
+            
+            let propertiesWithImages = 0;
+            let totalImages = 0;
+            
+            for (let listing of listings) {
+                try {
+                    const referenceIdElement = listing.querySelector('reference_id');
+                    if (!referenceIdElement) continue;
+                    
+                    const referenceId = referenceIdElement.textContent.trim();
+                    if (!referenceId) continue;
+                    
+                    // Obtener imágenes
+                    const images = [];
+                    const picturesElement = listing.querySelector('pictures');
+                    
+                    if (picturesElement) {
+                        const urlElements = picturesElement.querySelectorAll('url');
+                        urlElements.forEach(urlElement => {
+                            const imageUrl = urlElement.textContent.trim();
+                            if (imageUrl && imageUrl.startsWith('http')) {
+                                images.push(imageUrl);
+                                totalImages++;
+                            }
+                        });
+                    }
+                    
+                    if (images.length > 0) {
+                        xmlCache.propertiesMap.set(referenceId, images);
+                        propertiesWithImages++;
+                    }
+                } catch (error) {
+                    log(`⚠️ Error procesando listing: ${error.message}`, 'warning');
+                }
+            }
+            
+            log(`✅ Procesamiento completado: ${propertiesWithImages} propiedades con ${totalImages} imágenes`, 'success');
+            
+            // Actualizar estadísticas
+            updateStats(listings.length, propertiesWithImages, totalImages);
+            
+            return xmlCache.propertiesMap;
+        }
+
+        // Actualizar panel de estadísticas
+        function updateStats(totalListings, withImages, totalImages) {
+            const statsDiv = document.getElementById('stats');
+            statsDiv.innerHTML = `
+                <p>📋 <span class="text-white font-semibold">${totalListings}</span> propiedades totales</p>
+                <p>🖼️ <span class="text-white font-semibold">${withImages}</span> con imágenes</p>
+                <p>📸 <span class="text-white font-semibold">${totalImages}</span> imágenes totales</p>
+                <p>💾 <span class="text-white font-semibold">${xmlCache.propertiesMap.size}</span> en cache</p>
+                <p class="mt-2 text-sm text-gray-400">Última actualización: ${new Date().toLocaleTimeString()}</p>
+            `;
+        }
+
+        // Función de búsqueda mejorada con múltiples estrategias
+        async function findPropertyImages(codigo) {
+            log(`🔍 Buscando imágenes para: "${codigo}"`, 'info');
+            
+            // Múltiples estrategias para extraer el reference_id
+            let possibleIds = [];
+            
+            // Estrategia 1: Extraer número después de "TU -"
+            const tuMatch = codigo.match(/TU\s*-\s*(\d+)/i);
+            if (tuMatch) {
+                possibleIds.push(tuMatch[1]);
+                log(`📌 Estrategia TU-: ${tuMatch[1]}`, 'info');
+            }
+            
+            // Estrategia 2: Extraer cualquier secuencia de números al final
+            const endNumberMatch = codigo.match(/(\d+)$/);
+            if (endNumberMatch) {
+                possibleIds.push(endNumberMatch[1]);
+                log(`📌 Estrategia números al final: ${endNumberMatch[1]}`, 'info');
+            }
+            
+            // Estrategia 3: Extraer números después de cualquier guión
+            const afterDashMatch = codigo.match(/-\s*(\d+)/);
+            if (afterDashMatch) {
+                possibleIds.push(afterDashMatch[1]);
+                log(`📌 Estrategia después de guión: ${afterDashMatch[1]}`, 'info');
+            }
+            
+            // Estrategia 4: Extraer todos los números
+            const allNumbers = codigo.match(/\d+/g);
+            if (allNumbers) {
+                possibleIds = possibleIds.concat(allNumbers);
+                log(`📌 Estrategia todos los números: ${allNumbers.join(', ')}`, 'info');
+            }
+            
+            // Estrategia 5: Usar el código completo
+            possibleIds.push(codigo.replace(/\s+/g, ''));
+            possibleIds.push(codigo);
+            
+            // Eliminar duplicados
+            possibleIds = [...new Set(possibleIds.filter(id => id))];
+            log(`🎯 IDs a probar: ${possibleIds.join(', ')}`, 'info');
+            
+            // Intentar con cada posible ID
+            for (const referenceId of possibleIds) {
+                // Buscar coincidencia exacta
+                let images = xmlCache.propertiesMap.get(referenceId);
+                
+                if (images) {
+                    log(`✅ Coincidencia exacta encontrada: ${referenceId}`, 'success');
+                    return { referenceId, images };
+                }
+                
+                // Probar con ceros al inicio
+                for (let zeros = 1; zeros <= 3; zeros++) {
+                    const paddedId = referenceId.padStart(referenceId.length + zeros, '0');
+                    images = xmlCache.propertiesMap.get(paddedId);
+                    if (images) {
+                        log(`✅ Coincidencia con padding encontrada: ${paddedId}`, 'success');
+                        return { referenceId: paddedId, images };
+                    }
+                }
+                
+                // Probar quitando ceros al inicio
+                if (referenceId.startsWith('0')) {
+                    const withoutZeros = referenceId.replace(/^0+/, '');
+                    images = xmlCache.propertiesMap.get(withoutZeros);
+                    if (images) {
+                        log(`✅ Coincidencia sin ceros encontrada: ${withoutZeros}`, 'success');
+                        return { referenceId: withoutZeros, images };
+                    }
+                }
+            }
+            
+            // Buscar coincidencias parciales
+            log('⚠️ No se encontró coincidencia exacta, buscando parciales...', 'warning');
+            
+            const availableIds = Array.from(xmlCache.propertiesMap.keys());
+            for (const possibleId of possibleIds) {
+                const matchingIds = availableIds.filter(id => 
+                    id.includes(possibleId) || possibleId.includes(id)
+                );
+                
+                if (matchingIds.length > 0) {
+                    log(`🔍 Coincidencias parciales: ${matchingIds.join(', ')}`, 'warning');
+                    const images = xmlCache.propertiesMap.get(matchingIds[0]);
+                    if (images) {
+                        return { referenceId: matchingIds[0], images, partial: true };
+                    }
+                }
+            }
+            
+            log(`❌ No se encontraron imágenes para ninguna variación de: ${codigo}`, 'error');
+            return null;
+        }
+
+        // Función de búsqueda principal
+        async function testSearch() {
+            const codigo = document.getElementById('propertyCode').value.trim();
+            
+            if (!codigo) {
+                alert('Por favor ingresa un código de propiedad');
+                return;
+            }
+            
+            // Mostrar loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('searchResults').classList.add('hidden');
+            document.getElementById('allProperties').classList.add('hidden');
+            
+            try {
+                // Cargar XML si no está en cache
+                if (xmlCache.propertiesMap.size === 0) {
+                    await loadXMLFeed();
+                }
+                
+                // Buscar imágenes
+                const result = await findPropertyImages(codigo);
+                
+                // Ocultar loading
+                document.getElementById('loading').classList.add('hidden');
+                
+                // Mostrar resultados
+                const searchResults = document.getElementById('searchResults');
+                const searchContent = document.getElementById('searchContent');
+                
+                if (result) {
+                    searchContent.innerHTML = `
+                        <div class="space-y-4">
+                            <div class="bg-gray-700 rounded p-4">
+                                <p class="text-sm text-gray-400">Código buscado:</p>
+                                <p class="text-xl font-bold">${codigo}</p>
+                            </div>
+                            <div class="bg-gray-700 rounded p-4">
+                                <p class="text-sm text-gray-400">Reference ID encontrado:</p>
+                                <p class="text-xl font-bold text-green-400">${result.referenceId}</p>
+                                ${result.partial ? '<p class="text-sm text-yellow-400 mt-1">⚠️ Coincidencia parcial</p>' : ''}
+                            </div>
+                            <div class="bg-gray-700 rounded p-4">
+                                <p class="text-sm text-gray-400 mb-3">Imágenes encontradas: ${result.images.length}</p>
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    ${result.images.map((img, index) => `
+                                        <div class="relative group">
+                                            <img src="${img}" alt="Imagen ${index + 1}" 
+                                                 class="w-full h-32 object-cover rounded border-2 border-gray-600 hover:border-blue-500 transition cursor-pointer"
+                                                 onclick="window.open('${img}', '_blank')"
+                                                 onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 150%22><rect fill=%22%23374151%22 width=%22200%22 height=%22150%22/><text fill=%22%239CA3AF%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>Error</text></svg>'">
+                                            <span class="absolute bottom-0 left-0 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded-tr">
+                                                ${index + 1}/${result.images.length}
+                                            </span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="bg-gray-700 rounded p-4">
+                                <p class="text-sm text-gray-400 mb-2">URLs de las imágenes:</p>
+                                <div class="space-y-1 max-h-40 overflow-y-auto">
+                                    ${result.images.map((img, index) => `
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-gray-500">${index + 1}.</span>
+                                            <a href="${img}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs truncate flex-1">
+                                                ${img}
+                                            </a>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    searchContent.innerHTML = `
+                        <div class="bg-red-900 bg-opacity-50 border border-red-500 rounded p-6 text-center">
+                            <p class="text-2xl mb-2">❌</p>
+                            <p class="text-xl font-semibold mb-2">No se encontraron imágenes</p>
+                            <p class="text-gray-400">Código buscado: <span class="text-white font-mono">${codigo}</span></p>
+                            <div class="mt-4 p-4 bg-gray-800 rounded text-left">
+                                <p class="text-sm text-gray-400 mb-2">Sugerencias:</p>
+                                <ul class="text-sm space-y-1 text-gray-300">
+                                    <li>• Verifica que el código sea correcto</li>
+                                    <li>• Prueba con solo el número (ej: 2917 en lugar de TU -2917)</li>
+                                    <li>• Revisa la lista de todas las propiedades disponibles</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                searchResults.classList.remove('hidden');
+                
+            } catch (error) {
+                log(`❌ Error en búsqueda: ${error.message}`, 'error');
+                document.getElementById('loading').classList.add('hidden');
+                alert('Error al buscar: ' + error.message);
+            }
+        }
+
+        // Cargar todas las propiedades
+        async function loadAllProperties() {
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('searchResults').classList.add('hidden');
+            document.getElementById('allProperties').classList.add('hidden');
+            
+            try {
+                // Cargar XML si no está en cache
+                if (xmlCache.propertiesMap.size === 0) {
+                    await loadXMLFeed();
+                }
+                
+                // Ocultar loading
+                document.getElementById('loading').classList.add('hidden');
+                
+                // Mostrar propiedades
+                const propertiesGrid = document.getElementById('propertiesGrid');
+                const entries = Array.from(xmlCache.propertiesMap.entries())
+                    .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+                
+                propertiesGrid.innerHTML = entries.map(([refId, images]) => `
+                    <div class="bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition">
+                        <div class="mb-3">
+                            <p class="text-sm text-gray-400">Reference ID:</p>
+                            <p class="font-bold text-lg">${refId}</p>
+                        </div>
+                        <div class="relative">
+                            <img src="${images[0]}" alt="Propiedad ${refId}" 
+                                 class="w-full h-40 object-cover rounded cursor-pointer"
+                                 onclick="document.getElementById('propertyCode').value='${refId}'; testSearch()"
+                                 onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 150%22><rect fill=%22%23374151%22 width=%22200%22 height=%22150%22/><text fill=%22%239CA3AF%22 x=%2250%%22 y=%2250%%22 text-anchor=%22middle%22 dy=%22.3em%22>Error</text></svg>'">
+                            <span class="absolute top-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
+                                ${images.length} ${images.length === 1 ? 'imagen' : 'imágenes'}
+                            </span>
+                        </div>
+                        <button onclick="document.getElementById('propertyCode').value='${refId}'; testSearch()"
+                                class="mt-3 w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm font-semibold transition">
+                            Ver detalles
+                        </button>
+                    </div>
+                `).join('');
+                
+                document.getElementById('allProperties').classList.remove('hidden');
+                
+            } catch (error) {
+                log(`❌ Error cargando propiedades: ${error.message}`, 'error');
+                document.getElementById('loading').classList.add('hidden');
+                alert('Error al cargar propiedades: ' + error.message);
+            }
+        }
+
+        // Inicializar al cargar la página
+        window.addEventListener('DOMContentLoaded', async () => {
+            log('🚀 Aplicación iniciada', 'success');
+            log('📍 URL del XML: https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml', 'info');
+            
+            // Cargar XML automáticamente
+            await loadXMLFeed();
+        });
+
+        // Permitir búsqueda con Enter
+        document.getElementById('propertyCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testSearch();
+            }
+        });
+    </script>
+</body>
+</html>

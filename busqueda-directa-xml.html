@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Búsqueda Directa en XML</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">🔍 Búsqueda Directa en XML Raw</h1>
+        <p class="text-gray-400 mb-8 text-center">Búsqueda de texto crudo en el XML completo</p>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <div class="flex gap-4 mb-4">
+                <input type="text" id="searchTerm" value="2965" 
+                       class="flex-1 px-4 py-2 bg-gray-700 rounded border border-gray-600 text-white"
+                       placeholder="Buscar en XML...">
+                <button onclick="searchInXML()" 
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">
+                    🔍 Buscar
+                </button>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="quickSearch('2965')" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm">2965</button>
+                <button onclick="quickSearch('3176')" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm">3176</button>
+                <button onclick="quickSearch('4955')" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm">4955</button>
+                <button onclick="loadRawXML()" class="px-3 py-1 bg-green-600 hover:bg-green-500 rounded text-sm">Ver XML Raw</button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-8 bg-gray-800 rounded-lg mb-6">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="mt-4">Cargando y analizando XML...</p>
+        </div>
+
+        <div id="results" class="space-y-6"></div>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">📝 Logs</h3>
+            <div id="searchLog" class="bg-black rounded p-4 h-48 overflow-y-auto font-mono text-sm text-gray-300"></div>
+        </div>
+    </div>
+
+    <script>
+        let rawXMLContent = '';
+
+        function log(message, type = 'info') {
+            const searchLog = document.getElementById('searchLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-300',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            searchLog.appendChild(logEntry);
+            searchLog.scrollTop = searchLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        async function loadXMLContent() {
+            if (rawXMLContent) return rawXMLContent;
+            
+            log('🔄 Cargando XML completo...', 'info');
+            
+            const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+            const corsProxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                ''
+            ];
+            
+            for (const proxy of corsProxies) {
+                try {
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                    log(`🌐 Probando: ${proxy || 'conexión directa'}`, 'info');
+                    
+                    const response = await fetch(fetchUrl);
+                    
+                    if (response.ok) {
+                        rawXMLContent = await response.text();
+                        log(`✅ XML cargado: ${rawXMLContent.length} caracteres`, 'success');
+                        return rawXMLContent;
+                    }
+                } catch (error) {
+                    log(`❌ Error con ${proxy || 'directo'}: ${error.message}`, 'error');
+                    continue;
+                }
+            }
+            
+            throw new Error('No se pudo cargar el XML');
+        }
+
+        async function searchInXML() {
+            const searchTerm = document.getElementById('searchTerm').value.trim();
+            if (!searchTerm) {
+                alert('Ingresa un término de búsqueda');
+                return;
+            }
+            
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').innerHTML = '';
+            
+            try {
+                const xmlContent = await loadXMLContent();
+                
+                log(`🔍 Buscando "${searchTerm}" en ${xmlContent.length} caracteres`, 'info');
+                
+                // Búsqueda case-insensitive
+                const regex = new RegExp(searchTerm, 'gi');
+                const matches = [...xmlContent.matchAll(regex)];
+                
+                log(`📊 Encontradas ${matches.length} coincidencias`, matches.length > 0 ? 'success' : 'warning');
+                
+                if (matches.length === 0) {
+                    displayNoResults(searchTerm);
+                } else {
+                    displayMatches(searchTerm, matches, xmlContent);
+                }
+                
+            } catch (error) {
+                log(`❌ Error en búsqueda: ${error.message}`, 'error');
+            }
+            
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function displayMatches(searchTerm, matches, xmlContent) {
+            const resultsDiv = document.getElementById('results');
+            
+            const resultsCard = document.createElement('div');
+            resultsCard.className = 'bg-gray-800 rounded-lg p-6';
+            
+            resultsCard.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 text-green-400">
+                    ✅ Encontradas ${matches.length} coincidencias para "${searchTerm}"
+                </h3>
+            `;
+            
+            // Mostrar contexto para cada coincidencia
+            matches.forEach((match, index) => {
+                const position = match.index;
+                const contextSize = 500; // Caracteres antes y después
+                const start = Math.max(0, position - contextSize);
+                const end = Math.min(xmlContent.length, position + searchTerm.length + contextSize);
+                
+                const context = xmlContent.substring(start, end);
+                const beforeMatch = context.substring(0, position - start);
+                const matchText = context.substring(position - start, position - start + searchTerm.length);
+                const afterMatch = context.substring(position - start + searchTerm.length);
+                
+                // Buscar si está dentro de un listing
+                const listingStart = xmlContent.lastIndexOf('<listing', position);
+                const listingEnd = xmlContent.indexOf('</listing>', position);
+                
+                let listingContext = '';
+                if (listingStart !== -1 && listingEnd !== -1 && listingStart < position && position < listingEnd) {
+                    listingContext = xmlContent.substring(listingStart, listingEnd + 10);
+                    
+                    // Extraer reference_id del listing
+                    const refIdMatch = listingContext.match(/<reference_id[^>]*>(.*?)<\/reference_id>/);
+                    if (refIdMatch) {
+                        log(`📍 Coincidencia ${index + 1} está en listing con reference_id: ${refIdMatch[1]}`, 'success');
+                    }
+                }
+                
+                const matchCard = document.createElement('div');
+                matchCard.className = 'bg-gray-700 rounded p-4 mb-4';
+                
+                matchCard.innerHTML = `
+                    <h4 class="font-bold text-yellow-400 mb-2">Coincidencia ${index + 1} (posición ${position})</h4>
+                    <div class="bg-black rounded p-3 mb-3 overflow-x-auto">
+                        <span class="text-gray-400">${escapeHtml(beforeMatch)}</span><span class="bg-yellow-500 text-black font-bold">${escapeHtml(matchText)}</span><span class="text-gray-400">${escapeHtml(afterMatch)}</span>
+                    </div>
+                    ${listingContext ? `
+                        <details class="mt-3">
+                            <summary class="cursor-pointer text-blue-400 font-semibold">Ver listing completo</summary>
+                            <div class="bg-black rounded p-3 mt-2 overflow-x-auto text-xs">
+                                <pre class="text-green-400">${escapeHtml(listingContext)}</pre>
+                            </div>
+                        </details>
+                    ` : ''}
+                `;
+                
+                resultsCard.appendChild(matchCard);
+            });
+            
+            resultsDiv.appendChild(resultsCard);
+        }
+
+        function displayNoResults(searchTerm) {
+            const resultsDiv = document.getElementById('results');
+            
+            const noResultsCard = document.createElement('div');
+            noResultsCard.className = 'bg-gray-800 rounded-lg p-6';
+            
+            noResultsCard.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 text-red-400">
+                    ❌ No se encontró "${searchTerm}" en el XML
+                </h3>
+                <div class="space-y-3 text-gray-300">
+                    <p>• El término no existe en el contenido XML</p>
+                    <p>• Verifica que esté escrito correctamente</p>
+                    <p>• Prueba con diferentes variaciones</p>
+                </div>
+                <button onclick="loadRawXML()" 
+                        class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">
+                    Ver XML completo
+                </button>
+            `;
+            
+            resultsDiv.appendChild(noResultsCard);
+        }
+
+        async function loadRawXML() {
+            document.getElementById('loading').classList.remove('hidden');
+            
+            try {
+                const xmlContent = await loadXMLContent();
+                
+                const resultsDiv = document.getElementById('results');
+                resultsDiv.innerHTML = '';
+                
+                const rawCard = document.createElement('div');
+                rawCard.className = 'bg-gray-800 rounded-lg p-6';
+                
+                rawCard.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-blue-400">📄 XML Completo (${xmlContent.length} caracteres)</h3>
+                    <div class="bg-black rounded p-4 max-h-96 overflow-auto">
+                        <pre class="text-xs text-green-400 whitespace-pre-wrap">${escapeHtml(xmlContent.substring(0, 10000))}${xmlContent.length > 10000 ? '\n\n... (truncado para visualización)' : ''}</pre>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-400">
+                        <p>Mostrando primeros 10,000 caracteres del XML total</p>
+                    </div>
+                `;
+                
+                resultsDiv.appendChild(rawCard);
+                
+            } catch (error) {
+                log(`❌ Error cargando XML: ${error.message}`, 'error');
+            }
+            
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function quickSearch(term) {
+            document.getElementById('searchTerm').value = term;
+            searchInXML();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Allow search on Enter
+        document.getElementById('searchTerm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchInXML();
+            }
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Búsqueda directa en XML iniciada', 'success');
+            log('💡 Busca cualquier texto que aparezca en el XML', 'info');
+        });
+    </script>
+</body>
+</html>

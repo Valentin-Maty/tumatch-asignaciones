@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Matching TU -2965</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-center">🐛 Debug Matching TU -2965</h1>
+        <p class="text-gray-400 mb-8 text-center">Paso a paso para encontrar por qué no hace match</p>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 text-blue-400">🎯 Test del Código</h2>
+            <div class="flex gap-4">
+                <input type="text" id="testCode" value="TU -2965" 
+                       class="flex-1 px-4 py-2 bg-gray-700 rounded border border-gray-600 text-white">
+                <button onclick="debugMatching()" 
+                        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded font-semibold">
+                    🔍 Debug
+                </button>
+            </div>
+        </div>
+
+        <div id="results" class="space-y-6"></div>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">📝 Logs de Debug</h3>
+            <div id="debugLog" class="bg-black rounded p-4 h-64 overflow-y-auto font-mono text-sm text-gray-300"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-300',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400',
+                debug: 'text-blue-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            debugLog.appendChild(logEntry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        let xmlCache = { propertiesMap: new Map() };
+
+        async function loadXMLForDebug() {
+            log('🔄 Cargando XML para debug...', 'info');
+            
+            const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+            const corsProxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                ''
+            ];
+            
+            let xmlText = null;
+            
+            for (const proxy of corsProxies) {
+                try {
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                    const response = await fetch(fetchUrl);
+                    
+                    if (response.ok) {
+                        xmlText = await response.text();
+                        log(`✅ XML obtenido: ${xmlText.length} caracteres`, 'success');
+                        break;
+                    }
+                } catch (error) {
+                    continue;
+                }
+            }
+            
+            if (!xmlText) {
+                log('❌ No se pudo obtener el XML', 'error');
+                return false;
+            }
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            
+            xmlCache.propertiesMap.clear();
+            
+            const listings = xmlDoc.getElementsByTagName('listing');
+            log(`📊 Procesando ${listings.length} listings`, 'info');
+            
+            // Buscar específicamente 2965
+            let found2965 = false;
+            
+            for (let i = 0; i < listings.length; i++) {
+                const listing = listings[i];
+                
+                try {
+                    const referenceIdElement = listing.querySelector('reference_id');
+                    if (!referenceIdElement) continue;
+                    
+                    const referenceId = referenceIdElement.textContent.trim();
+                    if (!referenceId) continue;
+                    
+                    // Log todos los IDs para verificar
+                    if (i < 10 || referenceId.includes('2965') || referenceId === '2965') {
+                        log(`📋 Listing ${i+1}: reference_id = "${referenceId}"`, 'debug');
+                    }
+                    
+                    const images = [];
+                    const picturesElement = listing.querySelector('pictures');
+                    
+                    if (picturesElement) {
+                        const urlElements = picturesElement.querySelectorAll('url');
+                        urlElements.forEach(urlElement => {
+                            const imageUrl = urlElement.textContent.trim();
+                            if (imageUrl && imageUrl.startsWith('http')) {
+                                images.push(imageUrl);
+                            }
+                        });
+                    }
+                    
+                    xmlCache.propertiesMap.set(referenceId, images);
+                    
+                    // Verificar si encontramos 2965
+                    if (referenceId === '2965') {
+                        found2965 = true;
+                        log(`🎉 ¡ENCONTRADO! reference_id "2965" con ${images.length} imágenes`, 'success');
+                        if (images.length > 0) {
+                            log(`📸 Primera imagen: ${images[0]}`, 'success');
+                        }
+                    }
+                    
+                } catch (error) {
+                    log(`❌ Error procesando listing ${i+1}: ${error.message}`, 'error');
+                }
+            }
+            
+            if (!found2965) {
+                log('❌ No se encontró reference_id "2965" en ningún listing', 'error');
+                
+                // Mostrar algunos IDs para comparar
+                const allIds = Array.from(xmlCache.propertiesMap.keys()).slice(0, 20);
+                log(`📋 Primeros IDs encontrados: ${allIds.join(', ')}`, 'info');
+            }
+            
+            return true;
+        }
+
+        // Función de matching exacta del index.html
+        function debugMatchingLogic(codigo) {
+            log(`🔍 Iniciando debug de matching para: "${codigo}"`, 'info');
+            
+            // Replicar la lógica exacta del index.html
+            let possibleIds = [];
+            
+            // Estrategia 1: Extraer número después de "TU -"
+            const tuMatch = codigo.match(/TU\s*-\s*(\d+)/);
+            if (tuMatch) {
+                possibleIds.push(tuMatch[1]);
+                log(`✅ Estrategia 1 (TU-): Extraído "${tuMatch[1]}"`, 'success');
+            } else {
+                log(`❌ Estrategia 1 (TU-): No match`, 'warning');
+            }
+            
+            // Estrategia 2: Extraer cualquier secuencia de números al final
+            const endNumberMatch = codigo.match(/(\d+)$/);
+            if (endNumberMatch) {
+                possibleIds.push(endNumberMatch[1]);
+                log(`✅ Estrategia 2 (final): Extraído "${endNumberMatch[1]}"`, 'success');
+            } else {
+                log(`❌ Estrategia 2 (final): No match`, 'warning');
+            }
+            
+            // Estrategia 3: Extraer números después de cualquier guión
+            const afterDashMatch = codigo.match(/-\s*(\d+)/);
+            if (afterDashMatch) {
+                possibleIds.push(afterDashMatch[1]);
+                log(`✅ Estrategia 3 (después guión): Extraído "${afterDashMatch[1]}"`, 'success');
+            } else {
+                log(`❌ Estrategia 3 (después guión): No match`, 'warning');
+            }
+            
+            // Estrategia 4: Extraer todos los números
+            const allNumbers = codigo.match(/\d+/g);
+            if (allNumbers) {
+                possibleIds = possibleIds.concat(allNumbers);
+                log(`✅ Estrategia 4 (todos números): Extraído ${allNumbers.join(', ')}`, 'success');
+            } else {
+                log(`❌ Estrategia 4 (todos números): No match`, 'warning');
+            }
+            
+            // Estrategia 5: Código completo sin espacios
+            possibleIds.push(codigo.replace(/\s+/g, ''));
+            log(`✅ Estrategia 5 (sin espacios): "${codigo.replace(/\s+/g, '')}"`, 'info');
+            
+            // Estrategia 6: Código original
+            possibleIds.push(codigo);
+            log(`✅ Estrategia 6 (original): "${codigo}"`, 'info');
+            
+            // Eliminar duplicados
+            const uniqueIds = [...new Set(possibleIds.filter(id => id))];
+            log(`🎯 IDs únicos a probar: ${uniqueIds.join(', ')}`, 'info');
+            
+            return uniqueIds;
+        }
+
+        async function debugMatching() {
+            const codigo = document.getElementById('testCode').value.trim();
+            
+            document.getElementById('results').innerHTML = '';
+            log(`🚀 Iniciando debug completo para: "${codigo}"`, 'info');
+            
+            // 1. Cargar XML
+            await loadXMLForDebug();
+            
+            // 2. Generar IDs posibles
+            const possibleIds = debugMatchingLogic(codigo);
+            
+            // 3. Probar cada ID
+            log('🔍 Probando cada ID posible...', 'info');
+            
+            const results = {
+                found: [],
+                notFound: []
+            };
+            
+            for (const id of possibleIds) {
+                if (xmlCache.propertiesMap.has(id)) {
+                    const images = xmlCache.propertiesMap.get(id);
+                    results.found.push({ id, images: images.length, urls: images });
+                    log(`✅ ENCONTRADO: "${id}" con ${images.length} imágenes`, 'success');
+                } else {
+                    results.notFound.push(id);
+                    log(`❌ NO encontrado: "${id}"`, 'error');
+                }
+            }
+            
+            // 4. Mostrar resultados
+            displayDebugResults(codigo, possibleIds, results);
+        }
+
+        function displayDebugResults(codigo, possibleIds, results) {
+            const resultsDiv = document.getElementById('results');
+            
+            const debugCard = document.createElement('div');
+            debugCard.className = 'bg-gray-800 rounded-lg p-6';
+            
+            debugCard.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 ${results.found.length > 0 ? 'text-green-400' : 'text-red-400'}">
+                    ${results.found.length > 0 ? '✅' : '❌'} Debug de "${codigo}"
+                </h3>
+                
+                <div class="mb-6">
+                    <h4 class="font-semibold text-blue-400 mb-2">🎯 IDs Generados (${possibleIds.length})</h4>
+                    <div class="grid grid-cols-4 gap-2">
+                        ${possibleIds.map(id => `
+                            <div class="bg-gray-700 rounded p-2 text-center font-mono text-sm">
+                                ${id}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${results.found.length > 0 ? `
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-green-400 mb-2">✅ IDs Encontrados (${results.found.length})</h4>
+                        ${results.found.map(result => `
+                            <div class="bg-green-900 bg-opacity-30 border border-green-500 rounded p-4 mb-3">
+                                <p class="font-bold">ID: "${result.id}"</p>
+                                <p>Imágenes: ${result.images}</p>
+                                ${result.urls.length > 0 ? `
+                                    <div class="mt-2">
+                                        <p class="text-sm text-gray-300 mb-1">URLs:</p>
+                                        ${result.urls.slice(0, 3).map(url => `
+                                            <p class="text-xs text-blue-400 truncate">${url}</p>
+                                        `).join('')}
+                                        ${result.urls.length > 3 ? `<p class="text-xs text-gray-400">...y ${result.urls.length - 3} más</p>` : ''}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                ${results.notFound.length > 0 ? `
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-red-400 mb-2">❌ IDs No Encontrados (${results.notFound.length})</h4>
+                        <div class="grid grid-cols-4 gap-2">
+                            ${results.notFound.map(id => `
+                                <div class="bg-red-900 bg-opacity-30 border border-red-500 rounded p-2 text-center font-mono text-sm">
+                                    ${id}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="bg-gray-700 rounded p-4">
+                    <h4 class="font-semibold text-purple-400 mb-2">🔧 Diagnóstico</h4>
+                    ${results.found.length > 0 ? `
+                        <p class="text-green-400">✅ El código SÍ tiene match en XML</p>
+                        <p class="text-gray-300">→ El problema está en otra parte del código</p>
+                        <p class="text-gray-300">→ Verificar función tryLoadImage o renderizado</p>
+                    ` : `
+                        <p class="text-red-400">❌ El código NO tiene match en XML</p>
+                        <p class="text-gray-300">→ Confirma que el código existe manualmente</p>
+                        <p class="text-gray-300">→ Puede ser un problema de formato o cache</p>
+                    `}
+                </div>
+            `;
+            
+            resultsDiv.appendChild(debugCard);
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Debug de matching iniciado', 'success');
+            log('🎯 Vamos a encontrar por qué TU -2965 no hace match con 2965', 'info');
+        });
+
+        // Enter to search
+        document.getElementById('testCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                debugMatching();
+            }
+        });
+    </script>
+</body>
+</html>

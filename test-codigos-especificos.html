@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Códigos Específicos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white p-6">
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">🔍 Test de Códigos Específicos</h1>
+        <p class="text-gray-400 mb-8">Analizando: TU -2965, TU -3176, TU -4955</p>
+        
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-blue-400">🎯 Códigos a Probar</h2>
+                <div class="space-y-3">
+                    <button onclick="testCode('TU -2965')" 
+                            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-left">
+                        TU -2965
+                    </button>
+                    <button onclick="testCode('TU -3176')" 
+                            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-left">
+                        TU -3176
+                    </button>
+                    <button onclick="testCode('TU -4955')" 
+                            class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-left">
+                        TU -4955
+                    </button>
+                    <button onclick="testAllCodes()" 
+                            class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 rounded font-semibold">
+                        🔍 Probar Todos
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-gray-800 rounded-lg p-6">
+                <h2 class="text-xl font-semibold mb-4 text-green-400">📊 Estado del XML</h2>
+                <div id="xmlStatus" class="space-y-2">
+                    <p>Cargando XML...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden text-center py-8 bg-gray-800 rounded-lg mb-6">
+            <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+            <p class="mt-4">Analizando códigos...</p>
+        </div>
+
+        <div id="results" class="space-y-6"></div>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mt-6">
+            <h3 class="text-lg font-semibold mb-3 text-orange-400">📝 Logs Detallados</h3>
+            <div id="debugLog" class="bg-black rounded p-4 h-64 overflow-y-auto font-mono text-sm text-gray-300"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const debugLog = document.getElementById('debugLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: 'text-gray-300',
+                success: 'text-green-400',
+                error: 'text-red-400',
+                warning: 'text-yellow-400',
+                debug: 'text-blue-400'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = colors[type] || colors.info;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            debugLog.appendChild(logEntry);
+            debugLog.scrollTop = debugLog.scrollHeight;
+            
+            console.log(message);
+        }
+
+        let xmlCache = { propertiesMap: new Map() };
+
+        async function loadXMLFeed() {
+            log('🔄 Cargando XML feed...', 'info');
+            
+            const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+            const corsProxies = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url=',
+                'https://cors-anywhere.herokuapp.com/',
+                ''
+            ];
+            
+            let xmlText = null;
+            
+            for (const proxy of corsProxies) {
+                try {
+                    const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                    log(`🌐 Probando: ${proxy || 'conexión directa'}`, 'debug');
+                    
+                    const response = await fetch(fetchUrl);
+                    
+                    if (response.ok) {
+                        xmlText = await response.text();
+                        log(`✅ XML obtenido usando: ${proxy || 'directo'}`, 'success');
+                        break;
+                    }
+                } catch (error) {
+                    log(`❌ Error con ${proxy || 'directo'}: ${error.message}`, 'error');
+                    continue;
+                }
+            }
+            
+            if (!xmlText) {
+                log('❌ No se pudo obtener el XML', 'error');
+                return false;
+            }
+            
+            const parser = new DOMParser();
+            const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+            
+            const parserError = xmlDoc.querySelector('parsererror');
+            if (parserError) {
+                log('❌ Error parseando XML', 'error');
+                return false;
+            }
+            
+            xmlCache.propertiesMap.clear();
+            
+            const listings = xmlDoc.getElementsByTagName('listing');
+            log(`📊 Procesando ${listings.length} listings`, 'info');
+            
+            let processedCount = 0;
+            
+            for (let listing of listings) {
+                try {
+                    const referenceIdElement = listing.querySelector('reference_id');
+                    if (!referenceIdElement) continue;
+                    
+                    const referenceId = referenceIdElement.textContent.trim();
+                    if (!referenceId) continue;
+                    
+                    const images = [];
+                    const picturesElement = listing.querySelector('pictures');
+                    
+                    if (picturesElement) {
+                        const urlElements = picturesElement.querySelectorAll('url');
+                        urlElements.forEach(urlElement => {
+                            const imageUrl = urlElement.textContent.trim();
+                            if (imageUrl && imageUrl.startsWith('http')) {
+                                images.push(imageUrl);
+                            }
+                        });
+                    }
+                    
+                    // Guardamos todos los listings, incluso sin imágenes para análisis
+                    xmlCache.propertiesMap.set(referenceId, {
+                        images: images,
+                        hasImages: images.length > 0,
+                        listing: listing
+                    });
+                    
+                    if (images.length > 0) {
+                        processedCount++;
+                    }
+                } catch (error) {
+                    log(`⚠️ Error procesando listing: ${error.message}`, 'warning');
+                }
+            }
+            
+            log(`✅ XML procesado: ${processedCount} propiedades con imágenes de ${xmlCache.propertiesMap.size} totales`, 'success');
+            updateXMLStatus(xmlCache.propertiesMap.size, processedCount);
+            
+            return true;
+        }
+
+        function updateXMLStatus(total, withImages) {
+            const statusDiv = document.getElementById('xmlStatus');
+            statusDiv.innerHTML = `
+                <p>📊 <strong>Total listings:</strong> ${total}</p>
+                <p>🖼️ <strong>Con imágenes:</strong> ${withImages}</p>
+                <p>❌ <strong>Sin imágenes:</strong> ${total - withImages}</p>
+                <p class="text-gray-400 text-sm">Última actualización: ${new Date().toLocaleTimeString()}</p>
+            `;
+        }
+
+        // Función para analizar un código específico
+        async function analyzeCode(codigo) {
+            log(`🔍 Analizando código: "${codigo}"`, 'info');
+            
+            // 1. Generar todas las variaciones posibles
+            const variations = [];
+            
+            // Estrategia 1: Extraer número después de "TU -"
+            const tuMatch = codigo.match(/TU\s*-\s*(\d+)/i);
+            if (tuMatch) {
+                variations.push({ name: 'TU-format', id: tuMatch[1] });
+            }
+            
+            // Estrategia 2: Solo números
+            const numbers = codigo.match(/\d+/g);
+            if (numbers) {
+                numbers.forEach(num => {
+                    variations.push({ name: 'only-number', id: num });
+                    variations.push({ name: 'padded-4', id: num.padStart(4, '0') });
+                    variations.push({ name: 'padded-5', id: num.padStart(5, '0') });
+                    variations.push({ name: 'no-leading-zeros', id: num.replace(/^0+/, '') });
+                });
+            }
+            
+            // Estrategia 3: Código sin espacios
+            variations.push({ name: 'no-spaces', id: codigo.replace(/\s+/g, '') });
+            
+            // Estrategia 4: Solo la parte después del guión
+            const afterDash = codigo.match(/-\s*(.+)$/);
+            if (afterDash) {
+                variations.push({ name: 'after-dash', id: afterDash[1].trim() });
+            }
+            
+            log(`🎯 Generadas ${variations.length} variaciones para probar`, 'debug');
+            
+            // 2. Buscar coincidencias exactas
+            const exactMatches = [];
+            for (const variation of variations) {
+                if (xmlCache.propertiesMap.has(variation.id)) {
+                    const data = xmlCache.propertiesMap.get(variation.id);
+                    exactMatches.push({
+                        ...variation,
+                        data: data,
+                        matchType: 'exact'
+                    });
+                    log(`✅ Coincidencia exacta: ${variation.name} -> ${variation.id} (${data.images.length} imágenes)`, 'success');
+                }
+            }
+            
+            // 3. Buscar coincidencias parciales
+            const partialMatches = [];
+            const allIds = Array.from(xmlCache.propertiesMap.keys());
+            
+            for (const variation of variations) {
+                const partials = allIds.filter(id => 
+                    id.includes(variation.id) || variation.id.includes(id)
+                );
+                
+                partials.forEach(id => {
+                    if (!exactMatches.find(m => m.id === id)) {
+                        const data = xmlCache.propertiesMap.get(id);
+                        partialMatches.push({
+                            strategy: variation.name,
+                            searchedFor: variation.id,
+                            foundId: id,
+                            data: data,
+                            matchType: 'partial'
+                        });
+                    }
+                });
+            }
+            
+            if (partialMatches.length > 0) {
+                log(`🔍 Encontradas ${partialMatches.length} coincidencias parciales`, 'warning');
+            }
+            
+            // 4. Buscar IDs similares (para debugging)
+            const similarIds = allIds.filter(id => {
+                return variations.some(v => {
+                    const distance = levenshteinDistance(v.id, id);
+                    return distance <= 3 && distance > 0;
+                });
+            }).slice(0, 10); // Solo primeros 10
+            
+            return {
+                codigo,
+                variations,
+                exactMatches,
+                partialMatches,
+                similarIds,
+                found: exactMatches.length > 0,
+                images: exactMatches.length > 0 ? exactMatches[0].data.images : []
+            };
+        }
+
+        function levenshteinDistance(str1, str2) {
+            const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+            
+            for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
+            for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+            
+            for (let j = 1; j <= str2.length; j++) {
+                for (let i = 1; i <= str1.length; i++) {
+                    const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+                    matrix[j][i] = Math.min(
+                        matrix[j][i - 1] + 1,
+                        matrix[j - 1][i] + 1,
+                        matrix[j - 1][i - 1] + indicator
+                    );
+                }
+            }
+            
+            return matrix[str2.length][str1.length];
+        }
+
+        async function testCode(codigo) {
+            document.getElementById('loading').classList.remove('hidden');
+            
+            if (xmlCache.propertiesMap.size === 0) {
+                await loadXMLFeed();
+            }
+            
+            const result = await analyzeCode(codigo);
+            displayResult(result);
+            
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        async function testAllCodes() {
+            const codes = ['TU -2965', 'TU -3176', 'TU -4955'];
+            document.getElementById('loading').classList.remove('hidden');
+            
+            if (xmlCache.propertiesMap.size === 0) {
+                await loadXMLFeed();
+            }
+            
+            const results = [];
+            for (const codigo of codes) {
+                const result = await analyzeCode(codigo);
+                results.push(result);
+            }
+            
+            displayAllResults(results);
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function displayResult(result) {
+            const resultsDiv = document.getElementById('results');
+            
+            const resultCard = document.createElement('div');
+            resultCard.className = `bg-gray-800 rounded-lg p-6 border-l-4 ${result.found ? 'border-green-500' : 'border-red-500'}`;
+            
+            resultCard.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 ${result.found ? 'text-green-400' : 'text-red-400'}">
+                    ${result.found ? '✅' : '❌'} ${result.codigo}
+                </h3>
+                
+                ${result.found ? `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-green-400 mb-2">Coincidencias exactas:</h4>
+                        ${result.exactMatches.map(match => `
+                            <div class="bg-green-900 bg-opacity-30 rounded p-3 mb-2">
+                                <p><strong>Estrategia:</strong> ${match.name}</p>
+                                <p><strong>ID encontrado:</strong> ${match.id}</p>
+                                <p><strong>Imágenes:</strong> ${match.data.images.length}</p>
+                                ${match.data.images.length > 0 ? `
+                                    <div class="mt-2">
+                                        <img src="${match.data.images[0]}" alt="Imagen" 
+                                             class="w-32 h-32 object-cover rounded cursor-pointer"
+                                             onclick="window.open('${match.data.images[0]}', '_blank')">
+                                    </div>
+                                    <div class="mt-2 text-xs">
+                                        <p>URLs de imágenes:</p>
+                                        ${match.data.images.map((img, i) => `
+                                            <p class="truncate"><strong>${i+1}:</strong> <a href="${img}" target="_blank" class="text-blue-400">${img}</a></p>
+                                        `).join('')}
+                                    </div>
+                                ` : '<p class="text-yellow-400 mt-2">⚠️ Listing encontrado pero sin imágenes</p>'}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                <div class="mb-4">
+                    <h4 class="font-semibold text-blue-400 mb-2">Variaciones probadas:</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        ${result.variations.map(v => `
+                            <div class="bg-gray-700 rounded p-2 text-sm">
+                                <p class="font-mono">${v.id}</p>
+                                <p class="text-xs text-gray-400">${v.name}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${result.partialMatches.length > 0 ? `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-yellow-400 mb-2">Coincidencias parciales:</h4>
+                        ${result.partialMatches.slice(0, 5).map(match => `
+                            <div class="bg-yellow-900 bg-opacity-30 rounded p-2 mb-1 text-sm">
+                                <p><strong>Buscando:</strong> ${match.searchedFor} → <strong>Encontrado:</strong> ${match.foundId}</p>
+                                <p><strong>Imágenes:</strong> ${match.data.images.length}</p>
+                            </div>
+                        `).join('')}
+                        ${result.partialMatches.length > 5 ? `<p class="text-sm text-gray-400">...y ${result.partialMatches.length - 5} más</p>` : ''}
+                    </div>
+                ` : ''}
+                
+                ${result.similarIds.length > 0 ? `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-purple-400 mb-2">IDs similares en XML (para referencia):</h4>
+                        <div class="text-sm text-gray-400 font-mono">
+                            ${result.similarIds.join(', ')}
+                        </div>
+                    </div>
+                ` : ''}
+                
+                <div class="text-sm text-gray-400">
+                    <p><strong>Total de variaciones probadas:</strong> ${result.variations.length}</p>
+                    <p><strong>Coincidencias exactas:</strong> ${result.exactMatches.length}</p>
+                    <p><strong>Coincidencias parciales:</strong> ${result.partialMatches.length}</p>
+                </div>
+            `;
+            
+            resultsDiv.appendChild(resultCard);
+        }
+
+        function displayAllResults(results) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            // Resumen general
+            const summary = document.createElement('div');
+            summary.className = 'bg-gray-800 rounded-lg p-6 mb-6';
+            const found = results.filter(r => r.found).length;
+            
+            summary.innerHTML = `
+                <h3 class="text-xl font-bold mb-4 text-blue-400">📊 Resumen General</h3>
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-400">${found}</div>
+                        <div class="text-sm text-gray-400">Encontradas</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-400">${results.length - found}</div>
+                        <div class="text-sm text-gray-400">No encontradas</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-400">${((found / results.length) * 100).toFixed(1)}%</div>
+                        <div class="text-sm text-gray-400">Tasa de éxito</div>
+                    </div>
+                </div>
+            `;
+            
+            resultsDiv.appendChild(summary);
+            
+            // Mostrar cada resultado
+            results.forEach(result => {
+                displayResult(result);
+            });
+        }
+
+        // Inicializar
+        window.addEventListener('DOMContentLoaded', async () => {
+            log('🚀 Test de códigos específicos iniciado', 'info');
+            await loadXMLFeed();
+        });
+    </script>
+</body>
+</html>
