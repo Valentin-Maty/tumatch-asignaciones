@@ -544,41 +544,36 @@
                             </div>
                         </div>
                         
-                        <!-- Grid con Chart y KPIs lado a lado -->
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <!-- Chart ocupa 2 columnas -->
-                            <div class="lg:col-span-2">
-                                <div class="relative h-80">
-                                    <canvas id="teamLeaderChart"></canvas>
+                        <!-- Chart principal -->
+                        <div class="relative h-80 mb-6">
+                            <canvas id="teamLeaderChart"></canvas>
+                        </div>
+                        
+                        <!-- KPIs debajo del gráfico -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Tipos de Propiedades -->
+                            <div class="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-xl p-4 border border-zinc-700/50">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-2">
+                                        <i class="fas fa-building text-white text-xs"></i>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-white">Tipos de Propiedades</h4>
+                                </div>
+                                <div class="space-y-2" id="propertyTypesContainer">
+                                    <!-- Se llenará dinámicamente -->
                                 </div>
                             </div>
                             
-                            <!-- KPIs en la columna derecha -->
-                            <div class="space-y-4">
-                                <!-- Tipos de Propiedades -->
-                                <div class="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-xl p-4 border border-zinc-700/50">
-                                    <div class="flex items-center mb-3">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-2">
-                                            <i class="fas fa-building text-white text-xs"></i>
-                                        </div>
-                                        <h4 class="text-sm font-bold text-white">Tipos de Propiedades</h4>
+                            <!-- Tipo de Operación -->
+                            <div class="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-xl p-4 border border-zinc-700/50">
+                                <div class="flex items-center mb-3">
+                                    <div class="w-6 h-6 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-2">
+                                        <i class="fas fa-exchange-alt text-white text-xs"></i>
                                     </div>
-                                    <div class="space-y-2" id="propertyTypesContainer">
-                                        <!-- Se llenará dinámicamente -->
-                                    </div>
+                                    <h4 class="text-sm font-bold text-white">Tipo de Operación</h4>
                                 </div>
-                                
-                                <!-- Tipo de Operación -->
-                                <div class="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-xl p-4 border border-zinc-700/50">
-                                    <div class="flex items-center mb-3">
-                                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-2">
-                                            <i class="fas fa-exchange-alt text-white text-xs"></i>
-                                        </div>
-                                        <h4 class="text-sm font-bold text-white">Tipo de Operación</h4>
-                                    </div>
-                                    <div class="space-y-2" id="operationTypesContainer">
-                                        <!-- Se llenará dinámicamente -->
-                                    </div>
+                                <div class="space-y-2" id="operationTypesContainer">
+                                    <!-- Se llenará dinámicamente -->
                                 </div>
                             </div>
                         </div>
