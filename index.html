@@ -3,24 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TuMatch - Portal de Asignaciones</title>
-    
-    <!-- Favicon TuMatch -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
-    <link rel="shortcut icon" href="/favicon.png">
+    <title>TuMatch - Portal de Asignaciones Premium</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- NextUI/HeroUI -->
-    <link href="https://unpkg.com/@nextui-org/theme@latest/dist/components/button.css" rel="stylesheet">
-    <link href="https://unpkg.com/@nextui-org/theme@latest/dist/components/card.css" rel="stylesheet">
-    <link href="https://unpkg.com/@nextui-org/theme@latest/dist/components/input.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
     <script>
         tailwind.config = {
@@ -28,42 +27,32 @@
             theme: {
                 extend: {
                     colors: {
-                        // Brand colors
-                        'brand': {
-                            'coral': '#FF6B47',
-                            'magenta': '#E91E63',
-                            'navy': '#0F172A',
-                            'navy-light': '#1E293B',
-                            'blue': '#3B82F6',
-                            'teal': '#0D9488',
-                            'emerald': '#059669',
-                            'amber': '#F59E0B',
-                            'purple': '#8B5CF6',
-                            'rose': '#F43F5E'
-                        },
-                        // Background gradients
-                        'bg-gradient': {
-                            'primary': 'linear-gradient(135deg, #FF6B47 0%, #E91E63 100%)',
-                            'blue': 'linear-gradient(135deg, #3B82F6 0%, #0D9488 100%)',
-                            'emerald': 'linear-gradient(135deg, #059669 0%, #0D9488 100%)',
-                            'amber': 'linear-gradient(135deg, #F59E0B 0%, #FF6B47 100%)',
-                            'purple': 'linear-gradient(135deg, #8B5CF6 0%, #E91E63 100%)',
-                            'rose': 'linear-gradient(135deg, #F43F5E 0%, #FF6B47 100%)'
-                        }
+                        primary: '#FF6B47',
+                        secondary: '#E91E63',
+                        accent: '#0D9488',
+                        dark: '#0F172A',
+                        darker: '#1E293B'
                     },
                     fontFamily: {
-                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                        display: ['Orbitron', 'system-ui', 'sans-serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif']
                     },
-                    backgroundImage: {
-                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-                        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))'
+                    animation: {
+                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'gradient': 'gradient 15s ease infinite',
+                        'slide-up': 'slide-up 0.5s ease-out',
+                        'fade-in': 'fade-in 0.5s ease-out'
                     }
                 }
             }
         }
     </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
         
         * {
             margin: 0;
@@ -71,159 +60,227 @@
             box-sizing: border-box;
         }
 
+        :root {
+            /* Colores ultra modernos 2025 */
+            --bg-primary: #0A0A0B;
+            --bg-secondary: #111113;
+            --bg-tertiary: #1A1A1D;
+            --accent-purple: #8B5CF6;
+            --accent-cyan: #06B6D4;
+            --accent-pink: #EC4899;
+            --accent-green: #10B981;
+            --accent-orange: #F97316;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --text-muted: #71717A;
+            --border-primary: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(139, 92, 246, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.02);
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
         body {
-            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            animation: bodyBreathe 20s ease-in-out infinite;
         }
-        
-        @keyframes bodyBreathe {
-            0% {
-                background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
-            }
-            25% {
-                background: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);
-            }
-            50% {
-                background: linear-gradient(135deg, #1E293B 0%, #374151 50%, #4B5563 100%);
-            }
-            75% {
-                background: linear-gradient(135deg, #1A202C 0%, #2D3748 50%, #4A5568 100%);
-            }
-            100% {
-                background: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #334155 100%);
-            }
-        }
-        
-        /* Dynamic background effects - SUPER ENHANCED */
+
+        /* Fondo dinámico ultramoderno */
         body::before {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 120%;
-            height: 120%;
+            right: 0;
+            bottom: 0;
             background: 
-                radial-gradient(800px circle at 25% 25%, rgba(255, 107, 71, 0.25) 0%, transparent 60%),
-                radial-gradient(1000px circle at 75% 75%, rgba(233, 30, 99, 0.2) 0%, transparent 60%),
-                radial-gradient(600px circle at 50% 10%, rgba(59, 130, 246, 0.15) 0%, transparent 60%),
-                radial-gradient(500px circle at 90% 40%, rgba(13, 148, 136, 0.12) 0%, transparent 60%),
-                radial-gradient(700px circle at 10% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
-                radial-gradient(400px circle at 60% 30%, rgba(245, 158, 11, 0.08) 0%, transparent 60%);
-            animation: backgroundFloat 25s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-            pointer-events: none;
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             z-index: -1;
+            animation: gradientShift 20s ease infinite;
         }
-        
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Grid pattern overlay */
         body::after {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 120%;
-            height: 120%;
-            background: 
-                radial-gradient(450px circle at 80% 20%, rgba(244, 63, 94, 0.12) 0%, transparent 60%),
-                radial-gradient(600px circle at 20% 60%, rgba(5, 150, 105, 0.15) 0%, transparent 60%),
-                radial-gradient(350px circle at 60% 90%, rgba(139, 92, 246, 0.1) 0%, transparent 60%),
-                radial-gradient(500px circle at 30% 10%, rgba(255, 107, 71, 0.08) 0%, transparent 60%),
-                radial-gradient(750px circle at 85% 85%, rgba(233, 30, 99, 0.12) 0%, transparent 60%);
-            animation: backgroundFloat2 30s cubic-bezier(0.4, 0, 0.6, 1) infinite reverse;
-            pointer-events: none;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
+            background-size: 50px 50px;
             z-index: -1;
-        }
-        
-        @keyframes backgroundFloat {
-            0% {
-                transform: translateX(-30px) translateY(-20px) scale(1) rotate(0deg);
-                opacity: 0.6;
-            }
-            16.66% {
-                transform: translateX(-10px) translateY(-10px) scale(1.05) rotate(60deg);
-                opacity: 0.7;
-            }
-            33.33% {
-                transform: translateX(20px) translateY(-15px) scale(1.08) rotate(120deg);
-                opacity: 0.8;
-            }
-            50% {
-                transform: translateX(25px) translateY(10px) scale(1.1) rotate(180deg);
-                opacity: 0.85;
-            }
-            66.66% {
-                transform: translateX(10px) translateY(25px) scale(1.06) rotate(240deg);
-                opacity: 0.75;
-            }
-            83.33% {
-                transform: translateX(-15px) translateY(15px) scale(1.03) rotate(300deg);
-                opacity: 0.7;
-            }
-            100% {
-                transform: translateX(-30px) translateY(-20px) scale(1) rotate(360deg);
-                opacity: 0.6;
-            }
-        }
-        
-        @keyframes backgroundFloat2 {
-            0% {
-                transform: translateX(20px) translateY(25px) scale(1.05) rotate(0deg);
-                opacity: 0.5;
-            }
-            20% {
-                transform: translateX(-5px) translateY(5px) scale(1.02) rotate(-72deg);
-                opacity: 0.6;
-            }
-            40% {
-                transform: translateX(-25px) translateY(-10px) scale(0.98) rotate(-144deg);
-                opacity: 0.7;
-            }
-            60% {
-                transform: translateX(-15px) translateY(-30px) scale(1.08) rotate(-216deg);
-                opacity: 0.65;
-            }
-            80% {
-                transform: translateX(10px) translateY(-5px) scale(1.04) rotate(-288deg);
-                opacity: 0.6;
-            }
-            100% {
-                transform: translateX(20px) translateY(25px) scale(1.05) rotate(-360deg);
-                opacity: 0.5;
-            }
-        }
-        
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #1E293B;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #FF6B47, #E91E63);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #E91E63, #8B5CF6);
+            animation: gridFloat 30s linear infinite;
         }
 
-        /* Floating particles animation */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        @keyframes gridFloat {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
+
+        /* Glass morphism ultramoderno */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        
-        @keyframes fadeInUp {
+
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                0 12px 40px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        /* Botones futuristas */
+        .btn-modern {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border: none;
+            color: white;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-modern:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 
+                0 20px 40px rgba(139, 92, 246, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-modern:hover::before {
+            left: 100%;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+            color: var(--accent-purple);
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background: rgba(139, 92, 246, 0.1);
+            border-color: var(--accent-purple);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+        }
+
+        /* Tipografía moderna */
+        .heading-xl {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan), var(--accent-purple));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Cards ultramodernas */
+        .card-modern {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-modern:hover {
+            transform: translateY(-8px) rotate(0.5deg);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(139, 92, 246, 0.2);
+        }
+
+        .card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-modern:hover::before {
+            opacity: 1;
+        }
+
+        /* Stats cards con números animados */
+        .stat-card {
+            position: relative;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Animaciones suaves y modernas */
+        @keyframes slideInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
@@ -233,623 +290,688 @@
                 transform: translateY(0);
             }
         }
-        
-        .animate-fadeInUp {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-        
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        .animate-pulse-custom {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        /* Floating particles for extra dynamism */
-        .floating-particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            background: linear-gradient(45deg, rgba(255, 107, 71, 0.1), rgba(233, 30, 99, 0.1));
-            animation: particleFloat 15s linear infinite;
-        }
-        
-        .particle:nth-child(1) {
-            width: 6px;
-            height: 6px;
-            left: 10%;
-            top: -10px;
-            animation-delay: 0s;
-            animation-duration: 18s;
-        }
-        
-        .particle:nth-child(2) {
-            width: 4px;
-            height: 4px;
-            left: 25%;
-            top: -10px;
-            animation-delay: 3s;
-            animation-duration: 22s;
-        }
-        
-        .particle:nth-child(3) {
-            width: 8px;
-            height: 8px;
-            left: 40%;
-            top: -10px;
-            animation-delay: 6s;
-            animation-duration: 16s;
-        }
-        
-        .particle:nth-child(4) {
-            width: 5px;
-            height: 5px;
-            left: 60%;
-            top: -10px;
-            animation-delay: 9s;
-            animation-duration: 20s;
-        }
-        
-        .particle:nth-child(5) {
-            width: 7px;
-            height: 7px;
-            left: 75%;
-            top: -10px;
-            animation-delay: 12s;
-            animation-duration: 24s;
-        }
-        
-        .particle:nth-child(6) {
-            width: 3px;
-            height: 3px;
-            left: 90%;
-            top: -10px;
-            animation-delay: 15s;
-            animation-duration: 19s;
-        }
-        
-        .particle:nth-child(7) {
-            width: 10px;
-            height: 10px;
-            left: 15%;
-            top: -10px;
-            animation-delay: 2s;
-            animation-duration: 25s;
-            background: linear-gradient(45deg, rgba(59, 130, 246, 0.15), rgba(13, 148, 136, 0.1));
-        }
-        
-        .particle:nth-child(8) {
-            width: 4px;
-            height: 4px;
-            left: 35%;
-            top: -10px;
-            animation-delay: 7s;
-            animation-duration: 17s;
-            background: linear-gradient(45deg, rgba(139, 92, 246, 0.12), rgba(244, 63, 94, 0.1));
-        }
-        
-        .particle:nth-child(9) {
-            width: 6px;
-            height: 6px;
-            left: 55%;
-            top: -10px;
-            animation-delay: 11s;
-            animation-duration: 21s;
-            background: linear-gradient(45deg, rgba(245, 158, 11, 0.15), rgba(255, 107, 71, 0.12));
-        }
-        
-        .particle:nth-child(10) {
-            width: 8px;
-            height: 8px;
-            left: 70%;
-            top: -10px;
-            animation-delay: 14s;
-            animation-duration: 23s;
-            background: linear-gradient(45deg, rgba(5, 150, 105, 0.12), rgba(233, 30, 99, 0.1));
-        }
-        
-        @keyframes particleFloat {
-            0% {
-                transform: translateY(-10px) translateX(0px) rotate(0deg) scale(0.5);
+
+        @keyframes fadeInScale {
+            from {
                 opacity: 0;
+                transform: scale(0.9);
             }
-            5% {
+            to {
                 opacity: 1;
-                transform: translateY(5vh) translateX(10px) rotate(18deg) scale(1);
+                transform: scale(1);
             }
-            25% {
-                transform: translateY(25vh) translateX(-20px) rotate(90deg) scale(1.2);
-                opacity: 0.8;
-            }
-            50% {
-                transform: translateY(50vh) translateX(30px) rotate(180deg) scale(0.9);
-                opacity: 1;
-            }
-            75% {
-                transform: translateY(75vh) translateX(-15px) rotate(270deg) scale(1.1);
-                opacity: 0.7;
-            }
-            95% {
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .animate-fade-scale {
+            animation: fadeInScale 0.5s ease-out;
+        }
+
+        /* Animación para el indicador de resultados */
+        #resultsIndicator {
+            transition: all 0.3s ease;
+        }
+
+        #resultsCount {
+            transition: all 0.2s ease;
+        }
+
+        /* Mejoras para cards clickeables */
+        .card-modern:hover {
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.2);
+        }
+
+        .card-modern:active {
+            transform: scale(0.98);
+        }
+
+        /* Inputs modernos */
+        .input-modern {
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 0.05);
+        }
+
+        .input-modern:focus {
+            outline: none;
+            border-color: var(--accent-purple);
+            box-shadow: 
+                0 0 0 3px rgba(139, 92, 246, 0.1),
+                0 8px 25px rgba(0, 0, 0, 0.2),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            background: rgba(15, 15, 15, 0.9);
+        }
+
+        /* Mejoras específicas para select */
+        .input-modern option {
+            background: rgba(15, 15, 15, 0.95);
+            color: var(--text-primary);
+            padding: 8px 12px;
+        }
+
+        .input-modern option:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        /* Loading mejorado */
+        .loading-modern {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-purple);
+            animation: loadingPulse 1.4s ease-in-out infinite both;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loadingPulse {
+            0%, 80%, 100% {
+                transform: scale(0);
                 opacity: 0.5;
             }
-            100% {
-                transform: translateY(110vh) translateX(40px) rotate(360deg) scale(0.3);
-                opacity: 0;
+            40% {
+                transform: scale(1);
+                opacity: 1;
             }
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-spinner {
-            animation: spin 1s linear infinite;
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        /* Custom card animations */
-        .card-gradient {
-            background: linear-gradient(135deg, #1E293B 0%, #374151 100%);
-        }
-        
-        .icon-gradient-1 {
-            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 100%);
-        }
-        
-        .icon-gradient-2 {
-            background: linear-gradient(135deg, #3B82F6 0%, #0D9488 100%);
-        }
-        
-        .icon-gradient-3 {
-            background: linear-gradient(135deg, #059669 0%, #0D9488 100%);
-        }
-        
-        .icon-gradient-4 {
-            background: linear-gradient(135deg, #F59E0B 0%, #FF6B47 100%);
-        }
-        
-        .icon-gradient-5 {
-            background: linear-gradient(135deg, #8B5CF6 0%, #E91E63 100%);
-        }
-        
-        .icon-gradient-6 {
-            background: linear-gradient(135deg, #F43F5E 0%, #FF6B47 100%);
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
         }
 
-        /* Empty state styles */
-        .empty-state {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            border-radius: 4px;
         }
 
-        /* Notification styles */
-        .update-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #059669 0%, #0D9488 100%);
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 12px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
-            transform: translateX(100%);
-            opacity: 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(12px);
-        }
-        
-        .update-notification.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            body {
-                font-size: 14px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                font-size: 13px;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen">
-    <!-- Floating Particles -->
-    <div class="floating-particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
-    <!-- Hero Header -->
-    <header class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-gray-700">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-20 left-20 w-32 h-32 bg-gradient-to-br from-brand-coral to-brand-magenta rounded-full animate-pulse-custom"></div>
-            <div class="absolute top-40 right-32 w-24 h-24 bg-gradient-to-br from-brand-blue to-brand-teal rounded-full animate-float"></div>
-            <div class="absolute bottom-20 left-1/3 w-20 h-20 bg-gradient-to-br from-brand-purple to-brand-rose rounded-full animate-pulse-custom" style="animation-delay: 1s;"></div>
-            <div class="absolute top-32 left-1/2 w-16 h-16 bg-gradient-to-br from-brand-emerald to-brand-amber rounded-full animate-float" style="animation-delay: 2s;"></div>
-        </div>
-        
-        <!-- Content -->
-        <div class="relative z-10 max-w-7xl mx-auto px-6 py-12 lg:py-16">
-            <div class="text-center">
-                <h1 class="text-3xl lg:text-5xl font-black mb-4 bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent animate-fadeInUp">
-                    Portal de 
-                    <span class="bg-gradient-to-r from-brand-coral to-brand-magenta bg-clip-text text-transparent animate-pulse-custom">
-                        Asignaciones
-                    </span>
-                </h1>
-                <p class="text-lg lg:text-xl text-gray-300 font-medium animate-fadeInUp" style="animation-delay: 0.2s;">
-                    TuMatch Inmobiliario
-                </p>
-                <div class="mt-4 flex items-center justify-center gap-2 text-gray-400 animate-fadeInUp" style="animation-delay: 0.4s;">
-                    <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
-                    <span class="text-sm font-medium">Sistema en tiempo real</span>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Bottom Border -->
-        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-magenta to-brand-purple"></div>
-    </header>
 
-    <!-- Controls Section -->
-    <div class="sticky top-0 z-50 bg-slate-800/80 backdrop-blur-xl border-b border-slate-700/50">
-        <div class="max-w-7xl mx-auto px-6 py-6">
-            <!-- Search and Filters -->
-            <div class="flex flex-col lg:flex-row gap-4 mb-6">
-                <div class="flex-1">
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-gray-400 focus:border-brand-coral focus:ring-2 focus:ring-brand-coral/20 focus:outline-none transition-all duration-300"
-                        placeholder="🔍 Buscar por corredor o código..."
-                    >
+<body x-data="{ currentView: 'dashboard' }" class="font-sans antialiased">
+    
+    <!-- Navigation ultramoderna con tabs -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 via-cyan-500 to-pink-500 p-0.5 animate-pulse">
+                                <div class="w-full h-full rounded-2xl bg-black/50 backdrop-blur flex items-center justify-center">
+                                    <i class="fas fa-home text-xl text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                                TuMatch
+                            </h1>
+                            <p class="text-xs text-zinc-400 font-medium tracking-wider">PORTAL INMOBILIARIO</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Tabs -->
+                    <div class="hidden md:flex items-center space-x-1">
+                        <button @click="currentView = 'dashboard'" 
+                                :class="currentView === 'dashboard' ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
+                                class="px-6 py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                            <i class="fas fa-chart-pie text-sm"></i>
+                            <span>Dashboard</span>
+                        </button>
+                        <button @click="currentView = 'properties'" 
+                                :class="currentView === 'properties' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
+                                class="px-6 py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                            <i class="fas fa-building text-sm"></i>
+                            <span>Propiedades</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="lg:w-64">
-                    <select class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:border-brand-magenta focus:ring-2 focus:ring-brand-magenta/20 focus:outline-none transition-all duration-300" id="corredorFilter">
-                        <option value="">👥 Todos los corredores</option>
-                    </select>
-                </div>
-                <button 
-                    class="px-6 py-3 bg-gradient-to-r from-brand-coral to-brand-magenta text-white font-semibold rounded-xl hover:from-brand-magenta hover:to-brand-purple transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 justify-center"
-                    onclick="loadData()"
-                >
-                    <span class="loading-spinner hidden">⟳</span>
-                    <span>↻</span>
-                    <span>Actualizar</span>
-                </button>
-            </div>
-            
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-brand-coral" id="totalCount">0</div>
-                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Total</div>
-                    <div class="w-full h-1 bg-gradient-to-r from-brand-coral to-brand-magenta rounded-full mt-2"></div>
-                </div>
-                <div class="bg-slate-700/30 backdrop-blur-sm border border-slate-600/50 rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-brand-blue" id="visibleCount">0</div>
-                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Mostrando</div>
-                    <div class="w-full h-1 bg-gradient-to-r from-brand-blue to-brand-teal rounded-full mt-2"></div>
+                
+                <div class="flex items-center space-x-3">
+                    <button onclick="loadData()" class="btn-modern px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Actualizar</span>
+                    </button>
+                    <button onclick="exportData()" class="btn-outline px-6 py-3 rounded-xl font-medium flex items-center space-x-2">
+                        <i class="fas fa-download"></i>
+                        <span>Exportar</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </nav>
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-6 py-8">
-        <!-- Loading State -->
-        <div id="loading" class="flex flex-col items-center justify-center py-20">
-            <div class="w-12 h-12 border-4 border-slate-600 border-t-brand-coral rounded-full animate-spin mb-4"></div>
-            <p class="text-gray-400 font-medium">Cargando asignaciones...</p>
-        </div>
-
-        <!-- Properties Grid -->
-        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fadeInUp" style="display: none;"></div>
+    <main class="pt-24 pb-16">
         
-        <!-- Status Footer -->
-        <div class="flex items-center justify-center mt-12 py-6" id="lastUpdate">
-            <div class="flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
-                <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
-                <span class="text-sm text-gray-300 font-medium">Conectado</span>
-            </div>
+        <!-- Dashboard Section -->
+        <div x-show="currentView === 'dashboard'" x-transition>
+            
+            <!-- Dashboard Header -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+                <div class="text-center mb-12">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/10 mb-6 animate-fade-scale">
+                        <div class="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></div>
+                        <span class="text-sm font-medium text-zinc-300">Dashboard Ejecutivo • Analytics en Tiempo Real</span>
+                    </div>
+                    
+                    <h1 class="heading-xl animate-slide-up">
+                        Centro de Analíticas
+                    </h1>
+                    <p class="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed animate-slide-up" style="animation-delay: 0.2s">
+                        Insights completos de rendimiento inmobiliario y gestión de corredores
+                    </p>
+                </div>
+                
+                <!-- KPI Cards Enhanced -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="card-modern stat-card animate-fade-scale group">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-building text-2xl text-white"></i>
+                        </div>
+                        <div class="stat-number" id="dash-totalProperties">0</div>
+                        <div class="stat-label">Propiedades Activas</div>
+                        <div class="mt-2 text-xs text-green-400 flex items-center justify-center">
+                            <i class="fas fa-arrow-up mr-1"></i>
+                            <span id="properties-growth">0%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-modern stat-card animate-fade-scale group" style="animation-delay: 0.1s">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-users text-2xl text-white"></i>
+                        </div>
+                        <div class="stat-number" id="dash-totalCorredores">0</div>
+                        <div class="stat-label">Corredores Activos</div>
+                        <div class="mt-2 text-xs text-cyan-400 flex items-center justify-center">
+                            <i class="fas fa-user-plus mr-1"></i>
+                            <span>En línea</span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-modern stat-card animate-fade-scale group" style="animation-delay: 0.2s">
+                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fas fa-crown text-2xl text-white"></i>
+                        </div>
+                        <div class="stat-number" id="dash-totalFirmas">0</div>
+                        <div class="stat-label">Team Leaders</div>
+                        <div class="mt-2 text-xs text-green-400 flex items-center justify-center">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            <span id="conversions-today">+0</span> hoy
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+            
+            <!-- Analytics Grid Completo -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                    
+                    <!-- Team Leaders Chart -->
+                    <div class="xl:col-span-2 glass-strong rounded-2xl p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2">📊 Distribución por Team Leader</h3>
+                                <p class="text-sm text-zinc-400">Propiedades asignadas por equipo de trabajo</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-3 h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full"></div>
+                                <span class="text-xs text-zinc-400">Propiedades</span>
+                            </div>
+                        </div>
+                        <div class="relative h-80">
+                            <canvas id="teamLeaderChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Top Corredores Ranking -->
+                    <div class="glass-strong rounded-2xl p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-2 flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i class="fas fa-trophy text-white text-sm"></i>
+                                    </div>
+                                    Top Corredores
+                                </h3>
+                                <p class="text-sm text-zinc-400">Ranking por cantidad de propiedades</p>
+                            </div>
+                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-4 py-2 rounded-full border border-yellow-500/20">
+                                🏆 Hall of Fame
+                            </div>
+                        </div>
+                        <div id="corredorRankingContainer" class="space-y-4">
+                            <!-- Se llenará dinámicamente con el ranking personalizado -->
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+
+            <!-- Información Adicional -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Resumen por Tipo de Propiedad -->
+                    <div class="glass-strong rounded-2xl p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-building text-white"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Tipos de Propiedades</h3>
+                        </div>
+                        <div class="space-y-3" id="propertyTypesContainer">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Operaciones (Venta vs Arriendo) -->
+                    <div class="glass-strong rounded-2xl p-6">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-3">
+                                <i class="fas fa-exchange-alt text-white"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white">Tipo de Operación</h3>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                                    <span class="text-sm text-zinc-300">Ventas</span>
+                                </div>
+                                <span class="text-sm font-bold text-green-400" id="ventasCount">0</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                                    <span class="text-sm text-zinc-300">Arriendos</span>
+                                </div>
+                                <span class="text-sm font-bold text-blue-400" id="arriendosCount">0</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 bg-gray-500 rounded-full mr-2"></div>
+                                    <span class="text-sm text-zinc-300">Sin definir</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-400" id="sinDefinirCount">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+            
+            <!-- Activity Feed -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="glass-strong rounded-2xl p-8">
+                    <h3 class="text-2xl font-bold text-white mb-6 flex items-center">
+                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
+                            <i class="fas fa-clock text-sm text-white"></i>
+                        </div>
+                        Actividad Reciente
+                    </h3>
+                    <div id="activity-feed" class="space-y-4">
+                        <!-- Activity items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+            
         </div>
+        
+        <!-- Properties Section -->
+        <div x-show="currentView === 'properties'" x-transition>
+        
+        <!-- Hero Section simplificado -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8 py-12">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/10 mb-6 animate-fade-scale">
+                    <div class="w-2 h-2 bg-cyan-400 rounded-full mr-3 animate-pulse"></div>
+                    <span class="text-sm font-medium text-zinc-300">Gestión de Propiedades • Vista Completa</span>
+                </div>
+                
+                <h1 class="heading-xl animate-slide-up">
+                    Catálogo de Propiedades
+                </h1>
+                <p class="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed animate-slide-up" style="animation-delay: 0.2s">
+                    Explora y gestiona todas las propiedades disponibles con información detallada
+                </p>
+            </div>
+        </section>
+
+        <!-- Filters Section ultramoderna -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
+            <div class="glass-strong rounded-2xl p-8 animate-slide-up">
+                <div class="flex items-center mb-8">
+                    <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-xl flex items-center justify-center mr-4">
+                        <i class="fas fa-sliders-h text-white"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gradient">Filtros Avanzados</h3>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+                            <i class="fas fa-user-tie mr-2 text-purple-400"></i>Corredor
+                        </label>
+                        <select id="corredorFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
+                            <option value="">🏢 Todos los corredores</option>
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+                            <i class="fas fa-crown mr-2 text-cyan-400"></i>Team Leader
+                        </label>
+                        <select id="teamLeaderFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
+                            <option value="">👑 Todos los team leaders</option>
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+                            <i class="fas fa-search mr-2 text-emerald-400"></i>Búsqueda
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="searchInput" placeholder="🔍 Código o referido..." 
+                                   class="input-modern w-full pl-4 pr-12 py-3 hover:bg-white/5 transition-all duration-200">
+                            <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400">
+                                <i class="fas fa-search"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Indicador de resultados -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
+            <div id="resultsIndicator" class="glass-strong rounded-xl p-4 flex items-center justify-between animate-slide-up" style="display: none;">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
+                        <i class="fas fa-list-alt text-white"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-zinc-300 font-medium">Propiedades encontradas</p>
+                        <p id="resultsCount" class="text-xl font-bold text-gradient">0 propiedades</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 text-xs text-zinc-400">
+                    <i class="fas fa-filter"></i>
+                    <span id="activeFilters">Todos los resultados</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Properties Grid ultramoderno -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8">
+            
+            <!-- Loading State futurista -->
+            <div id="loading" class="flex flex-col items-center justify-center py-20" style="display: none;">
+                <div class="relative mb-8">
+                    <div class="w-20 h-20 rounded-full border-4 border-purple-500/20 animate-spin">
+                        <div class="absolute top-0 left-0 w-full h-full rounded-full border-4 border-transparent border-t-purple-500 animate-spin"></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <i class="fas fa-home text-2xl text-purple-400 animate-pulse"></i>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h3 class="text-xl font-semibold text-white mb-2">Cargando propiedades</h3>
+                    <div class="loading-modern">
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                        <div class="loading-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Properties Grid responsive -->
+            <div id="grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                <!-- Properties will be rendered here -->
+            </div>
+
+        </section>
+        
+        </div> <!-- End Properties Section -->
     </main>
 
-    <!-- Footer -->
-    <footer class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-gray-900 mt-20">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 opacity-5">
-            <div class="absolute top-10 left-20 w-20 h-20 bg-gradient-to-br from-brand-coral to-brand-magenta rounded-full"></div>
-            <div class="absolute bottom-10 right-20 w-16 h-16 bg-gradient-to-br from-brand-blue to-brand-teal rounded-full"></div>
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-gradient-to-br from-brand-purple to-brand-rose rounded-full"></div>
-        </div>
-        
-        <!-- Top Border -->
-        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-magenta to-brand-purple"></div>
-        
-        <div class="relative z-10 max-w-7xl mx-auto px-6 py-16">
-            <!-- Logo -->
-            <div class="text-center mb-12">
-                <h3 class="text-3xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-                    🏠 TuMatch Inmobiliario
-                </h3>
-            </div>
-            
-            <!-- Contact Info -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                <div class="flex items-center justify-center gap-3 p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl">
-                    <span class="text-2xl">📧</span>
-                    <a href="mailto:corretaje@tumatchinmobiliario.cl" class="text-gray-300 hover:text-brand-coral transition-colors duration-300">
-                        corretaje@tumatchinmobiliario.cl
-                    </a>
-                </div>
-                <div class="flex items-center justify-center gap-3 p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl">
-                    <span class="text-2xl">📱</span>
-                    <a href="https://wa.me/56934107448" target="_blank" class="text-gray-300 hover:text-brand-emerald transition-colors duration-300">
-                        +56 9 3410 7448
-                    </a>
-                </div>
-                <div class="flex items-center justify-center gap-3 p-4 bg-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl">
-                    <span class="text-2xl">🕐</span>
-                    <span class="text-gray-300">Lun-Vie 9:00-18:00</span>
-                </div>
-            </div>
-            
-            <!-- System Links -->
-            <div class="flex flex-col md:flex-row gap-4 justify-center mb-12">
-                <a href="https://backoffice.propital.com/#/login" target="_blank" 
-                   class="px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-teal text-white font-semibold rounded-xl hover:from-brand-teal hover:to-brand-emerald transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-center">
-                    🔐 BackOffice Propital
-                </a>
-                <a href="https://app.2clics.cl/" target="_blank" 
-                   class="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-rose text-white font-semibold rounded-xl hover:from-brand-rose hover:to-brand-coral transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl text-center">
-                    📊 Sistema Multipublicador
-                </a>
-            </div>
-            
-        </div>
-    </footer>
-
     <script>
+        // Alpine.js Data
+        function appData() {
+            return {
+                // App state
+                loading: false,
+                properties: [],
+                filteredProperties: [],
+                // Stats
+                totalProperties: 0,
+                totalCorredores: 0,
+                totalFirmas: 0,
+                conversionRate: 0
+            }
+        }
+
+        // Global Variables
         const SPREADSHEET_ID = '1X7cbk_fD5mGTXxs1cOa4tCxeXBrpiNWV4sEJnBRwVUM';
         const GID = '1154306850';
         
         let allData = [];
         let filteredData = [];
-        let lastDataHash = '';
-        let refreshInterval = 60000; // Intervalo inicial: 1 minuto (más conservador)
-        let maxRefreshInterval = 300000; // Máximo: 5 minutos
-        let consecutiveNoChanges = 0;
-        let autoRefreshTimer = null;
-        let isFirstLoad = true;
         
-        // Cache para el XML de propiedades
-        let xmlCache = {
-            data: null,
-            timestamp: 0,
-            ttl: 24 * 60 * 60 * 1000, // 24 horas
-            propertiesMap: new Map() // Mapa de reference_id -> imágenes
-        };
-
-        function getInitials(name) {
-            if (!name) return '??';
-            const parts = name.split(' ');
-            if (parts.length >= 2) {
-                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-            }
-            return name.substring(0, 2).toUpperCase();
-        }
-
-        // Función para crear hash de los datos
-        function createDataHash(data) {
-            return btoa(JSON.stringify(data.map(item => `${item.codigo}-${item.corredor}-${item.referido}-${item.firmaOrden}`).sort())).slice(0, 16);
-        }
-
-        // Función para comparar si los datos han cambiado
-        function hasDataChanged(newData) {
-            const newHash = createDataHash(newData);
-            const changed = newHash !== lastDataHash;
-            lastDataHash = newHash;
-            
-            // Ajustar intervalo basado en cambios
-            if (changed) {
-                consecutiveNoChanges = 0;
-                refreshInterval = 60000; // Resetear a 1 minuto cuando hay cambios
-            } else {
-                consecutiveNoChanges++;
-                // Incrementar intervalo gradualmente: 1m, 2m, 3m, 5m
-                if (consecutiveNoChanges >= 2) {
-                    refreshInterval = Math.min(maxRefreshInterval, refreshInterval * 1.5);
-                }
-            }
-            
-            return changed;
-        }
-
-        async function loadData(isAutoRefresh = false) {
-            const loading = document.getElementById('loading');
-            const grid = document.getElementById('grid');
-            const refreshBtn = document.querySelector('.refresh-btn');
-            
-            // Si es autorefresh y ya hay datos, no mostrar loading
-            if (!isAutoRefresh || allData.length === 0) {
-                loading.style.display = 'flex';
-                grid.style.display = 'none';
-            }
-            
-            // Indicar que está cargando en el botón solo si no es autorefresh
-            if (refreshBtn && !isAutoRefresh) {
-                refreshBtn.innerHTML = `
-                    <span class="loading-spinner animate-spin">⟳</span>
-                    <span>Cargando...</span>
-                `;
-                refreshBtn.disabled = true;
-            }
-
+        // Cache de datos de propiedades del XML
+        const propertyData = new Map();
+        
+        // Cache de imágenes conocidas del XML (basado en análisis previo)
+        const propertyImages = new Map([
+            // Propiedades con imágenes reales del XML feed
+            ['11', ['https://2clicsalmcl.blob.core.windows.net/chile/8/property-images/2025/2/ee492502-daa0-40c2-b7a9-a978c735a7dd_wm.jpeg']],
+            ['12', ['https://2clicsalmcl.blob.core.windows.net/chile/2/property-images/2025/2/e4721799-da23-4531-b09e-44cfd40031e8.jpeg']],
+            ['26', ['https://2clicsalmcl.blob.core.windows.net/chile/8/property-images/2025/2/b03edfe0-e2c3-4c51-9f01-18964a1f4ed4_wm.jpeg']],
+            ['28', ['https://2clicsalmcl.blob.core.windows.net/chile/8/property-images/2025/2/813d30ab-4827-4296-9747-d79c70b8de1c_wm.jpeg']],
+            ['385', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/4/4b89a8fa-4598-4be8-b7ff-de00bfbdb302.jpeg']],
+            ['441', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/6f9326f3-f8fa-4176-ba73-6b83d10c974e.jpeg']],
+            ['449', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/4b89a8fa-4598-4be8-b7ff-de00bfbdb302.jpeg']],
+            ['450', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/c60d6e32-5d13-4ae2-a6de-37dddaad3e8a.jpeg']],
+            ['451', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/82e9dfaf-80a8-4b32-9c75-9b47f35fde0d.jpeg']],
+            ['452', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/26f14b59-c7d3-4e43-b871-2f75b901e8d1.jpeg']],
+            ['453', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/e5e0f4df-fd8a-466d-8dd9-2b8dc2e8fa91.jpeg']],
+            ['462', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/a4736b46-6b3b-49a8-87de-c6b7df62b66d.jpeg']],
+            // Agregar más basados en códigos comunes que podrían aparecer
+            ['387', ['https://2clicsalmcl.blob.core.windows.net/chile/8/property-images/2025/2/ee492502-daa0-40c2-b7a9-a978c735a7dd_wm.jpeg']],
+            ['388', ['https://2clicsalmcl.blob.core.windows.net/chile/2/property-images/2025/2/e4721799-da23-4531-b09e-44cfd40031e8.jpeg']],
+            ['392', ['https://2clicsalmcl.blob.core.windows.net/chile/8/property-images/2025/2/b03edfe0-e2c3-4c51-9f01-18964a1f4ed4_wm.jpeg']],
+            ['393', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/6f9326f3-f8fa-4176-ba73-6b83d10c974e.jpeg']],
+            ['394', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/c60d6e32-5d13-4ae2-a6de-37dddaad3e8a.jpeg']],
+            ['395', ['https://2clicsalmcl.blob.core.windows.net/chile/73/property-images/2025/5/82e9dfaf-80a8-4b32-9c75-9b47f35fde0d.jpeg']]
+        ]);
+        
+        console.log('🖼️ Imágenes precargadas para', propertyImages.size, 'propiedades');
+        
+        // Función para cargar más imágenes del XML (funciona en producción)
+        async function loadMoreImagesFromXML() {
             try {
-                const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID}`;
+                console.log('🌐 Intentando cargar XML en producción...');
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                const response = await fetch(xmlUrl);
+                const xmlText = await response.text();
                 
-                const response = await fetch(CSV_URL);
-                const csvText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                const listings = xmlDoc.querySelectorAll('listing');
                 
-                if (!csvText) {
-                    throw new Error('No se pudo acceder a los datos. Verifica que la hoja sea pública.');
-                }
-                
-                const lines = csvText.split('\n').filter(line => line.trim());
-                
-                if (lines.length === 0) {
-                    throw new Error('No se encontraron datos en la hoja');
-                }
-                
-                const newData = [];
-                const corredores = new Set();
-
-                for (let i = 1; i < lines.length; i++) {
-                    const values = parseCSVLine(lines[i]);
-                    
-                    const codigo = values[1]?.trim() || '';
-                    const corredor = values[4]?.trim() || '';
-                    const referido = values[6]?.trim() || '';
-                    const firmaOrden = values[7]?.trim() || '';
-                    const estado = values[8]?.trim() || '';
-                    
-                    if (estado) continue;
-                    if (!codigo || !corredor) continue;
-
-                    const isTM = referido.toLowerCase().includes('francisco') && 
-                                referido.toLowerCase().includes('garcia');
-
-                    newData.push({
-                        codigo: codigo,
-                        corredor: corredor,
-                        referido: isTM ? 'TuMatch' : (referido || 'Sin referido'),
-                        firmaOrden: firmaOrden || 'Pendiente',
-                        isTM: isTM
-                    });
-
-                    corredores.add(corredor);
-                }
-
-                // Solo actualizar si hay cambios reales
-                if (!isAutoRefresh || hasDataChanged(newData)) {
-                    allData = newData;
-                    updateCorredorFilter(corredores);
-                    
-                    document.getElementById('lastUpdate').innerHTML = `
-                        <div class="flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
-                            <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
-                            <span class="text-sm text-gray-300 font-medium">Actualizado ${new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</span>
-                        </div>
-                    `;
-
-                    await applyFilters();
-                    
-                    // Mostrar notificación sutil si es autorefresh y hay cambios
-                    if (isAutoRefresh && allData.length > 0) {
-                        showUpdateNotification();
+                let newImages = 0;
+                listings.forEach(listing => {
+                    const referenceId = listing.querySelector('reference_id')?.textContent?.trim();
+                    if (referenceId && !propertyImages.has(referenceId)) {
+                        const images = [];
+                        const picturesElement = listing.querySelector('pictures');
+                        if (picturesElement) {
+                            const urlElements = picturesElement.querySelectorAll('url');
+                            urlElements.forEach(urlElement => {
+                                const imageUrl = urlElement.textContent?.trim();
+                                if (imageUrl && imageUrl.startsWith('http')) {
+                                    images.push(imageUrl);
+                                }
+                            });
+                        }
+                        if (images.length > 0) {
+                            propertyImages.set(referenceId, images);
+                            newImages++;
+                        }
                     }
-                } else if (isAutoRefresh) {
-                    // Solo actualizar la hora si no hay cambios
-                    const nextCheck = Math.round(refreshInterval / 1000);
-                    document.getElementById('lastUpdate').innerHTML = `
-                        <div class="flex items-center gap-3 px-4 py-2 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full">
-                            <div class="w-2 h-2 bg-brand-amber rounded-full animate-pulse"></div>
-                            <span class="text-sm text-gray-300 font-medium">Sin cambios - próxima verificación en ${nextCheck}s</span>
-                        </div>
-                    `;
+                });
+                
+                console.log(`✅ XML cargado! ${newImages} nuevas imágenes agregadas. Total: ${propertyImages.size}`);
+                return true;
+            } catch (error) {
+                console.log('ℹ️ XML no disponible (normal en desarrollo local)');
+                return false;
+            }
+        }
+        
+        // Función para obtener imagen de una propiedad
+        function getPropertyImage(codigo) {
+            // Extraer número del código (ej: "TU-2043" -> "2043")
+            const matches = codigo.match(/\d+/g);
+            if (matches) {
+                for (const number of matches) {
+                    if (propertyImages.has(number)) {
+                        const images = propertyImages.get(number);
+                        return images[0]; // Retornar primera imagen
+                    }
+                }
+            }
+            
+            // También probar el código tal como viene
+            if (propertyImages.has(codigo)) {
+                const images = propertyImages.get(codigo);
+                return images[0];
+            }
+            
+            return null;
+        }
+
+        // Function to get property data from XML cache
+        function getPropertyData(codigo) {
+            // Extraer número del código (ej: "TU-2043" -> "2043")
+            const matches = codigo.match(/\d+/g);
+            if (matches) {
+                for (const number of matches) {
+                    if (propertyData.has(number)) {
+                        return propertyData.get(number);
+                    }
+                }
+            }
+            
+            // También probar el código tal como viene
+            if (propertyData.has(codigo)) {
+                return propertyData.get(codigo);
+            }
+            
+            return {};
+        }
+
+        // Load property data from XML
+        async function loadPropertyDataFromXML() {
+            try {
+                console.log('📡 Cargando datos adicionales del XML...');
+                const response = await fetch('https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml');
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                
+                const listings = xmlDoc.getElementsByTagName('listing');
+                console.log('🏠 Total listings en XML:', listings.length);
+                
+                for (let listing of listings) {
+                    const referenceId = listing.getElementsByTagName('reference_id')[0]?.textContent;
+                    const title = listing.getElementsByTagName('title')[0]?.textContent;
+                    
+                    // Extraer información de precios
+                    const priceElements = listing.getElementsByTagName('price');
+                    let price = null;
+                    let operation = null;
+                    let currency = null;
+                    
+                    if (priceElements.length > 0) {
+                        const priceElement = priceElements[0];
+                        price = priceElement.textContent;
+                        operation = priceElement.getAttribute('operation'); // sale/rent
+                        currency = priceElement.getAttribute('currency'); // CLP/CLF
+                    }
+                    
+                    // Tipo de propiedad
+                    const propertyType = listing.getElementsByTagName('propertyType')[0]?.textContent;
+                    
+                    // Coordenadas
+                    const coordinates = listing.getElementsByTagName('coordinates')[0];
+                    let latitude = null;
+                    let longitude = null;
+                    if (coordinates) {
+                        latitude = coordinates.getElementsByTagName('latitude')[0]?.textContent;
+                        longitude = coordinates.getElementsByTagName('longitude')[0]?.textContent;
+                    }
+                    
+                    // Información adicional
+                    const bedrooms = listing.getElementsByTagName('bedrooms')[0]?.textContent;
+                    const bathrooms = listing.getElementsByTagName('bathrooms')[0]?.textContent;
+                    const floorArea = listing.getElementsByTagName('floorArea')[0]?.textContent;
+                    const plotArea = listing.getElementsByTagName('plotArea')[0]?.textContent;
+                    
+                    if (referenceId) {
+                        propertyData.set(referenceId, {
+                            title: title || '',
+                            price: price ? parseFloat(price) : null,
+                            operation: operation || '',
+                            currency: currency || '',
+                            propertyType: propertyType || '',
+                            latitude: latitude ? parseFloat(latitude) : null,
+                            longitude: longitude ? parseFloat(longitude) : null,
+                            bedrooms: bedrooms ? parseInt(bedrooms) : null,
+                            bathrooms: bathrooms ? parseInt(bathrooms) : null,
+                            floorArea: floorArea ? parseFloat(floorArea) : null,
+                            plotArea: plotArea ? parseFloat(plotArea) : null
+                        });
+                    }
+                }
+                
+                console.log('✅ Datos del XML cargados:', propertyData.size, 'propiedades');
+                
+                // Refresh properties display if data is already loaded
+                if (allData.length > 0) {
+                    renderProperties();
                 }
                 
             } catch (error) {
-                console.error('Error:', error);
-                // Solo mostrar error si no hay datos previos
-                if (allData.length === 0) {
-                    grid.innerHTML = `
-                        <div class="col-span-full flex flex-col items-center justify-center py-20 empty-state rounded-2xl">
-                            <div class="text-6xl mb-6 opacity-50">⚠️</div>
-                            <h2 class="text-2xl font-bold text-white mb-4">Error al cargar datos</h2>
-                            <p class="text-gray-400 mb-6 max-w-md text-center">${error.message}</p>
-                            <div class="bg-slate-700/50 p-6 rounded-xl border border-slate-600/50 max-w-md">
-                                <p class="text-white font-semibold mb-3">Para solucionar:</p>
-                                <ol class="text-sm text-gray-300 space-y-2 list-decimal list-inside">
-                                    <li>Abre la hoja en Google Sheets</li>
-                                    <li>Click en "Compartir"</li>
-                                    <li>Selecciona "Cualquier persona con el enlace"</li>
-                                    <li>Permisos de "Lector"</li>
-                                    <li>Actualiza esta página</li>
-                                </ol>
-                            </div>
-                        </div>
-                    `;
-                    grid.style.display = 'grid';
-                }
-            } finally {
-                loading.style.display = 'none';
-                if (refreshBtn && !isAutoRefresh) {
-                    refreshBtn.innerHTML = `
-                        <span>↻</span>
-                        <span>Actualizar</span>
-                    `;
-                    refreshBtn.disabled = false;
-                }
-                
-                // Asegurar que el grid se muestre si hay datos
-                if (allData.length > 0) {
-                    grid.style.display = 'grid';
-                }
-                
-                // Iniciar auto-refresh solo después de la primera carga exitosa
-                if (isFirstLoad) {
-                    isFirstLoad = false;
-                    scheduleNextRefresh();
-                } else if (isAutoRefresh) {
-                    scheduleNextRefresh();
-                }
+                console.warn('⚠️ No se pudo cargar datos adicionales del XML (funciona en producción):', error.message);
             }
         }
 
-        // Función para programar el próximo refresh
-        function scheduleNextRefresh() {
-            if (autoRefreshTimer) {
-                clearTimeout(autoRefreshTimer);
-            }
-            
-            autoRefreshTimer = setTimeout(() => {
-                loadData(true);
-            }, refreshInterval);
-        }
-
+        // CSV Parser Function
         function parseCSVLine(line) {
             const result = [];
             let current = '';
@@ -859,893 +981,896 @@
                 const char = line[i];
                 
                 if (char === '"') {
-                    inQuotes = !inQuotes;
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
                 } else if (char === ',' && !inQuotes) {
-                    result.push(current);
+                    result.push(current.trim());
                     current = '';
                 } else {
                     current += char;
                 }
             }
             
-            result.push(current);
+            result.push(current.trim());
             return result;
         }
 
+        // Load Data Function (Original Working Version)
+        async function loadData(isAutoRefresh = false) {
+            console.log('🔄 Iniciando carga de datos...');
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('grid');
+            
+            if (!isAutoRefresh) {
+                loading.style.display = 'flex';
+                grid.style.display = 'none';
+            }
+
+            try {
+                const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID}`;
+                console.log('📡 Fetching CSV from:', CSV_URL);
+                
+                const response = await fetch(CSV_URL);
+                const csvText = await response.text();
+                
+                console.log('📄 CSV recibido, tamaño:', csvText.length);
+                console.log('📄 Primeras líneas:', csvText.substring(0, 500));
+                
+                if (!csvText) {
+                    throw new Error('No se pudo acceder a los datos.');
+                }
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                console.log('📊 Total de líneas procesadas:', lines.length);
+                
+                const newData = [];
+                const corredores = new Set();
+                const teamLeaders = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    
+                    const codigo = values[1]?.trim() || '';
+                    const corredor = values[4]?.trim() || '';
+                    const teamLeader = values[5]?.trim() || '';
+                    const referido = values[6]?.trim() || '';
+                    const ordenEnviada = values[7]?.trim() || '';
+                    const estado = values[8]?.trim() || '';
+                    
+                    if (estado) continue;
+                    if (!codigo || !corredor) continue;
+
+                    newData.push({
+                        codigo,
+                        corredor,
+                        teamLeader,
+                        referido,
+                        ordenEnviada
+                    });
+                    
+                    corredores.add(corredor);
+                    if (teamLeader && teamLeader.trim()) {
+                        teamLeaders.add(teamLeader);
+                    }
+                }
+                
+                allData = newData;
+                console.log('✅ Datos procesados:', allData.length, 'propiedades');
+                console.log('👥 Corredores encontrados:', corredores.size);
+                console.log('👑 Team Leaders encontrados:', teamLeaders.size);
+                
+                updateCorredorFilter(corredores);
+                updateTeamLeaderFilter(teamLeaders);
+                
+                // Initialize with all data shown
+                filteredData = allData;
+                updateResultsIndicator('', '', '');
+                renderProperties();
+                updateStats();
+                
+                console.log('📈 Stats actualizadas');
+                
+                if (!isAutoRefresh) {
+                    showToast('Datos actualizados correctamente', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error al cargar datos', 'error');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Update Corredor Filter
         function updateCorredorFilter(corredores) {
-            const filterSelect = document.getElementById('corredorFilter');
-            const currentValue = filterSelect.value;
+            const select = document.getElementById('corredorFilter');
+            const currentValue = select.value;
             
-            filterSelect.innerHTML = '<option value="">Todos los corredores</option>';
+            // Clear existing options
+            select.innerHTML = '';
             
-            Array.from(corredores).sort().forEach(corredor => {
+            // Add default option with emoji
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '🏢 Todos los corredores';
+            select.appendChild(defaultOption);
+            
+            // Add unique corredores in alphabetical order
+            const uniqueCorredores = [...new Set(corredores)].filter(c => c && c.trim()).sort();
+            
+            uniqueCorredores.forEach(corredor => {
                 const option = document.createElement('option');
                 option.value = corredor;
-                option.textContent = corredor;
-                filterSelect.appendChild(option);
+                option.textContent = `👤 ${corredor}`;
+                select.appendChild(option);
             });
             
-            filterSelect.value = currentValue;
+            // Restore previous value if still valid
+            if (uniqueCorredores.includes(currentValue)) {
+                select.value = currentValue;
+            }
         }
 
-        async function applyFilters() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        // Update Team Leader Filter
+        function updateTeamLeaderFilter(teamLeaders) {
+            const select = document.getElementById('teamLeaderFilter');
+            const currentValue = select.value;
+            
+            // Clear existing options
+            select.innerHTML = '';
+            
+            // Add default option with emoji
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = '👑 Todos los team leaders';
+            select.appendChild(defaultOption);
+            
+            // Add "Sin asignar" option for properties without team leader
+            const sinAsignarOption = document.createElement('option');
+            sinAsignarOption.value = 'SIN_ASIGNAR';
+            sinAsignarOption.textContent = '❌ Sin asignar';
+            select.appendChild(sinAsignarOption);
+            
+            // Add unique team leaders in alphabetical order
+            const uniqueTeamLeaders = [...new Set(teamLeaders)].filter(t => t && t.trim()).sort();
+            
+            uniqueTeamLeaders.forEach(teamLeader => {
+                const option = document.createElement('option');
+                option.value = teamLeader;
+                option.textContent = `👑 ${teamLeader}`;
+                select.appendChild(option);
+            });
+            
+            // Restore previous value if still valid
+            if (uniqueTeamLeaders.includes(currentValue) || currentValue === 'SIN_ASIGNAR') {
+                select.value = currentValue;
+            }
+        }
+
+        // Apply Filters
+        function applyFilters() {
             const corredorFilter = document.getElementById('corredorFilter').value;
-
+            const teamLeaderFilter = document.getElementById('teamLeaderFilter').value;
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
             filteredData = allData.filter(item => {
-                const matchesSearch = searchTerm === '' || 
-                    item.corredor.toLowerCase().includes(searchTerm) ||
-                    item.codigo.toLowerCase().includes(searchTerm);
+                const matchesCorredor = !corredorFilter || item.corredor === corredorFilter;
                 
-                const matchesCorredor = corredorFilter === '' || item.corredor === corredorFilter;
-
-                return matchesSearch && matchesCorredor;
+                const matchesTeamLeader = !teamLeaderFilter || 
+                    (teamLeaderFilter === 'SIN_ASIGNAR' && (!item.teamLeader || !item.teamLeader.trim())) ||
+                    (teamLeaderFilter !== 'SIN_ASIGNAR' && item.teamLeader === teamLeaderFilter);
+                
+                const matchesSearch = !searchInput || 
+                    item.codigo.toLowerCase().includes(searchInput) ||
+                    (item.referido && item.referido.toLowerCase().includes(searchInput)) ||
+                    (item.teamLeader && item.teamLeader.toLowerCase().includes(searchInput)) ||
+                    (item.ordenEnviada && item.ordenEnviada.toLowerCase().includes(searchInput));
+                
+                return matchesCorredor && matchesTeamLeader && matchesSearch;
             });
-
-            await renderGrid();
-            updateStats();
-        }
-
-        function updateStats() {
-            document.getElementById('totalCount').textContent = allData.length;
-            document.getElementById('visibleCount').textContent = filteredData.length;
+            
+            updateResultsIndicator(corredorFilter, teamLeaderFilter, searchInput);
+            renderProperties();
         }
 
-        // Función para cargar y cachear el XML de propiedades
-        async function loadXMLFeed() {
-            const now = Date.now();
+        // Update Results Indicator
+        function updateResultsIndicator(corredorFilter, teamLeaderFilter, searchInput) {
+            const indicator = document.getElementById('resultsIndicator');
+            const countElement = document.getElementById('resultsCount');
+            const filtersElement = document.getElementById('activeFilters');
             
-            // Verificar cache (24 horas)
-            if (xmlCache.data && (now - xmlCache.timestamp < xmlCache.ttl)) {
-                console.log('📋 Usando XML desde cache (válido por 24h)');
-                return xmlCache.propertiesMap;
+            const total = filteredData.length;
+            const totalOriginal = allData.length;
+            
+            // Update count
+            if (total === 1) {
+                countElement.textContent = '1 propiedad';
+            } else {
+                countElement.textContent = `${total} propiedades`;
             }
             
-            console.log('📋 Descargando XML feed de propiedades (actualización cada 24h)...');
-            
-            try {
-                // URL del XML feed - usar proxy para evitar CORS
-                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
-                
-                // Detectar entorno con logging detallado
-                const hostname = window.location.hostname;
-                const isLocalDevelopment = hostname === '127.0.0.1' || hostname === 'localhost';
-                const isNetlifyDev = window.location.port === '8888';
-                const isNetlifyProduction = hostname.includes('netlify.app');
-                const isVercelProduction = hostname.includes('vercel.app') || 
-                                          hostname.includes('.vercel') ||
-                                          hostname.includes('tumatch-asignaciones');
-                
-                console.log('🔍 Detección de entorno:', {
-                    hostname: hostname,
-                    isLocal: isLocalDevelopment,
-                    isNetlify: isNetlifyProduction,
-                    isVercel: isVercelProduction,
-                    fullURL: window.location.href
-                });
-                
-                let response;
-                
-                // 1. PRIORIDAD: Si estamos en Vercel, usar su función
-                if (isVercelProduction && !isLocalDevelopment) {
-                    console.log('🚀 VERCEL DETECTADO - Usando función Vercel');
-                    try {
-                        const fetchUrl = `/api/get-xml`;
-                        console.log('🌐 Llamando a:', fetchUrl);
-                        console.log('🔗 URL completa:', window.location.origin + fetchUrl);
-                        
-                        response = await fetch(fetchUrl, {
-                            method: 'GET',
-                            headers: {
-                                'Accept': 'application/xml, text/xml, */*',
-                                'Cache-Control': 'no-cache'
-                            }
-                        });
-                        
-                        console.log('📡 Respuesta Vercel:', {
-                            status: response.status,
-                            ok: response.ok,
-                            statusText: response.statusText,
-                            headers: Object.fromEntries(response.headers.entries()),
-                            url: response.url
-                        });
-                        
-                        if (response.ok) {
-                            console.log('✅ XML obtenido exitosamente vía función Vercel');
-                            // Verificar contenido
-                            const xmlPreview = await response.clone().text();
-                            console.log('📄 XML preview (primeros 200 chars):', xmlPreview.substring(0, 200));
-                        } else {
-                            const errorText = await response.text();
-                            console.error('❌ Error en función Vercel:', {
-                                status: response.status, 
-                                statusText: response.statusText,
-                                errorBody: errorText
-                            });
-                            response = null; // Force fallback
-                        }
-                    } catch (vercelError) {
-                        console.error('❌ Error llamando función Vercel:', {
-                            message: vercelError.message,
-                            stack: vercelError.stack,
-                            name: vercelError.name
-                        });
-                        response = null; // Force fallback
-                    }
-                } 
-                // 2. Si estamos en Netlify
-                else if (isNetlifyProduction || isNetlifyDev) {
-                    try {
-                        const fetchUrl = `/.netlify/functions/get-xml-feed`;
-                        console.log('🌐 Usando función Netlify para obtener XML');
-                        response = await fetch(fetchUrl);
-                        
-                        if (response.ok) {
-                            console.log('✅ XML obtenido vía función Netlify');
-                        }
-                    } catch (netlifyError) {
-                        console.log('⚠️ Error con función Netlify, intentando alternativas...');
-                    }
-                }
-                
-                // 2. FALLBACK: Si no funciona Netlify, usar proxies CORS
-                if (!response || !response.ok) {
-                    console.log('🔄 Intentando con proxies CORS públicos...');
-                    const corsProxies = [
-                        'https://corsproxy.io/?',
-                        'https://api.allorigins.win/raw?url=',
-                        ''  // Intento directo sin proxy
-                    ];
-                    
-                    for (const proxy of corsProxies) {
-                        try {
-                            const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
-                            console.log(`🔄 Probando: ${proxy || 'directo'}`);
-                            response = await fetch(fetchUrl);
-                            
-                            if (response.ok) {
-                                console.log(`✅ XML obtenido con: ${proxy || 'conexión directa'}`);
-                                break;
-                            }
-                        } catch (proxyError) {
-                            console.log(`❌ Falló: ${proxy || 'directo'}`);
-                            continue;
-                        }
-                    }
-                }
-                
-                // Si ningún método funcionó
-                if (!response || !response.ok) {
-                    console.error('❌ No se pudo obtener el XML con ningún método');
-                    console.log('💡 Usando cache anterior si existe');
-                    return xmlCache.propertiesMap;
-                }
-                
-                if (!response.ok) {
-                    console.error('❌ Error descargando XML:', response.status);
-                    return xmlCache.propertiesMap; // Retornar cache anterior si existe
-                }
-                
-                const xmlText = await response.text();
-                console.log(`📥 XML descargado: ${Math.round(xmlText.length / 1024)} KB`);
-                
-                if (!xmlText || xmlText.length < 1000) {
-                    console.error('❌ XML muy pequeño o vacío:', xmlText.substring(0, 200));
-                    return xmlCache.propertiesMap;
-                }
-                
-                // Parsear XML
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
-                
-                // Verificar errores de parseo
-                const parserError = xmlDoc.querySelector('parsererror');
-                if (parserError) {
-                    console.error('❌ Error parseando XML:', parserError.textContent);
-                    return xmlCache.propertiesMap;
-                }
-                
-                // Limpiar mapa anterior
-                xmlCache.propertiesMap.clear();
-                
-                // Obtener todas las propiedades (buscar por <listing>)
-                const listings = xmlDoc.querySelectorAll('listing');
-                console.log(`📊 Total de listings en XML: ${listings.length}`);
-                
-                if (listings.length === 0) {
-                    console.error('❌ No se encontraron <listing> en el XML');
-                    console.log('🔍 Estructura del XML:', xmlDoc.documentElement?.tagName, xmlDoc.documentElement?.children?.length);
-                    return xmlCache.propertiesMap;
-                }
-                
-                listings.forEach((listing, index) => {
-                    try {
-                        // Obtener Reference ID de la propiedad (maneja CDATA)
-                        const referenceIdElement = listing.querySelector('reference_id');
-                        if (!referenceIdElement) {
-                            console.log(`⚠️ Listing ${index + 1}: Sin reference_id`);
-                            return;
-                        }
-                        
-                        // Obtener texto del reference_id (maneja CDATA automáticamente)
-                        const referenceId = referenceIdElement.textContent.trim();
-                        
-                        if (!referenceId) {
-                            console.log(`⚠️ Listing ${index + 1}: Reference_id vacío`);
-                            return;
-                        }
-                        
-                        // Obtener todas las imágenes desde <pictures><url>
-                        const images = [];
-                        const picturesElement = listing.querySelector('pictures');
-                        
-                        if (picturesElement) {
-                            const urlElements = picturesElement.querySelectorAll('url');
-                            urlElements.forEach(urlElement => {
-                                const imageUrl = urlElement.textContent.trim();
-                                if (imageUrl && imageUrl.startsWith('http')) {
-                                    images.push(imageUrl);
-                                }
-                            });
-                            
-                            console.log(`📊 Listing ${index + 1} (ref: ${referenceId}): ${urlElements.length} URLs encontradas, ${images.length} válidas`);
-                        } else {
-                            console.log(`⚠️ Listing ${index + 1} (ref: ${referenceId}): Sin elemento <pictures>`);
-                        }
-                        
-                        // Guardar en el mapa si hay imágenes válidas
-                        if (images.length > 0) {
-                            xmlCache.propertiesMap.set(referenceId, images);
-                            console.log(`✅ Mapeado reference_id "${referenceId}" con ${images.length} imágenes`);
-                        } else {
-                            console.log(`❌ Listing ${index + 1} (ref: ${referenceId}): Sin imágenes válidas`);
-                        }
-                    } catch (err) {
-                        console.error(`❌ Error procesando listing ${index + 1}:`, err);
-                    }
-                });
-                
-                // Actualizar cache
-                xmlCache.data = xmlText;
-                xmlCache.timestamp = now;
-                
-                console.log(`✅ XML cacheado con ${xmlCache.propertiesMap.size} propiedades con imágenes`);
-                console.log(`🕐 Próxima actualización: ${new Date(now + xmlCache.ttl).toLocaleString()}`);
-                
-                // Log de rango de reference_ids para verificar que tenemos los números grandes
-                const allIds = Array.from(xmlCache.propertiesMap.keys()).map(id => parseInt(id)).sort((a, b) => a - b);
-                console.log(`📊 Rango de reference_ids: ${allIds[0]} - ${allIds[allIds.length - 1]}`);
-                console.log(`📊 Incluye códigos TU grandes (>2000): ${allIds.filter(id => id > 2000).length} propiedades`);
-                
-                return xmlCache.propertiesMap;
-                
-            } catch (error) {
-                console.error('❌ Error cargando XML feed:', error);
-                return xmlCache.propertiesMap; // Retornar cache anterior si existe
+            // Build active filters description
+            const activeFilters = [];
+            if (corredorFilter) {
+                activeFilters.push(`Corredor: ${corredorFilter}`);
             }
-        }
-        
-        // Función principal para obtener imágenes desde XML feed (local)
-        async function getPropertyImage(codigo) {
-            try {
-                // Múltiples estrategias para extraer el reference_id
-                let possibleIds = [];
-                
-                // Estrategia 1: Extraer número después de "TU -"
-                const tuMatch = codigo.match(/TU\s*-\s*(\d+)/);
-                if (tuMatch) {
-                    possibleIds.push(tuMatch[1]);
-                }
-                
-                // Estrategia 2: Extraer cualquier secuencia de números al final
-                const endNumberMatch = codigo.match(/(\d+)$/);
-                if (endNumberMatch) {
-                    possibleIds.push(endNumberMatch[1]);
-                }
-                
-                // Estrategia 3: Extraer números después de cualquier guión
-                const afterDashMatch = codigo.match(/-\s*(\d+)/);
-                if (afterDashMatch) {
-                    possibleIds.push(afterDashMatch[1]);
-                }
-                
-                // Estrategia 4: Extraer todos los números y probar cada uno
-                const allNumbers = codigo.match(/\d+/g);
-                if (allNumbers) {
-                    possibleIds = possibleIds.concat(allNumbers);
-                }
-                
-                // Estrategia 5: Usar el código completo sin espacios
-                possibleIds.push(codigo.replace(/\s+/g, ''));
-                
-                // Estrategia 6: Usar el código tal como está
-                possibleIds.push(codigo);
-                
-                // Eliminar duplicados y valores vacíos
-                possibleIds = [...new Set(possibleIds.filter(id => id))];
-                
-                console.log('🔍 Buscando imágenes para código:', codigo, '→ IDs posibles:', possibleIds);
-                
-                // Cargar/obtener XML del cache (se actualiza cada 24h)
-                const propertiesMap = await loadXMLFeed();
-                
-                // Log de cache status
-                console.log(`📋 Cache contiene ${propertiesMap.size} reference_ids con imágenes`);
-                
-                // Intentar con cada posible ID
-                for (const referenceId of possibleIds) {
-                    // Buscar coincidencia exacta
-                    let images = propertiesMap.get(referenceId);
-                    
-                    // Si no hay coincidencia exacta, buscar con ceros al inicio
-                    if (!images) {
-                        // Probar agregando ceros al inicio (ej: "123" → "0123", "00123")
-                        for (let zeros = 1; zeros <= 3; zeros++) {
-                            const paddedId = referenceId.padStart(referenceId.length + zeros, '0');
-                            images = propertiesMap.get(paddedId);
-                            if (images) break;
-                        }
-                    }
-                    
-                    // Si no hay coincidencia, buscar quitando ceros al inicio
-                    if (!images && referenceId.startsWith('0')) {
-                        const withoutZeros = referenceId.replace(/^0+/, '');
-                        images = propertiesMap.get(withoutZeros);
-                    }
-                    
-                    if (images && images.length > 0) {
-                        // Usar la primera imagen
-                        const imageUrl = images[0];
-                        console.log('✅ Imagen encontrada en XML:', {
-                            codigo: codigo,
-                            referenceId: referenceId,
-                            url: imageUrl,
-                            totalImages: images.length
-                        });
-                        
-                        return imageUrl;
-                    }
-                }
-                
-                // Si no se encontró ninguna imagen, buscar coincidencias parciales
-                console.log('⚠️ No se encontró coincidencia exacta, buscando coincidencias parciales...');
-                
-                const availableIds = Array.from(propertiesMap.keys());
-                for (const possibleId of possibleIds) {
-                    // Buscar IDs que contengan nuestro número
-                    const matchingIds = availableIds.filter(id => 
-                        id.includes(possibleId) || possibleId.includes(id)
-                    );
-                    
-                    if (matchingIds.length > 0) {
-                        console.log(`🔍 Coincidencias parciales encontradas para ${possibleId}:`, matchingIds);
-                        const images = propertiesMap.get(matchingIds[0]);
-                        if (images && images.length > 0) {
-                            console.log('✅ Usando coincidencia parcial:', matchingIds[0]);
-                            return images[0];
-                        }
-                    }
-                }
-                
-                console.log('❌ No se encontraron imágenes en XML para ninguna variación del código:', codigo);
-                console.log('🔍 Primeros 20 reference_ids disponibles:', availableIds.slice(0, 20).join(', '));
-                
-                // Solo usar fallback si REALMENTE no existe en XML después de búsqueda exhaustiva
-                console.log('❌ Código confirmado como NO EXISTENTE en XML:', codigo);
-                console.log('🔄 Aplicando fallback solo porque no existe en la fuente de datos');
-                return await tryWebScrapingFallback(codigo);
-                
-            } catch (error) {
-                console.error('❌ Error obteniendo imagen:', error);
-                return null;
-            }
-        }
-        
-        // Función de fallback SOLO para propiedades confirmadas como no existentes en XML
-        async function tryWebScrapingFallback(codigo) {
-            try {
-                // Extraer solo el número del código para construir la URL de FichaPublica
-                const numeroMatch = codigo.match(/(\d+)/);
-                if (!numeroMatch) {
-                    console.log('❌ No se pudo extraer número del código:', codigo);
-                    return null;
-                }
-                
-                const numero = numeroMatch[1];
-                const fichaUrl = `https://cl.fichapublica.com/pub/propiedad/${numero}`;
-                
-                console.log('🌐 ÚLTIMA OPORTUNIDAD: Intentando web scraping desde:', fichaUrl);
-                console.log('⚠️  Este código NO existe en el XML feed oficial');
-                
-                // Intentar usar las funciones de Netlify si están disponibles
-                const isProduction = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
-                
-                if (isProduction) {
-                    // En producción, usar función de Netlify para scraping
-                    try {
-                        console.log('🔄 Usando función Netlify para scraping...');
-                        const response = await fetch(`/.netlify/functions/extract-images?url=${encodeURIComponent(fichaUrl)}`);
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            
-                            if (data.success && data.images && data.images.length > 0) {
-                                console.log(`✅ ¡IMAGEN REAL ENCONTRADA! Web scraping exitoso: ${data.images.length} imágenes`);
-                                console.log('📸 Usando imagen real de la web en lugar de placeholder');
-                                return data.images[0]; // Retornar la primera imagen REAL
-                            } else {
-                                console.log('❌ Web scraping no encontró imágenes reales');
-                            }
-                        }
-                    } catch (netlifyError) {
-                        console.log('❌ Error en función Netlify:', netlifyError.message);
-                    }
+            if (teamLeaderFilter) {
+                if (teamLeaderFilter === 'SIN_ASIGNAR') {
+                    activeFilters.push('Team Leader: Sin asignar');
                 } else {
-                    console.log('💡 En desarrollo: Web scraping no disponible');
+                    activeFilters.push(`Team Leader: ${teamLeaderFilter}`);
                 }
-                
-                // SOLO si el web scraping falla completamente, usar placeholder
-                console.log('⚠️  ÚLTIMO RECURSO: No se encontraron imágenes reales');
-                console.log('🎨 Usando imagen placeholder porque la propiedad no existe en fuentes oficiales');
-                return getPlaceholderImage(numero);
-                
-            } catch (error) {
-                console.error('❌ Error en web scraping fallback:', error);
-                return null;
             }
+            if (searchInput) {
+                activeFilters.push(`Búsqueda: "${searchInput}"`);
+            }
+            
+            if (activeFilters.length > 0) {
+                filtersElement.textContent = activeFilters.join(' • ');
+            } else {
+                filtersElement.textContent = `Mostrando todas las propiedades (${totalOriginal} total)`;
+            }
+            
+            // Show indicator
+            indicator.style.display = 'flex';
         }
-        
-        // Función mejorada para imágenes placeholder específicas de propiedades
-        function getPlaceholderImage(propertyId) {
-            // Imágenes de propiedades reales de Unsplash con mejor resolución
-            const placeholderUrls = [
-                'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa moderna
-                'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa blanca
-                'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa de lujo
-                'https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa con jardín
-                'https://images.unsplash.com/photo-1549517045-bc93de075e53?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Apartamento moderno
-                'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa familiar
-                'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa contemporánea
-                'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa de dos pisos
-                'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=350&fit=crop&crop=center&auto=format&q=85', // Casa minimalista
-                'https://images.unsplash.com/photo-1448630360428-65456885c650?w=500&h=350&fit=crop&crop=center&auto=format&q=85'  // Casa tradicional
-            ];
-            
-            // Usar el ID de la propiedad para generar un índice consistente
-            const index = parseInt(propertyId.replace(/\D/g, '')) % placeholderUrls.length;
-            
-            console.log(`🖼️ Usando imagen placeholder ${index + 1}/10 para propiedad:`, propertyId);
-            
-            // Agregar parámetros adicionales para identificar que es placeholder
-            const selectedUrl = placeholderUrls[index];
-            
-            return selectedUrl;
-        }
-        
 
-        async function renderGrid() {
+        // Render Properties
+        function renderProperties() {
+            console.log('🏠 Renderizando propiedades:', filteredData.length);
             const grid = document.getElementById('grid');
-
+            
             if (filteredData.length === 0) {
                 grid.innerHTML = `
-                    <div class="col-span-full flex flex-col items-center justify-center py-20 empty-state rounded-2xl">
-                        <div class="text-6xl mb-6 opacity-50">🔍</div>
-                        <h2 class="text-2xl font-bold text-white mb-2">Sin resultados</h2>
-                        <p class="text-gray-400">No se encontraron asignaciones con estos filtros</p>
+                    <div class="col-span-full text-center py-12">
+                        <div class="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
+                            <i class="fas fa-search text-2xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-300 mb-2">No se encontraron propiedades</h3>
+                        <p class="text-gray-400">Intenta ajustar los filtros de búsqueda</p>
                     </div>
                 `;
-                grid.style.display = 'grid';
                 return;
             }
 
-            // Usar DocumentFragment para mejor rendimiento
-            const fragment = document.createDocumentFragment();
-            
-            // Array de gradientes para variedad visual
+            grid.innerHTML = filteredData.map((item, index) => createPropertyCard(item, index)).join('');
+            grid.style.display = 'grid';
+        }
+
+        // Create Property Card con información completa de comisiones
+        function createPropertyCard(item, index) {
             const gradients = [
-                'icon-gradient-1', 'icon-gradient-2', 'icon-gradient-3', 
-                'icon-gradient-4', 'icon-gradient-5', 'icon-gradient-6'
+                'from-purple-500 via-pink-500 to-red-500',
+                'from-blue-500 via-cyan-500 to-teal-500', 
+                'from-green-500 via-emerald-500 to-cyan-500',
+                'from-orange-500 via-red-500 to-pink-500',
+                'from-indigo-500 via-purple-500 to-pink-500',
+                'from-cyan-500 via-blue-500 to-indigo-500'
             ];
+            const gradient = gradients[index % gradients.length];
             
-            // Crear todas las cards primero sin imágenes
-            filteredData.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'group relative bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl overflow-hidden hover:border-brand-coral/70 transition-all duration-700 hover:transform hover:scale-110 hover:rotate-1 hover:shadow-2xl hover:shadow-brand-coral/30 animate-fadeInUp hover:z-10';
-                card.style.animationDelay = `${index * 0.1}s`;
+            // Obtener imagen e información adicional de la propiedad del XML
+            const propertyImage = getPropertyImage(item.codigo);
+            const xmlData = getPropertyData(item.codigo);
+            
+            // Formatear precio
+            function formatPrice(price, currency, operation) {
+                if (!price) return null;
                 
-                const gradientClass = gradients[index % gradients.length];
+                let formattedPrice = '';
+                if (currency === 'CLF') {
+                    formattedPrice = `UF ${price.toLocaleString('es-CL')}`;
+                } else {
+                    formattedPrice = `$${price.toLocaleString('es-CL')}`;
+                }
                 
-                card.innerHTML = `
-                    ${item.isTM ? `
-                        <div class="absolute top-4 right-4 z-10">
-                            <div class="px-3 py-1 bg-gradient-to-r from-brand-coral to-brand-magenta text-white text-xs font-bold rounded-full shadow-lg">
-                                ✨ TuMatch
-                            </div>
-                        </div>
-                    ` : ''}
-                    
-                    <!-- Property Image -->
-                    <div class="relative h-48 overflow-hidden property-image" data-codigo="${item.codigo}">
-                        <div class="w-full h-full ${gradientClass} flex items-center justify-center text-white text-6xl animate-pulse">
-                            🏠
-                        </div>
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
-                    </div>
-                    
-                    <!-- Card Header -->
-                    <div class="card-gradient p-6 relative overflow-hidden">
-                        <!-- Background decoration -->
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/5 to-transparent rounded-full transform translate-x-16 -translate-y-16"></div>
+                const operationText = operation === 'sale' ? 'Venta' : operation === 'rent' ? 'Arriendo' : '';
+                return { formattedPrice, operationText };
+            }
+            
+            // Formatear tipo de propiedad
+            function formatPropertyType(type) {
+                const types = {
+                    'house': 'Casa',
+                    'apartment': 'Departamento',
+                    'land': 'Terreno',
+                    'office': 'Oficina',
+                    'commercial': 'Comercial'
+                };
+                return types[type] || type || '';
+            }
+            
+            const priceInfo = formatPrice(xmlData.price, xmlData.currency, xmlData.operation);
+            const propertyTypeFormatted = formatPropertyType(xmlData.propertyType);
+            
+            return `
+                <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
+                     onclick="window.open('https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')">
+                    <!-- Imagen de la propiedad con overlay -->
+                    <div class="relative h-48 overflow-hidden rounded-t-2xl">
+                        ${propertyImage ? 
+                            `<img src="${propertyImage}" alt="Propiedad ${item.codigo}" 
+                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMxQTFBMUQ7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTExMTEzO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNzE3MTdBIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPvCfj6Ag0KjQvNCw0LPQtdC9INC00LjRgdC/0L7QvdC40LHQu9C1PC90ZXh0Pjwvc3ZnPg=='">` :
+                            `<div class="w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center relative">
+                                <i class="fas fa-home text-5xl text-white opacity-30"></i>
+                                <div class="absolute inset-0 bg-black/20"></div>
+                             </div>`
+                        }
                         
-                        <div class="relative z-10 flex items-center space-x-4">
-                            <div class="w-12 h-12 ${gradientClass} rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
-                                ${getInitials(item.corredor)}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <h3 class="font-bold text-lg text-white truncate">${item.corredor}</h3>
-                                <p class="text-gray-300 text-sm font-medium uppercase tracking-wide">Corredor</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Card Body -->
-                    <div class="p-6 space-y-4">
-                        <!-- Código de Propiedad -->
-                        <div class="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-brand-coral/50 transition-all duration-300 group/item">
-                            <div class="w-10 h-10 ${gradientClass} rounded-lg flex items-center justify-center text-white shadow-lg">
-                                🏠
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Código</p>
-                                <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                        <!-- Overlay con código de propiedad -->
+                        <div class="absolute top-3 left-3 right-3 flex justify-between items-start">
+                            <div class="glass px-3 py-1.5 rounded-xl backdrop-blur-lg hover:bg-white/20 transition-all duration-200 cursor-pointer">
+                                <a href="https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}" 
                                    target="_blank" 
-                                   rel="noopener noreferrer" 
-                                   class="inline-flex items-center gap-2 text-brand-coral hover:text-brand-magenta font-bold transition-colors duration-300 group-hover/item:underline"
-                                   title="Ver ficha pública">
-                                    <span class="font-mono">${item.codigo}</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                    </svg>
+                                   class="text-lg font-bold text-white hover:text-cyan-300 transition-colors">
+                                    ${item.codigo}
                                 </a>
                             </div>
+                            ${priceInfo ? `
+                            <div class="glass px-3 py-1 rounded-lg backdrop-blur-lg">
+                                <div class="text-center">
+                                    <div class="text-xs text-white/90">${priceInfo.operationText}</div>
+                                    <div class="text-sm font-bold text-white">${priceInfo.formattedPrice}</div>
+                                </div>
+                            </div>` : ''}
                         </div>
                         
-                        <!-- Referido -->
-                        <div class="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-brand-blue/50 transition-all duration-300">
-                            <div class="w-10 h-10 ${gradients[(index + 1) % gradients.length]} rounded-lg flex items-center justify-center text-white shadow-lg">
-                                👥
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Referido</p>
-                                <p class="text-white font-semibold truncate">${item.referido}</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Captada por -->
-                        <div class="flex items-center space-x-4 p-4 bg-slate-700/30 rounded-xl border border-slate-600/50 hover:border-brand-emerald/50 transition-all duration-300">
-                            <div class="w-10 h-10 ${gradients[(index + 2) % gradients.length]} rounded-lg flex items-center justify-center text-white shadow-lg">
-                                📝
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Captada por</p>
-                                <p class="text-white font-semibold truncate">${item.firmaOrden}</p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                fragment.appendChild(card);
-            });
-            
-            // Una sola operación DOM
-            grid.innerHTML = '';
-            grid.appendChild(fragment);
-            grid.style.display = 'grid';
-            
-            // Cargar imágenes de propiedades de forma asíncrona
-            loadPropertyImages();
-        }
-        
-
-        // Función mejorada para cargar imágenes de propiedades después de renderizar
-        async function loadPropertyImages() {
-            const imageContainers = document.querySelectorAll('.property-image');
-            
-            console.log(`🖼️ Iniciando carga de imágenes para ${imageContainers.length} propiedades`);
-            
-            let successCount = 0;
-            let failCount = 0;
-            let noImageCount = 0;
-            
-            // Crear array de promesas para carga concurrente (pero limitada)
-            const batchSize = 5; // Cargar máximo 5 imágenes simultáneamente
-            const containers = Array.from(imageContainers);
-            
-            for (let i = 0; i < containers.length; i += batchSize) {
-                const batch = containers.slice(i, i + batchSize);
-                
-                await Promise.all(batch.map(async (container) => {
-                    const codigo = container.dataset.codigo;
-                    let imageLoaded = false;
-                    
-                    try {
-                        // Obtener imagen desde XML feed
-                        console.log(`🔍 [${i + 1}/${containers.length}] Buscando imagen para: ${codigo}`);
-                        const imageUrl = await getPropertyImage(codigo);
-                        
-                        if (imageUrl) {
-                            // Cargar imagen encontrada en XML
-                            console.log('📥 Cargando imagen:', imageUrl.substring(0, 50) + '...');
-                            imageLoaded = await tryLoadImage(container, imageUrl, codigo);
+                        <!-- Información de propiedad badges -->
+                        <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
+                            ${propertyTypeFormatted ? `
+                            <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
+                                <span class="text-xs text-white font-medium">🏠 ${propertyTypeFormatted}</span>
+                            </div>` : ''}
                             
-                            if (imageLoaded) {
-                                console.log(`✅ Imagen cargada exitosamente para: ${codigo}`);
-                                successCount++;
-                                
-                                // Agregar indicador visual de éxito
-                                const indicator = document.createElement('div');
-                                indicator.className = 'absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full z-10';
-                                indicator.innerHTML = '✓';
-                                container.appendChild(indicator);
-                                
-                                // Quitar indicador después de 3 segundos
-                                setTimeout(() => {
-                                    if (indicator.parentNode) {
-                                        indicator.remove();
-                                    }
-                                }, 3000);
-                                
-                            } else {
-                                console.log(`❌ Error cargando URL de imagen para: ${codigo}`);
-                                failCount++;
-                                updatePlaceholder(container, 'error');
-                            }
-                        } else {
-                            console.log(`🔍 Sin imagen en XML para: ${codigo}`);
-                            noImageCount++;
-                            updatePlaceholder(container, 'no-image');
-                        }
-                        
-                    } catch (error) {
-                        console.error(`❌ Error procesando imagen para ${codigo}:`, error.message);
-                        failCount++;
-                        updatePlaceholder(container, 'error');
-                    }
-                }));
-                
-                // Pequeña pausa entre lotes para no sobrecargar
-                if (i + batchSize < containers.length) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                }
-            }
-            
-            // Función auxiliar para actualizar placeholder
-            function updatePlaceholder(container, type) {
-                const placeholder = container.querySelector('div');
-                if (!placeholder) return;
-                
-                placeholder.classList.remove('animate-pulse');
-                
-                switch (type) {
-                    case 'no-image':
-                        placeholder.innerHTML = '🏠';
-                        placeholder.classList.add('text-gray-400');
-                        placeholder.title = 'Sin imagen en XML';
-                        break;
-                    case 'error':
-                        placeholder.innerHTML = '⚠️';
-                        placeholder.classList.add('text-red-400');
-                        placeholder.title = 'Error cargando imagen';
-                        break;
-                }
-            }
-            
-            // Resumen final
-            const total = containers.length;
-            const percentage = total > 0 ? ((successCount / total) * 100).toFixed(1) : 0;
-            
-            console.log(`🖼️ Carga de imágenes completada:`);
-            console.log(`   ✅ Exitosas: ${successCount}/${total} (${percentage}%)`);
-            console.log(`   🔍 Sin imagen: ${noImageCount}`);
-            console.log(`   ❌ Errores: ${failCount}`);
-            
-            // Mostrar notificación visual si hay muchas imágenes sin cargar
-            if (noImageCount > total * 0.3) { // Si más del 30% no tiene imágenes
-                showImageLoadingSummary(successCount, noImageCount, failCount, total);
-            }
-        }
-        
-        // Función para mostrar resumen de carga de imágenes
-        function showImageLoadingSummary(success, noImage, errors, total) {
-            const summary = document.createElement('div');
-            summary.className = 'fixed bottom-4 right-4 bg-gray-800 border border-gray-600 rounded-lg p-4 shadow-lg z-50 max-w-sm';
-            summary.innerHTML = `
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-blue-400">📊</span>
-                    <span class="font-bold text-white">Resumen de Imágenes</span>
-                    <button onclick="this.parentElement.parentElement.remove()" 
-                            class="ml-auto text-gray-400 hover:text-white">✕</button>
-                </div>
-                <div class="text-sm space-y-1 text-gray-300">
-                    <div class="flex justify-between">
-                        <span>✅ Cargadas:</span>
-                        <span class="text-green-400">${success}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>🔍 Sin imagen:</span>
-                        <span class="text-yellow-400">${noImage}</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span>❌ Errores:</span>
-                        <span class="text-red-400">${errors}</span>
-                    </div>
-                    <div class="border-t border-gray-600 pt-1 mt-2">
-                        <div class="flex justify-between font-bold">
-                            <span>Total:</span>
-                            <span class="text-white">${total}</span>
+                            <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
+                                <span class="text-xs ${item.teamLeader ? 'text-cyan-300' : 'text-zinc-400'} font-medium">👑 ${item.teamLeader || 'Sin asignar'}</span>
+                            </div>
                         </div>
+                        
+                        <!-- Coordenadas para mapa (si están disponibles) -->
+                        ${xmlData.latitude && xmlData.longitude ? `
+                        <div class="absolute top-3 left-1/2 transform -translate-x-1/2">
+                            <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
+                                <a href="https://www.google.com/maps?q=${xmlData.latitude},${xmlData.longitude}" target="_blank" 
+                                   class="text-xs text-white hover:text-cyan-300 transition-colors flex items-center space-x-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Ver mapa</span>
+                                </a>
+                            </div>
+                        </div>` : ''}
+                    </div>
+                    
+                    <!-- Contenido Principal -->
+                    <div class="p-5 space-y-4">
+                        
+                        <!-- Corredor Principal (30% comisión) -->
+                        <div class="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                <i class="fas fa-user-tie text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-bold text-white">${item.corredor}</p>
+                                <p class="text-xs text-purple-300 font-medium">💰 Comisión: 30%</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Referido (5% comisión) -->
+                        <div class="flex items-center space-x-3 p-2.5 rounded-lg ${item.referido && item.referido !== 'TuMatch Inmobiliario' ? 'bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-500/20' : 'bg-zinc-800/30 border border-zinc-700/30'}">
+                            <div class="w-8 h-8 rounded-lg ${item.referido && item.referido !== 'TuMatch Inmobiliario' ? 'bg-gradient-to-br from-emerald-500 to-cyan-500' : 'bg-zinc-700'} flex items-center justify-center">
+                                <i class="fas fa-handshake text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm ${item.referido && item.referido !== 'TuMatch Inmobiliario' ? 'text-white' : 'text-zinc-400'} font-medium">
+                                    ${item.referido && item.referido !== 'TuMatch Inmobiliario' ? item.referido : 'Sin referido'}
+                                </p>
+                                <p class="text-xs ${item.referido && item.referido !== 'TuMatch Inmobiliario' ? 'text-emerald-300' : 'text-zinc-500'}">
+                                    ${item.referido && item.referido !== 'TuMatch Inmobiliario' ? '💵 Referido • 5%' : '❌ Sin datos'}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Orden Enviada a Firmar (5% comisión) -->
+                        <div class="flex items-center space-x-3 p-2.5 rounded-lg ${item.ordenEnviada ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20' : 'bg-zinc-800/30 border border-zinc-700/30'}">
+                            <div class="w-8 h-8 rounded-lg ${item.ordenEnviada ? 'bg-gradient-to-br from-orange-500 to-amber-500' : 'bg-zinc-700'} flex items-center justify-center">
+                                <i class="fas fa-file-signature text-white text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm ${item.ordenEnviada ? 'text-white' : 'text-zinc-400'} font-medium">
+                                    ${item.ordenEnviada || 'Sin orden enviada'}
+                                </p>
+                                <p class="text-xs ${item.ordenEnviada ? 'text-orange-300' : 'text-zinc-500'}">
+                                    ${item.ordenEnviada ? '📝 Orden a Firmar • 5%' : '❌ Sin datos'}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Información adicional de la propiedad del XML -->
+                        ${xmlData.bedrooms || xmlData.bathrooms || xmlData.floorArea ? `
+                        <div class="pt-3 border-t border-white/10">
+                            <p class="text-xs text-zinc-400 uppercase tracking-wider mb-2">Detalles de la propiedad</p>
+                            <div class="grid grid-cols-3 gap-2">
+                                ${xmlData.bedrooms ? `
+                                <div class="text-center p-2 rounded-lg bg-white/5">
+                                    <div class="text-lg">🛏️</div>
+                                    <div class="text-xs text-white font-medium">${xmlData.bedrooms}</div>
+                                    <div class="text-xs text-zinc-400">Dorm.</div>
+                                </div>` : ''}
+                                ${xmlData.bathrooms ? `
+                                <div class="text-center p-2 rounded-lg bg-white/5">
+                                    <div class="text-lg">🚿</div>
+                                    <div class="text-xs text-white font-medium">${xmlData.bathrooms}</div>
+                                    <div class="text-xs text-zinc-400">Baños</div>
+                                </div>` : ''}
+                                ${xmlData.floorArea ? `
+                                <div class="text-center p-2 rounded-lg bg-white/5">
+                                    <div class="text-lg">📐</div>
+                                    <div class="text-xs text-white font-medium">${xmlData.floorArea}m²</div>
+                                    <div class="text-xs text-zinc-400">Área</div>
+                                </div>` : ''}
+                            </div>
+                        </div>` : ''}
+                        
+                        <!-- Team Leader Info -->
+                        <div class="pt-3 border-t border-white/10">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2 text-xs">
+                                    <span class="text-zinc-400">Team Leader:</span>
+                                    <span class="${item.teamLeader ? 'text-cyan-300' : 'text-zinc-500'} font-medium">
+                                        ${item.teamLeader || 'Sin asignar'}
+                                    </span>
+                                    <span class="text-xs ${item.teamLeader ? 'bg-cyan-500/20 text-cyan-300' : 'bg-zinc-700/50 text-zinc-500'} px-2 py-0.5 rounded-full">
+                                        ${item.teamLeader ? '👑' : '❌'}
+                                    </span>
+                                </div>
+                                <div class="flex items-center space-x-1 text-xs text-zinc-400 group-hover:text-cyan-400 transition-colors">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>Ver detalles</span>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
-                ${noImage > 0 ? `
-                    <button onclick="window.open('diagnostico-imagenes.html', '_blank')" 
-                            class="mt-3 w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded text-sm font-semibold transition">
-                        🔍 Diagnosticar problemas
-                    </button>
-                ` : ''}
             `;
-            
-            document.body.appendChild(summary);
-            
-            // Auto-remover después de 10 segundos
-            setTimeout(() => {
-                if (summary.parentNode) {
-                    summary.remove();
-                }
-            }, 10000);
         }
 
-        // Función helper para intentar cargar una imagen específica
-        function tryLoadImage(container, imageUrl, codigo) {
-            return new Promise((resolve) => {
-                const img = document.createElement('img');
-                img.src = imageUrl;
-                img.alt = `Propiedad ${codigo}`;
-                img.className = 'absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110';
-                img.style.opacity = '0';
-                img.style.zIndex = '10'; // Asegurar que esté sobre el placeholder
-                
-                img.onload = () => {
-                    console.log('✅ Imagen cargada exitosamente:', imageUrl);
-                    
-                    // Agregar la imagen PRIMERO (antes de animar)
-                    container.appendChild(img);
-                    
-                    // Fade in la imagen
-                    setTimeout(() => {
-                        img.style.transition = 'opacity 0.5s ease-in-out';
-                        img.style.opacity = '1';
-                    }, 50);
-                    
-                    // Remover el placeholder DESPUÉS de que la imagen sea visible
-                    setTimeout(() => {
-                        const placeholder = container.querySelector('div');
-                        if (placeholder) {
-                            placeholder.style.transition = 'opacity 0.3s ease-out';
-                            placeholder.style.opacity = '0';
-                            setTimeout(() => {
-                                if (placeholder.parentNode) {
-                                    placeholder.remove();
-                                }
-                            }, 300);
-                        }
-                    }, 200);
-                    
-                    resolve(true);
-                };
-                
-                img.onerror = () => {
-                    console.log('❌ Error cargando imagen:', imageUrl);
-                    resolve(false);
-                };
-                
-                // Timeout después de 5 segundos
-                setTimeout(() => {
-                    if (img.complete === false) {
-                        console.log('⏱️ Timeout cargando imagen:', imageUrl);
-                        resolve(false);
+        // Chart instances
+        let chartInstances = {};
+
+        // Update Stats (Dashboard only)
+        function updateStats() {
+            const totalProperties = allData.length;
+            const corredores = new Set(allData.map(item => item.corredor)).size;
+            const teamLeaders = new Set(allData.map(item => item.teamLeader).filter(tl => tl && tl.trim())).size;
+            
+            // Obtener información del XML para estadísticas avanzadas
+            const propertiesWithXmlData = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData && (xmlData.price || xmlData.propertyType || xmlData.operation);
+            });
+            
+            const xmlCoverage = totalProperties > 0 ? ((propertiesWithXmlData.length / totalProperties) * 100).toFixed(1) : 0;
+            
+            console.log('📊 Stats Debug:', {
+                totalProperties,
+                propertiesWithXmlData: propertiesWithXmlData.length,
+                xmlCoverage: xmlCoverage + '%',
+                corredores,
+                teamLeaders
+            });
+            
+            // Estadísticas de precios eliminadas
+            
+            // Tipos de operación
+            const ventaCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.operation === 'sale';
+            }).length;
+            
+            const arriendoCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.operation === 'rent';
+            }).length;
+            
+            // Tipos de propiedades más comunes
+            const propertyTypes = {};
+            allData.forEach(item => {
+                const xmlData = getPropertyData(item.codigo);
+                if (xmlData.propertyType) {
+                    propertyTypes[xmlData.propertyType] = (propertyTypes[xmlData.propertyType] || 0) + 1;
+                }
+            });
+            
+            const mostCommonType = Object.keys(propertyTypes).length > 0 
+                ? Object.entries(propertyTypes).sort((a, b) => b[1] - a[1])[0][0]
+                : 'N/A';
+            
+            // Update Dashboard stats
+            const dashStats = {
+                'dash-totalProperties': totalProperties,
+                'dash-totalCorredores': corredores,
+                'dash-totalFirmas': teamLeaders
+            };
+
+            // Update elements safely
+            Object.entries(dashStats).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+            
+            // Update additional dashboard metrics
+            const additionalMetrics = {
+                'properties-growth': propertiesWithXmlData.length > 0 ? `+${((propertiesWithXmlData.length/totalProperties)*100).toFixed(0)}%` : '0%',
+                'conversions-today': teamLeaders,
+                'ventasCount': ventaCount,
+                'arriendosCount': arriendoCount,
+                'sinDefinirCount': totalProperties - ventaCount - arriendoCount
+            };
+
+            Object.entries(additionalMetrics).forEach(([id, value]) => {
+                const element = document.getElementById(id);
+                if (element) element.textContent = value;
+            });
+
+            // Update average price display
+            const avgPriceElement = document.getElementById('averagePriceDisplay');
+            if (avgPriceElement) {
+                if (averagePrice > 0) {
+                    if (averagePrice > 1000000) {
+                        avgPriceElement.textContent = `$${(averagePrice / 1000000).toFixed(1)}M`;
+                    } else if (averagePrice > 1000) {
+                        avgPriceElement.textContent = `$${(averagePrice / 1000).toFixed(0)}K`;
+                    } else {
+                        avgPriceElement.textContent = `$${averagePrice.toLocaleString()}`;
                     }
-                }, 5000);
+                } else {
+                    avgPriceElement.textContent = 'Sin datos';
+                }
+            }
+
+            // Update property types
+            updatePropertyTypesDisplay(propertyTypes);
+            
+            // Update charts
+            updateCharts();
+            updateActivityFeed();
+        }
+
+        // Update Property Types Display
+        function updatePropertyTypesDisplay(propertyTypes) {
+            const container = document.getElementById('propertyTypesContainer');
+            if (!container) return;
+            
+            if (Object.keys(propertyTypes).length === 0) {
+                container.innerHTML = '<div class="text-center text-zinc-400 py-4">Sin datos de tipos</div>';
+                return;
+            }
+            
+            // Sort by count and take top 5
+            const sortedTypes = Object.entries(propertyTypes)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            let html = '';
+            const total = Object.values(propertyTypes).reduce((sum, count) => sum + count, 0);
+            
+            sortedTypes.forEach(([type, count]) => {
+                const percentage = ((count / total) * 100).toFixed(1);
+                const icons = {
+                    'Casa': 'fa-home',
+                    'Departamento': 'fa-building',
+                    'Terreno': 'fa-map',
+                    'Oficina': 'fa-briefcase',
+                    'Bodega': 'fa-warehouse',
+                    'Local': 'fa-store'
+                };
+                const icon = icons[type] || 'fa-building';
+                
+                html += `
+                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                <i class="fas ${icon} text-white text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-white">${type}</span>
+                                <span class="text-xs text-zinc-400 ml-2">${percentage}%</span>
+                            </div>
+                        </div>
+                        <span class="text-sm font-bold text-indigo-400">${count}</span>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Update Charts
+        function updateCharts() {
+            updatePerformanceChart();
+            updateCorredorRanking();
+        }
+
+        // Performance Chart
+        function updatePerformanceChart() {
+            const ctx = document.getElementById('teamLeaderChart');
+            if (!ctx) return;
+
+            // Destroy existing chart
+            if (chartInstances.teamLeaderChart) {
+                chartInstances.teamLeaderChart.destroy();
+            }
+
+            // Get team leader data
+            const teamLeaderCounts = {};
+            allData.forEach(item => {
+                const tl = item.teamLeader || 'Sin Team Leader';
+                teamLeaderCounts[tl] = (teamLeaderCounts[tl] || 0) + 1;
+            });
+
+            const teamLeaderData = Object.entries(teamLeaderCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8); // Top 8 team leaders
+
+            const colors = [
+                '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444', 
+                '#EC4899', '#8B5CF6', '#06B6D4'
+            ];
+
+            chartInstances.teamLeaderChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: teamLeaderData.map(tl => tl[0]),
+                    datasets: [{
+                        label: 'Propiedades',
+                        data: teamLeaderData.map(tl => tl[1]),
+                        backgroundColor: teamLeaderData.map((_, i) => colors[i % colors.length]),
+                        borderColor: teamLeaderData.map((_, i) => colors[i % colors.length]),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(139, 92, 246, 0.5)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    const percentage = ((context.parsed.y / allData.length) * 100).toFixed(1);
+                                    return `${context.parsed.y} propiedades (${percentage}%)`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)',
+                                drawBorder: false
+                            },
+                            ticks: {
+                                color: '#71717A',
+                                stepSize: 1
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#71717A',
+                                maxRotation: 45,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 
-        // Función para mostrar notificación de actualización
-        function showUpdateNotification() {
-            // Crear notificación si no existe
-            let notification = document.querySelector('.update-notification');
-            if (!notification) {
-                notification = document.createElement('div');
-                notification.className = 'update-notification';
-                notification.innerHTML = `
-                    <span>✓</span>
-                    <span>Datos actualizados</span>
-                `;
-                document.body.appendChild(notification);
+        // Top Corredores Custom Ranking Display
+        function updateCorredorRanking() {
+            const container = document.getElementById('corredorRankingContainer');
+            if (!container) {
+                console.log('❌ Container corredorRankingContainer no encontrado');
+                return;
             }
+
+            // Validar que hay datos
+            if (allData.length === 0) {
+                container.innerHTML = '<div class="text-center text-zinc-400 py-8">Sin datos disponibles</div>';
+                return;
+            }
+
+            // Get top corredores
+            const corredorCounts = {};
+            allData.forEach(item => {
+                if (item.corredor && item.corredor.trim()) {
+                    corredorCounts[item.corredor] = (corredorCounts[item.corredor] || 0) + 1;
+                }
+            });
+
+            const topCorredores = Object.entries(corredorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8); // Top 8 instead of 6
+
+            console.log('🏆 Top Corredores Ranking:', topCorredores);
+
+            if (topCorredores.length === 0) {
+                container.innerHTML = '<div class="text-center text-zinc-400 py-8">No se encontraron corredores</div>';
+                return;
+            }
+
+            // Generate custom ranking HTML
+            let html = '';
+            topCorredores.forEach((corredor, index) => {
+                const [name, count] = corredor;
+                const percentage = ((count / allData.length) * 100).toFixed(1);
+                const position = index + 1;
+                
+                let medalIcon = '';
+                let gradientClass = '';
+                let borderClass = '';
+                
+                if (position === 1) {
+                    medalIcon = '🥇';
+                    gradientClass = 'from-yellow-400/20 to-orange-500/20';
+                    borderClass = 'border-yellow-500/30';
+                } else if (position === 2) {
+                    medalIcon = '🥈';
+                    gradientClass = 'from-gray-300/20 to-gray-500/20';
+                    borderClass = 'border-gray-400/30';
+                } else if (position === 3) {
+                    medalIcon = '🥉';
+                    gradientClass = 'from-orange-600/20 to-yellow-600/20';
+                    borderClass = 'border-orange-500/30';
+                } else {
+                    medalIcon = `#${position}`;
+                    gradientClass = 'from-purple-500/10 to-cyan-500/10';
+                    borderClass = 'border-purple-500/20';
+                }
+                
+                html += `
+                    <div class="group relative overflow-hidden bg-gradient-to-r ${gradientClass} border ${borderClass} rounded-xl p-4 hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 font-bold text-lg">
+                                    ${medalIcon}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-white text-lg group-hover:text-yellow-300 transition-colors">${name}</h4>
+                                    <p class="text-sm text-zinc-300">${count} propiedades • ${percentage}%</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-white">${count}</div>
+                                <div class="w-20 bg-white/20 rounded-full h-2 mt-1">
+                                    <div class="h-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500" style="width: ${Math.min(100, (count / (topCorredores[0]?.[1] || 1)) * 100)}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
             
-            // Mostrar notificación
-            notification.classList.add('show');
+            container.innerHTML = html;
+        }
+
+        // Update Activity Feed
+        function updateActivityFeed() {
+            const feed = document.getElementById('activity-feed');
+            if (!feed) return;
+
+            const activities = allData.slice(-5).reverse().map(item => {
+                const time = new Date().toLocaleTimeString('es-ES', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                return `
+                    <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${item.firmaOrden ? 'from-green-500 to-emerald-500' : 'from-orange-500 to-amber-500'} flex items-center justify-center">
+                            <i class="fas ${item.firmaOrden ? 'fa-check' : 'fa-clock'} text-white"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-sm font-medium text-white">
+                                ${item.firmaOrden ? 'Operación firmada' : 'Nueva asignación'} • ${item.codigo}
+                            </p>
+                            <p class="text-xs text-zinc-400">
+                                ${item.corredor} → ${item.referido || 'Sin cliente'} • hace ${Math.floor(Math.random() * 30 + 1)} min
+                            </p>
+                        </div>
+                        <div class="text-xs text-zinc-500">
+                            ${time}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            feed.innerHTML = activities || '<p class="text-center text-zinc-400 py-8">No hay actividad reciente</p>';
+        }
+
+        // Export Data
+        function exportData() {
+            let csv = 'Código,Corredor,Referido,Estado Firma\n';
+            filteredData.forEach(item => {
+                csv += `"${item.codigo}","${item.corredor}","${item.referido}","${item.firmaOrden ? 'Sí' : 'No'}"\n`;
+            });
             
-            // Ocultar después de 3 segundos
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'propiedades.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Datos exportados correctamente', 'success');
+        }
+
+        // Show Toast Notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium transform translate-x-full transition-transform duration-300 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
             setTimeout(() => {
-                notification.classList.remove('show');
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
             }, 3000);
         }
 
-        // Event listeners con debounce para búsqueda
-        let searchTimeout;
-        document.getElementById('searchInput').addEventListener('input', () => {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(applyFilters, 150);
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Filter listeners
+            document.getElementById('corredorFilter').addEventListener('change', applyFilters);
+            document.getElementById('teamLeaderFilter').addEventListener('change', applyFilters);
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            
+            // Intentar cargar más imágenes del XML (funciona en producción)
+            loadMoreImagesFromXML();
+            
+            // Cargar datos adicionales del XML
+            loadPropertyDataFromXML();
+            
+            // Initial load
+            await loadData();
+            
+            // Auto refresh every 60 seconds
+            setInterval(() => loadData(true), 60000);
         });
-        
-        document.getElementById('corredorFilter').addEventListener('change', applyFilters);
-
-        // Inicialización mejorada con pre-carga del XML
-        async function initializeApp() {
-            console.log('🚀 Inicializando aplicación TuMatch...');
-            console.log('📍 Entorno detectado:', {
-                hostname: window.location.hostname,
-                port: window.location.port,
-                isProduction: !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1'),
-                isNetlify: window.location.hostname.includes('netlify'),
-                isVercel: window.location.hostname.includes('vercel')
-            });
-            
-            try {
-                // Pre-cargar el XML feed para tenerlo en cache
-                console.log('🔄 Pre-cargando XML feed de imágenes...');
-                const startTime = Date.now();
-                await loadXMLFeed();
-                const loadTime = Date.now() - startTime;
-                
-                console.log(`✅ XML feed cargado en ${loadTime}ms`);
-                console.log(`📊 ${xmlCache.propertiesMap.size} propiedades con imágenes en cache`);
-                
-                // Mostrar las primeras 5 propiedades como ejemplo
-                const sampleIds = Array.from(xmlCache.propertiesMap.keys()).slice(0, 5);
-                console.log('🖼️ Ejemplos de reference_ids cargados:', sampleIds.join(', '));
-                
-            } catch (error) {
-                console.error('⚠️ Error pre-cargando XML:', error);
-                console.log('💡 Las imágenes se cargarán bajo demanda');
-            }
-            
-            // Cargar datos del spreadsheet
-            loadData();
-        }
-        
-        // Iniciar la aplicación
-        initializeApp();
     </script>
 </body>
 </html>
