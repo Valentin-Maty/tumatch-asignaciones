@@ -657,7 +657,7 @@
                     <h3 class="text-2xl font-bold text-gradient">Filtros Avanzados</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-user-tie mr-2 text-purple-400"></i>Corredor
@@ -673,6 +673,17 @@
                         </label>
                         <select id="teamLeaderFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
                             <option value="">👑 Todos los team leaders</option>
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+                            <i class="fas fa-exchange-alt mr-2 text-orange-400"></i>Tipo Operación
+                        </label>
+                        <select id="operationFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
+                            <option value="">🏷️ Venta y Arriendo</option>
+                            <option value="sale">💰 Solo Ventas</option>
+                            <option value="rent">🏠 Solo Arriendos</option>
                         </select>
                     </div>
                     
@@ -1054,7 +1065,7 @@
                 
                 // Initialize with all data shown
                 filteredData = allData;
-                updateResultsIndicator('', '', '');
+                updateResultsIndicator('', '', '', '');
                 renderProperties();
                 updateStats();
                 
@@ -1142,6 +1153,7 @@
         function applyFilters() {
             const corredorFilter = document.getElementById('corredorFilter').value;
             const teamLeaderFilter = document.getElementById('teamLeaderFilter').value;
+            const operationFilter = document.getElementById('operationFilter').value;
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             
             filteredData = allData.filter(item => {
@@ -1151,21 +1163,27 @@
                     (teamLeaderFilter === 'SIN_ASIGNAR' && (!item.teamLeader || !item.teamLeader.trim())) ||
                     (teamLeaderFilter !== 'SIN_ASIGNAR' && item.teamLeader === teamLeaderFilter);
                 
+                // Filtro de tipo de operación (basado en datos del XML)
+                const matchesOperation = !operationFilter || (() => {
+                    const xmlData = getPropertyData(item.codigo);
+                    return xmlData.operation === operationFilter;
+                })();
+                
                 const matchesSearch = !searchInput || 
                     item.codigo.toLowerCase().includes(searchInput) ||
                     (item.referido && item.referido.toLowerCase().includes(searchInput)) ||
                     (item.teamLeader && item.teamLeader.toLowerCase().includes(searchInput)) ||
                     (item.ordenEnviada && item.ordenEnviada.toLowerCase().includes(searchInput));
                 
-                return matchesCorredor && matchesTeamLeader && matchesSearch;
+                return matchesCorredor && matchesTeamLeader && matchesOperation && matchesSearch;
             });
             
-            updateResultsIndicator(corredorFilter, teamLeaderFilter, searchInput);
+            updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, searchInput);
             renderProperties();
         }
 
         // Update Results Indicator
-        function updateResultsIndicator(corredorFilter, teamLeaderFilter, searchInput) {
+        function updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, searchInput) {
             const indicator = document.getElementById('resultsIndicator');
             const countElement = document.getElementById('resultsCount');
             const filtersElement = document.getElementById('activeFilters');
@@ -1191,6 +1209,10 @@
                 } else {
                     activeFilters.push(`Team Leader: ${teamLeaderFilter}`);
                 }
+            }
+            if (operationFilter) {
+                const operationText = operationFilter === 'sale' ? 'Ventas' : operationFilter === 'rent' ? 'Arriendos' : operationFilter;
+                activeFilters.push(`Operación: ${operationText}`);
             }
             if (searchInput) {
                 activeFilters.push(`Búsqueda: "${searchInput}"`);
@@ -1874,6 +1896,7 @@
             // Filter listeners
             document.getElementById('corredorFilter').addEventListener('change', applyFilters);
             document.getElementById('teamLeaderFilter').addEventListener('change', applyFilters);
+            document.getElementById('operationFilter').addEventListener('change', applyFilters);
             document.getElementById('searchInput').addEventListener('input', applyFilters);
             
             // Intentar cargar más imágenes del XML (funciona en producción)
