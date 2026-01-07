@@ -1553,7 +1553,7 @@
                 if (element) element.textContent = value;
             });
             
-            // Calculate property types from XML data
+            // Calculate property types from XML data (igual que operaciones)
             let casasCount = 0;
             let departamentosCount = 0;
             let otrosCount = 0;
@@ -1561,10 +1561,10 @@
             allData.forEach(item => {
                 const xmlData = getPropertyData(item.codigo);
                 if (xmlData && xmlData.type) {
-                    const type = xmlData.type.toLowerCase();
-                    if (type.includes('casa') || type.includes('house')) {
+                    // Usar la misma lógica que las operaciones
+                    if (xmlData.type === 'casa') {
                         casasCount++;
-                    } else if (type.includes('departamento') || type.includes('apartment') || type.includes('depto')) {
+                    } else if (xmlData.type === 'departamento') {
                         departamentosCount++;
                     } else {
                         otrosCount++;
