@@ -1715,16 +1715,13 @@
                 return xmlData.propertyType && (xmlData.propertyType.toLowerCase() === 'apartment' || xmlData.propertyType.toLowerCase() === 'departamento');
             }).length;
             
+            // Unir "otros tipos" y "sin tipo definido" en una sola categoría
             const otrosCount = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
                 const propertyType = xmlData.propertyType ? xmlData.propertyType.toLowerCase() : '';
-                return propertyType && propertyType !== 'house' && propertyType !== 'casa' && propertyType !== 'apartment' && propertyType !== 'departamento';
-            }).length;
-            
-            // Contar propiedades sin tipo definido
-            const sinTipoCount = allData.filter(item => {
-                const xmlData = getPropertyData(item.codigo);
-                return !xmlData.propertyType || xmlData.propertyType.trim() === '';
+                // Incluir tanto los tipos no definidos como los que no son casa/departamento
+                return (!xmlData.propertyType || xmlData.propertyType.trim() === '') || 
+                       (propertyType && propertyType !== 'house' && propertyType !== 'casa' && propertyType !== 'apartment' && propertyType !== 'departamento');
             }).length;
             
             console.log('🏠 Property Types Debug:', {
@@ -1732,8 +1729,7 @@
                 casas: casasCount,
                 departamentos: departamentosCount,
                 otros: otrosCount,
-                sinTipo: sinTipoCount,
-                suma: casasCount + departamentosCount + otrosCount + sinTipoCount
+                suma: casasCount + departamentosCount + otrosCount
             });
 
             // Update property types in new container
@@ -1774,18 +1770,6 @@
                                 </div>
                             </div>
                         </div>
-                        ${sinTipoCount > 0 ? `
-                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center space-x-2 sm:space-x-3">
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-400 to-gray-500 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-question text-white text-xs sm:text-sm"></i>
-                                </div>
-                                <div>
-                                    <div class="text-lg sm:text-xl font-bold text-gray-400">${sinTipoCount}</div>
-                                    <div class="text-xs sm:text-sm text-white font-medium">Sin tipo definido</div>
-                                </div>
-                            </div>
-                        </div>` : ''}
                     </div>
                 `;
             }
