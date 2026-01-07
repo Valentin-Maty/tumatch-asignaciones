@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TuMatch - Portal de Asignaciones Mejorado</title>
+    
+    <!-- Favicon TuMatch -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        // Brand colors
+                        'brand': {
+                            'coral': '#FF6B47',
+                            'magenta': '#E91E63',
+                            'navy': '#0F172A',
+                            'navy-light': '#1E293B',
+                            'blue': '#3B82F6',
+                            'teal': '#0D9488',
+                            'emerald': '#059669',
+                            'amber': '#F59E0B',
+                            'purple': '#8B5CF6',
+                            'rose': '#F43F5E'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    },
+                    animation: {
+                        'fadeInUp': 'fadeInUp 0.6s ease-out',
+                        'pulse-custom': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 107, 71, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(233, 30, 99, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                linear-gradient(135deg, #0F172A 0%, #1E293B 25%, #0F172A 50%, #1E293B 75%, #0F172A 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Improved animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Glass effect */
+        .glass {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #FF6B47, #E91E63);
+            border-radius: 4px;
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        /* Card hover effects */
+        .property-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .property-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 50%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Button improvements */
+        .btn-gradient {
+            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-gradient:hover {
+            background: linear-gradient(135deg, #E91E63 0%, #FF6B47 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 10px 20px rgba(255, 107, 71, 0.3);
+        }
+
+        /* Icon gradients */
+        .icon-gradient-1 { background: linear-gradient(135deg, #FF6B47 0%, #E91E63 100%); }
+        .icon-gradient-2 { background: linear-gradient(135deg, #3B82F6 0%, #0D9488 100%); }
+        .icon-gradient-3 { background: linear-gradient(135deg, #059669 0%, #0D9488 100%); }
+        .icon-gradient-4 { background: linear-gradient(135deg, #F59E0B 0%, #FF6B47 100%); }
+        .icon-gradient-5 { background: linear-gradient(135deg, #8B5CF6 0%, #E91E63 100%); }
+        .icon-gradient-6 { background: linear-gradient(135deg, #F43F5E 0%, #FF6B47 100%); }
+    </style>
+</head>
+
+<body class="bg-slate-900 text-white min-h-screen">
+    
+    <!-- Enhanced Header -->
+    <header class="relative overflow-hidden">
+        <div class="glass">
+            <div class="max-w-7xl mx-auto px-6 py-8">
+                <div class="text-center">
+                    <h1 class="text-4xl lg:text-6xl font-black mb-4 animate-fadeInUp">
+                        Portal de 
+                        <span class="gradient-text">Asignaciones</span>
+                    </h1>
+                    <p class="text-xl text-gray-300 font-medium animate-fadeInUp" style="animation-delay: 0.2s;">
+                        TuMatch Inmobiliario
+                    </p>
+                    <div class="mt-4 flex items-center justify-center gap-2 text-gray-400 animate-fadeInUp" style="animation-delay: 0.4s;">
+                        <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                        <span class="text-sm font-medium">Sistema en tiempo real</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-magenta to-brand-purple"></div>
+    </header>
+
+    <!-- Enhanced Controls Section -->
+    <div class="sticky top-0 z-50 glass border-b border-slate-700/50">
+        <div class="max-w-7xl mx-auto px-6 py-6">
+            <!-- Search and Filters -->
+            <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                <div class="flex-1">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="w-full px-4 py-3 pl-12 glass text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-coral focus:outline-none transition-all duration-300 rounded-xl"
+                            placeholder="🔍 Buscar por corredor o código..."
+                        >
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+                <div class="lg:w-64">
+                    <select class="w-full px-4 py-3 glass text-white focus:ring-2 focus:ring-brand-magenta focus:outline-none transition-all duration-300 rounded-xl" id="corredorFilter">
+                        <option value="">👥 Todos los corredores</option>
+                    </select>
+                </div>
+                <button 
+                    class="px-6 py-3 btn-gradient text-white font-semibold rounded-xl flex items-center gap-2 justify-center min-w-[140px]"
+                    onclick="loadData()"
+                >
+                    <i class="fas fa-sync-alt loading-spinner"></i>
+                    <span>Actualizar</span>
+                </button>
+            </div>
+            
+            <!-- Enhanced Stats Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass rounded-xl p-4 text-center property-card">
+                    <div class="text-3xl font-bold gradient-text mb-2" id="totalCount">0</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Total</div>
+                    <div class="w-full h-1 bg-gradient-to-r from-brand-coral to-brand-magenta rounded-full mt-2"></div>
+                </div>
+                <div class="glass rounded-xl p-4 text-center property-card">
+                    <div class="text-3xl font-bold text-brand-blue mb-2" id="visibleCount">0</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Mostrando</div>
+                    <div class="w-full h-1 bg-gradient-to-r from-brand-blue to-brand-teal rounded-full mt-2"></div>
+                </div>
+                <div class="glass rounded-xl p-4 text-center property-card">
+                    <div class="text-3xl font-bold text-brand-emerald mb-2" id="corredorCount">0</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">Corredores</div>
+                    <div class="w-full h-1 bg-gradient-to-r from-brand-emerald to-brand-teal rounded-full mt-2"></div>
+                </div>
+                <div class="glass rounded-xl p-4 text-center property-card">
+                    <div class="text-3xl font-bold text-brand-amber mb-2" id="tuMatchCount">0</div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide font-medium">TuMatch</div>
+                    <div class="w-full h-1 bg-gradient-to-r from-brand-amber to-brand-coral rounded-full mt-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="flex flex-col items-center justify-center py-20">
+            <div class="relative">
+                <div class="w-16 h-16 border-4 border-slate-600 border-t-brand-coral rounded-full animate-spin"></div>
+                <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-brand-magenta rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+            </div>
+            <p class="text-gray-400 font-medium mt-4">Cargando asignaciones...</p>
+            <div class="mt-2 text-sm text-gray-500" id="loadingDetails">Conectando con Google Sheets...</div>
+        </div>
+
+        <!-- Properties Grid -->
+        <div id="grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 animate-fadeInUp" style="display: none;"></div>
+        
+        <!-- Status Footer -->
+        <div class="flex items-center justify-center mt-12 py-6" id="lastUpdate">
+            <div class="flex items-center gap-3 px-6 py-3 glass rounded-full">
+                <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                <span class="text-sm text-gray-300 font-medium">Conectado</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer class="relative glass mt-20 border-t border-slate-700/50">
+        <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-coral via-brand-magenta to-brand-purple"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 py-16">
+            <!-- Logo -->
+            <div class="text-center mb-12">
+                <h3 class="text-3xl font-bold mb-4 gradient-text">
+                    🏠 TuMatch Inmobiliario
+                </h3>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <div class="flex items-center justify-center gap-3 p-4 glass rounded-xl property-card">
+                    <span class="text-2xl">📧</span>
+                    <a href="mailto:corretaje@tumatchinmobiliario.cl" class="text-gray-300 hover:text-brand-coral transition-colors duration-300">
+                        corretaje@tumatchinmobiliario.cl
+                    </a>
+                </div>
+                <div class="flex items-center justify-center gap-3 p-4 glass rounded-xl property-card">
+                    <span class="text-2xl">📱</span>
+                    <a href="https://wa.me/56934107448" target="_blank" class="text-gray-300 hover:text-brand-emerald transition-colors duration-300">
+                        +56 9 3410 7448
+                    </a>
+                </div>
+                <div class="flex items-center justify-center gap-3 p-4 glass rounded-xl property-card">
+                    <span class="text-2xl">🕐</span>
+                    <span class="text-gray-300">Lun-Vie 9:00-18:00</span>
+                </div>
+            </div>
+            
+            <!-- System Links -->
+            <div class="flex flex-col md:flex-row gap-4 justify-center mb-12">
+                <a href="https://backoffice.propital.com/#/login" target="_blank" 
+                   class="px-6 py-3 bg-gradient-to-r from-brand-blue to-brand-teal text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-center">
+                    🔐 BackOffice Propital
+                </a>
+                <a href="https://app.2clics.cl/" target="_blank" 
+                   class="px-6 py-3 bg-gradient-to-r from-brand-purple to-brand-rose text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-300 text-center">
+                    📊 Sistema Multipublicador
+                </a>
+            </div>
+            
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // MANTENER TODA LA FUNCIONALIDAD ORIGINAL
+        const SPREADSHEET_ID = '1X7cbk_fD5mGTXxs1cOa4tCxeXBrpiNWV4sEJnBRwVUM';
+        const GID = '1154306850';
+        
+        let allData = [];
+        let filteredData = [];
+        let lastDataHash = '';
+        let refreshInterval = 60000; // Intervalo inicial: 1 minuto
+        let autoRefreshTimer = null;
+        let consecutiveNoChanges = 0;
+        const maxRefreshInterval = 300000; // Máximo 5 minutos
+        
+        // Cache para el XML de propiedades
+        let xmlCache = {
+            data: null,
+            timestamp: 0,
+            ttl: 24 * 60 * 60 * 1000, // 24 horas
+            propertiesMap: new Map() // Mapeo de reference_id a URLs de imágenes
+        };
+
+        // Mejorar loading con detalles
+        function updateLoadingStatus(message) {
+            const loadingDetails = document.getElementById('loadingDetails');
+            if (loadingDetails) {
+                loadingDetails.textContent = message;
+            }
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const icon = type === 'success' ? '✅' : '❌';
+            const bgColor = type === 'success' ? 'from-brand-emerald to-brand-teal' : 'from-brand-rose to-brand-coral';
+            
+            toast.className = `glass rounded-lg p-4 flex items-center space-x-3 min-w-[300px] transform translate-x-full transition-transform duration-500`;
+            toast.innerHTML = `
+                <div class="w-10 h-10 bg-gradient-to-br ${bgColor} rounded-lg flex items-center justify-center">
+                    <span class="text-white text-lg">${icon}</span>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold">${type === 'success' ? 'Actualizado' : 'Error'}</h4>
+                    <p class="text-gray-400 text-sm">${message}</p>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Show toast
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Hide and remove toast
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.remove();
+                    }
+                }, 500);
+            }, 3000);
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            const words = name.split(' ').filter(word => word.length > 0);
+            if (words.length === 0) return '?';
+            if (words.length === 1) return name.substring(0, 2).toUpperCase();
+            return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+        }
+
+        function createDataHash(data) {
+            return btoa(JSON.stringify(data.map(item => `${item.codigo}-${item.corredor}-${item.referido}-${item.firmaOrden}`).sort())).slice(0, 16);
+        }
+
+        function hasDataChanged(newData) {
+            const newHash = createDataHash(newData);
+            const changed = newHash !== lastDataHash;
+            lastDataHash = newHash;
+            
+            if (changed) {
+                consecutiveNoChanges = 0;
+                refreshInterval = 60000;
+            } else {
+                consecutiveNoChanges++;
+                if (consecutiveNoChanges >= 2) {
+                    refreshInterval = Math.min(maxRefreshInterval, refreshInterval * 1.5);
+                }
+            }
+            
+            return changed;
+        }
+
+        // SISTEMA COMPLETO DE CARGA DE DATOS E IMÁGENES
+        let isFirstLoad = true;
+
+        async function loadData(isAutoRefresh = false) {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('grid');
+            const refreshBtn = document.querySelector('button[onclick="loadData()"]');
+            
+            if (!isAutoRefresh || allData.length === 0) {
+                loading.style.display = 'flex';
+                grid.style.display = 'none';
+                updateLoadingStatus('Conectando con Google Sheets...');
+            }
+            
+            if (refreshBtn && !isAutoRefresh) {
+                refreshBtn.innerHTML = `
+                    <i class="fas fa-sync-alt animate-spin"></i>
+                    <span>Cargando...</span>
+                `;
+                refreshBtn.disabled = true;
+            }
+
+            try {
+                updateLoadingStatus('Obteniendo datos...');
+                const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID}`;
+                
+                const response = await fetch(CSV_URL);
+                const csvText = await response.text();
+                
+                if (!csvText) {
+                    throw new Error('No se pudo acceder a los datos. Verifica que la hoja sea pública.');
+                }
+                
+                updateLoadingStatus('Procesando datos...');
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                if (lines.length === 0) {
+                    throw new Error('No se encontraron datos en la hoja');
+                }
+                
+                const newData = [];
+                const corredores = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    
+                    const codigo = values[1]?.trim() || '';
+                    const corredor = values[4]?.trim() || '';
+                    const referido = values[6]?.trim() || '';
+                    const firmaOrden = values[7]?.trim() || '';
+                    const estado = values[8]?.trim() || '';
+                    
+                    if (estado) continue;
+                    if (!codigo || !corredor) continue;
+
+                    const isTM = referido.toLowerCase().includes('francisco') && 
+                                referido.toLowerCase().includes('garcia');
+
+                    newData.push({
+                        codigo: codigo,
+                        corredor: corredor,
+                        referido: isTM ? 'TuMatch' : (referido || 'Sin referido'),
+                        firmaOrden: firmaOrden || 'Pendiente',
+                        isTM: isTM
+                    });
+
+                    corredores.add(corredor);
+                }
+
+                // Solo actualizar si hay cambios reales
+                if (!isAutoRefresh || hasDataChanged(newData)) {
+                    allData = newData;
+                    updateCorredorFilter(corredores);
+                    
+                    document.getElementById('lastUpdate').innerHTML = `
+                        <div class="flex items-center gap-3 px-6 py-3 glass rounded-full">
+                            <div class="w-2 h-2 bg-brand-emerald rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-300 font-medium">Actualizado ${new Date().toLocaleTimeString('es-CL', {hour: '2-digit', minute: '2-digit'})}</span>
+                        </div>
+                    `;
+
+                    await applyFilters();
+                    
+                    if (isAutoRefresh && allData.length > 0) {
+                        showToast('Datos actualizados correctamente');
+                    }
+                } else if (isAutoRefresh) {
+                    const nextCheck = Math.round(refreshInterval / 1000);
+                    document.getElementById('lastUpdate').innerHTML = `
+                        <div class="flex items-center gap-3 px-6 py-3 glass rounded-full">
+                            <div class="w-2 h-2 bg-brand-amber rounded-full animate-pulse"></div>
+                            <span class="text-sm text-gray-300 font-medium">Sin cambios - próxima verificación en ${nextCheck}s</span>
+                        </div>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                if (allData.length === 0) {
+                    grid.innerHTML = `
+                        <div class="col-span-full flex flex-col items-center justify-center py-20 glass rounded-2xl">
+                            <div class="text-6xl mb-6 opacity-50">⚠️</div>
+                            <h2 class="text-2xl font-bold text-white mb-4">Error al cargar datos</h2>
+                            <p class="text-gray-400 mb-6 max-w-md text-center">${error.message}</p>
+                        </div>
+                    `;
+                    grid.style.display = 'grid';
+                }
+                showToast('Error al cargar datos', 'error');
+            } finally {
+                loading.style.display = 'none';
+                if (refreshBtn && !isAutoRefresh) {
+                    refreshBtn.innerHTML = `
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Actualizar</span>
+                    `;
+                    refreshBtn.disabled = false;
+                }
+                
+                if (allData.length > 0) {
+                    grid.style.display = 'grid';
+                }
+                
+                if (isFirstLoad) {
+                    isFirstLoad = false;
+                    scheduleNextRefresh();
+                } else if (isAutoRefresh) {
+                    scheduleNextRefresh();
+                }
+            }
+        }
+
+        function scheduleNextRefresh() {
+            if (autoRefreshTimer) {
+                clearTimeout(autoRefreshTimer);
+            }
+            
+            autoRefreshTimer = setTimeout(() => {
+                loadData(true);
+            }, refreshInterval);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        function updateCorredorFilter(corredores) {
+            const filterSelect = document.getElementById('corredorFilter');
+            const currentValue = filterSelect.value;
+            
+            filterSelect.innerHTML = '<option value="">👥 Todos los corredores</option>';
+            
+            Array.from(corredores).sort().forEach(corredor => {
+                const option = document.createElement('option');
+                option.value = corredor;
+                option.textContent = corredor;
+                filterSelect.appendChild(option);
+            });
+            
+            filterSelect.value = currentValue;
+        }
+
+        async function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const corredorFilter = document.getElementById('corredorFilter').value;
+
+            filteredData = allData.filter(item => {
+                const matchesSearch = searchTerm === '' || 
+                    item.corredor.toLowerCase().includes(searchTerm) ||
+                    item.codigo.toLowerCase().includes(searchTerm);
+                
+                const matchesCorredor = corredorFilter === '' || item.corredor === corredorFilter;
+
+                return matchesSearch && matchesCorredor;
+            });
+
+            await renderGrid();
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allData.length;
+            document.getElementById('visibleCount').textContent = filteredData.length;
+            document.getElementById('corredorCount').textContent = new Set(allData.map(item => item.corredor)).size;
+            document.getElementById('tuMatchCount').textContent = allData.filter(item => item.isTM).length;
+        }
+
+        // SISTEMA COMPLETO DE IMÁGENES XML
+        async function loadXMLFeed() {
+            const now = Date.now();
+            
+            if (xmlCache.data && (now - xmlCache.timestamp < xmlCache.ttl)) {
+                console.log('📋 Usando XML desde cache (válido por 24h)');
+                return xmlCache.propertiesMap;
+            }
+            
+            console.log('📋 Descargando XML feed de propiedades...');
+            
+            try {
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                
+                const hostname = window.location.hostname;
+                const isVercelProduction = hostname.includes('vercel.app') || 
+                                          hostname.includes('.vercel') ||
+                                          hostname.includes('tumatch-asignaciones');
+                const isNetlifyProduction = hostname.includes('netlify.app');
+                
+                let response;
+                
+                if (isVercelProduction) {
+                    try {
+                        response = await fetch('/api/get-xml');
+                        if (response.ok) {
+                            console.log('✅ XML obtenido vía función Vercel');
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Error con función Vercel, usando fallback...');
+                    }
+                } else if (isNetlifyProduction) {
+                    try {
+                        response = await fetch('/.netlify/functions/get-xml-feed');
+                        if (response.ok) {
+                            console.log('✅ XML obtenido vía función Netlify');
+                        }
+                    } catch (error) {
+                        console.log('⚠️ Error con función Netlify, usando fallback...');
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    const corsProxies = [
+                        'https://corsproxy.io/?',
+                        'https://api.allorigins.win/raw?url=',
+                        ''
+                    ];
+                    
+                    for (const proxy of corsProxies) {
+                        try {
+                            const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                            response = await fetch(fetchUrl);
+                            
+                            if (response.ok) {
+                                console.log(`✅ XML obtenido con: ${proxy || 'conexión directa'}`);
+                                break;
+                            }
+                        } catch (error) {
+                            continue;
+                        }
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    console.log('💡 Usando cache anterior si existe');
+                    return xmlCache.propertiesMap;
+                }
+                
+                const xmlText = await response.text();
+                
+                if (!xmlText || xmlText.length < 1000) {
+                    console.error('❌ XML muy pequeño o vacío');
+                    return xmlCache.propertiesMap;
+                }
+                
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                
+                const parserError = xmlDoc.querySelector('parsererror');
+                if (parserError) {
+                    console.error('❌ Error parseando XML:', parserError.textContent);
+                    return xmlCache.propertiesMap;
+                }
+                
+                xmlCache.propertiesMap.clear();
+                
+                const listings = xmlDoc.querySelectorAll('listing');
+                console.log(`📊 Total de listings en XML: ${listings.length}`);
+                
+                listings.forEach((listing, index) => {
+                    try {
+                        const referenceIdElement = listing.querySelector('reference_id');
+                        if (!referenceIdElement) return;
+                        
+                        const referenceId = referenceIdElement.textContent.trim();
+                        if (!referenceId) return;
+                        
+                        const images = [];
+                        const picturesElement = listing.querySelector('pictures');
+                        
+                        if (picturesElement) {
+                            const urlElements = picturesElement.querySelectorAll('url');
+                            urlElements.forEach(urlElement => {
+                                const imageUrl = urlElement.textContent.trim();
+                                if (imageUrl && imageUrl.startsWith('http')) {
+                                    images.push(imageUrl);
+                                }
+                            });
+                        }
+                        
+                        if (images.length > 0) {
+                            xmlCache.propertiesMap.set(referenceId, images);
+                        }
+                    } catch (err) {
+                        console.error(`❌ Error procesando listing ${index + 1}:`, err);
+                    }
+                });
+                
+                xmlCache.data = xmlText;
+                xmlCache.timestamp = now;
+                
+                console.log(`✅ XML cacheado con ${xmlCache.propertiesMap.size} propiedades con imágenes`);
+                
+                return xmlCache.propertiesMap;
+                
+            } catch (error) {
+                console.error('❌ Error cargando XML feed:', error);
+                return xmlCache.propertiesMap;
+            }
+        }
+
+        async function getPropertyImage(codigo) {
+            try {
+                let possibleIds = [];
+                
+                const tuMatch = codigo.match(/TU\s*-\s*(\d+)/);
+                if (tuMatch) {
+                    possibleIds.push(tuMatch[1]);
+                }
+                
+                const endNumberMatch = codigo.match(/(\d+)$/);
+                if (endNumberMatch) {
+                    possibleIds.push(endNumberMatch[1]);
+                }
+                
+                const afterDashMatch = codigo.match(/-\s*(\d+)/);
+                if (afterDashMatch) {
+                    possibleIds.push(afterDashMatch[1]);
+                }
+                
+                const allNumbers = codigo.match(/\d+/g);
+                if (allNumbers) {
+                    possibleIds = possibleIds.concat(allNumbers);
+                }
+                
+                possibleIds.push(codigo.replace(/\s+/g, ''));
+                possibleIds.push(codigo);
+                
+                possibleIds = [...new Set(possibleIds.filter(id => id))];
+                
+                const propertiesMap = await loadXMLFeed();
+                
+                for (const referenceId of possibleIds) {
+                    let images = propertiesMap.get(referenceId);
+                    
+                    if (!images) {
+                        for (let zeros = 1; zeros <= 3; zeros++) {
+                            const paddedId = referenceId.padStart(referenceId.length + zeros, '0');
+                            images = propertiesMap.get(paddedId);
+                            if (images) break;
+                        }
+                    }
+                    
+                    if (!images && referenceId.startsWith('0')) {
+                        const withoutZeros = referenceId.replace(/^0+/, '');
+                        images = propertiesMap.get(withoutZeros);
+                    }
+                    
+                    if (images && images.length > 0) {
+                        return images[0];
+                    }
+                }
+                
+                return getPlaceholderImage(codigo);
+                
+            } catch (error) {
+                console.error('❌ Error obteniendo imagen:', error);
+                return getPlaceholderImage(codigo);
+            }
+        }
+
+        function getPlaceholderImage(propertyId) {
+            const placeholderUrls = [
+                'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1549517045-bc93de075e53?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=500&h=350&fit=crop&crop=center&auto=format&q=85',
+                'https://images.unsplash.com/photo-1448630360428-65456885c650?w=500&h=350&fit=crop&crop=center&auto=format&q=85'
+            ];
+            
+            const index = parseInt(propertyId.replace(/\D/g, '')) % placeholderUrls.length;
+            return placeholderUrls[index];
+        }
+
+        async function renderGrid() {
+            const grid = document.getElementById('grid');
+
+            if (filteredData.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 glass rounded-2xl">
+                        <div class="text-6xl mb-6 opacity-50">🔍</div>
+                        <h2 class="text-2xl font-bold text-white mb-2">Sin resultados</h2>
+                        <p class="text-gray-400">No se encontraron asignaciones con estos filtros</p>
+                    </div>
+                `;
+                grid.style.display = 'grid';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+            
+            const gradients = [
+                'icon-gradient-1', 'icon-gradient-2', 'icon-gradient-3', 
+                'icon-gradient-4', 'icon-gradient-5', 'icon-gradient-6'
+            ];
+            
+            filteredData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'property-card glass rounded-2xl overflow-hidden transition-all duration-500 animate-fadeInUp';
+                card.style.animationDelay = `${index * 0.1}s`;
+                
+                const gradientClass = gradients[index % gradients.length];
+                
+                card.innerHTML = `
+                    ${item.isTM ? `
+                        <div class="absolute top-4 right-4 z-10">
+                            <div class="px-3 py-1 bg-gradient-to-r from-brand-coral to-brand-magenta text-white text-xs font-bold rounded-full shadow-lg">
+                                ✨ TuMatch
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Property Image -->
+                    <div class="relative h-48 overflow-hidden property-image" data-codigo="${item.codigo}">
+                        <div class="w-full h-full ${gradientClass} flex items-center justify-center text-white text-6xl animate-pulse">
+                            🏠
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                    </div>
+                    
+                    <!-- Card Content -->
+                    <div class="p-6 space-y-4">
+                        <!-- Corredor -->
+                        <div class="flex items-center space-x-4 p-4 glass rounded-xl">
+                            <div class="w-12 h-12 ${gradientClass} rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                ${getInitials(item.corredor)}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-lg text-white truncate">${item.corredor}</h3>
+                                <p class="text-gray-300 text-sm font-medium uppercase tracking-wide">Corredor</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Código de Propiedad -->
+                        <div class="flex items-center space-x-4 p-4 glass rounded-xl">
+                            <div class="w-10 h-10 ${gradientClass} rounded-lg flex items-center justify-center text-white shadow-lg">
+                                🏠
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Código</p>
+                                <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                                   target="_blank" 
+                                   class="inline-flex items-center gap-2 text-brand-coral hover:text-brand-magenta font-bold transition-colors duration-300">
+                                    <span class="font-mono">${item.codigo}</span>
+                                    <i class="fas fa-external-link-alt text-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Referido -->
+                        <div class="flex items-center space-x-4 p-4 glass rounded-xl">
+                            <div class="w-10 h-10 ${gradients[(index + 1) % gradients.length]} rounded-lg flex items-center justify-center text-white shadow-lg">
+                                👥
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Referido</p>
+                                <p class="text-white font-semibold truncate">${item.referido}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Captada por -->
+                        <div class="flex items-center space-x-4 p-4 glass rounded-xl">
+                            <div class="w-10 h-10 ${gradients[(index + 2) % gradients.length]} rounded-lg flex items-center justify-center text-white shadow-lg">
+                                📝
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Captada por</p>
+                                <p class="text-white font-semibold truncate">${item.firmaOrden}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                fragment.appendChild(card);
+            });
+            
+            grid.innerHTML = '';
+            grid.appendChild(fragment);
+            grid.style.display = 'grid';
+            
+            // Cargar imágenes de propiedades de forma asíncrona
+            loadPropertyImages();
+        }
+
+        async function loadPropertyImages() {
+            const imageContainers = document.querySelectorAll('.property-image');
+            console.log(`🖼️ Iniciando carga de imágenes para ${imageContainers.length} propiedades`);
+            
+            for (const container of imageContainers) {
+                const codigo = container.dataset.codigo;
+                try {
+                    const imageUrl = await getPropertyImage(codigo);
+                    if (imageUrl) {
+                        const img = new Image();
+                        img.onload = () => {
+                            container.innerHTML = `
+                                <img src="${imageUrl}" 
+                                     alt="Propiedad ${codigo}" 
+                                     class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4">
+                                    <h3 class="text-white font-bold text-lg">${codigo}</h3>
+                                </div>
+                            `;
+                        };
+                        img.src = imageUrl;
+                    }
+                } catch (error) {
+                    console.error(`Error cargando imagen para ${codigo}:`, error);
+                }
+            }
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(applyFilters, 300);
+        });
+        
+        document.getElementById('corredorFilter').addEventListener('change', applyFilters);
+
+        let searchTimeout;
+
+        // Inicialización
+        async function initializeApp() {
+            console.log('🚀 Inicializando aplicación TuMatch...');
+            
+            try {
+                console.log('📋 Pre-cargando XML de propiedades...');
+                await loadXMLFeed();
+                console.log('✅ XML pre-cargado exitosamente');
+            } catch (error) {
+                console.error('⚠️ Error pre-cargando XML:', error);
+            }
+            
+            loadData();
+        }
+        
+        initializeApp();
+    </script>
+</body>
+</html>

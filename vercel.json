@@ -2,7 +2,16 @@
   "buildCommand": "echo 'No build required'",
   "outputDirectory": ".",
   "framework": null,
+  "functions": {
+    "api/xml-proxy.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

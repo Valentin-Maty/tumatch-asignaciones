@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TuMatch Premium - Portal Inmobiliario Avanzado</title>
+    
+    <!-- Favicon TuMatch -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for reactivity -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Chart.js for statistics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#FF6B47',
+                        'secondary': '#E91E63',
+                        'accent': '#3B82F6',
+                        'success': '#10B981',
+                        'warning': '#F59E0B',
+                        'danger': '#EF4444',
+                        'dark': {
+                            '900': '#0F172A',
+                            '800': '#1E293B',
+                            '700': '#334155',
+                            '600': '#475569',
+                            '500': '#64748B'
+                        }
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'display': ['Poppins', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'slide-down': 'slideDown 0.5s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                        'gradient': 'gradient 8s ease infinite',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite'
+                    },
+                    backgroundImage: {
+                        'mesh-gradient': 'url("data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3ClinearGradient id="a" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" stop-color="%23FF6B47" stop-opacity="0.1"/%3E%3Cstop offset="100%25" stop-color="%23E91E63" stop-opacity="0.1"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="100" height="100" fill="url(%23a)"/%3E%3C/svg%3E")'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Premium Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(2deg); }
+            66% { transform: translateY(-10px) rotate(-2deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 107, 71, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(255, 107, 71, 0.8); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(255, 107, 71, 0.7),
+                           0 0 0 0 rgba(255, 107, 71, 0.7);
+            }
+            50% { 
+                box-shadow: 0 0 0 10px rgba(255, 107, 71, 0),
+                           0 0 0 20px rgba(255, 107, 71, 0);
+            }
+        }
+
+        /* Modern Background */
+        body {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 25%, #0F172A 50%, #1E293B 75%, #0F172A 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 107, 71, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(233, 30, 99, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Glass Morphism */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Premium Card Effects */
+        .premium-card {
+            position: relative;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.7s;
+        }
+
+        .premium-card:hover::before {
+            left: 100%;
+        }
+
+        .premium-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(255, 107, 71, 0.3);
+            border-color: rgba(255, 107, 71, 0.5);
+        }
+
+        /* Neon Text */
+        .neon-text {
+            text-shadow: 
+                0 0 10px rgba(255, 107, 71, 0.8),
+                0 0 20px rgba(255, 107, 71, 0.6),
+                0 0 30px rgba(255, 107, 71, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1E293B;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #FF6B47, #E91E63);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #E91E63, #FF6B47);
+        }
+
+        /* Loading Animation */
+        .loader {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .loader::before,
+        .loader::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            border-top-color: #FF6B47;
+            animation: spin 2s linear infinite;
+        }
+
+        .loader::after {
+            border-top-color: #E91E63;
+            animation-duration: 1.5s;
+            animation-direction: reverse;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Gradient Button */
+        .btn-gradient {
+            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 100%);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .btn-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #E91E63 0%, #FF6B47 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+
+        .btn-gradient:hover::before {
+            opacity: 1;
+        }
+
+        /* Image Overlay Effect */
+        .image-overlay {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-overlay::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-overlay:hover::after {
+            opacity: 1;
+        }
+
+        /* Stats Card Animation */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #FF6B47, #E91E63, #3B82F6, #10B981);
+            background-size: 400% 400%;
+            animation: gradient 3s ease infinite;
+            border-radius: inherit;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: -1;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Dark mode styles */
+        .dark-mode-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+        }
+
+        .dark-mode-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .dark-mode-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+
+        .dark-mode-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .dark-mode-slider {
+            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 100%);
+        }
+
+        input:checked + .dark-mode-slider:before {
+            transform: translateX(30px);
+        }
+    </style>
+</head>
+
+<body x-data="appData" :class="darkMode ? 'dark' : ''" class="font-sans antialiased text-white relative z-10">
+    
+    <!-- Premium Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10" x-data="{ mobileMenu: false, userMenu: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-4">
+                    <button @click="mobileMenu = !mobileMenu" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center animate-pulse-glow">
+                            <i class="fas fa-home text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-display font-bold">TuMatch</h1>
+                            <p class="text-xs text-gray-400">Premium Portal</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden lg:flex items-center space-x-6">
+                    <button @click="currentView = 'dashboard'" 
+                            :class="currentView === 'dashboard' ? 'text-primary' : 'text-gray-300 hover:text-white'"
+                            class="flex items-center space-x-2 transition">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button @click="currentView = 'properties'" 
+                            :class="currentView === 'properties' ? 'text-primary' : 'text-gray-300 hover:text-white'"
+                            class="flex items-center space-x-2 transition">
+                        <i class="fas fa-building"></i>
+                        <span>Propiedades</span>
+                    </button>
+                    <button @click="currentView = 'analytics'" 
+                            :class="currentView === 'analytics' ? 'text-primary' : 'text-gray-300 hover:text-white'"
+                            class="flex items-center space-x-2 transition">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Analíticas</span>
+                    </button>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Search Toggle -->
+                    <button @click="searchOpen = !searchOpen" class="p-2 rounded-lg hover:bg-white/10 transition">
+                        <i class="fas fa-search text-gray-300"></i>
+                    </button>
+
+                    <!-- Notifications -->
+                    <div class="relative">
+                        <button class="p-2 rounded-lg hover:bg-white/10 transition relative">
+                            <i class="fas fa-bell text-gray-300"></i>
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-danger rounded-full animate-ping"></span>
+                        </button>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <label class="dark-mode-toggle">
+                        <input type="checkbox" x-model="darkMode">
+                        <span class="dark-mode-slider"></span>
+                    </label>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button @click="userMenu = !userMenu" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/10 transition">
+                            <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg"></div>
+                            <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        
+                        <div x-show="userMenu" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             @click.away="userMenu = false"
+                             class="absolute right-0 mt-2 w-56 glass rounded-xl shadow-xl py-2">
+                            <div class="px-4 py-3 border-b border-white/10">
+                                <p class="text-sm font-semibold">Administrador</p>
+                                <p class="text-xs text-gray-400">admin@tumatch.cl</p>
+                            </div>
+                            <a href="#" class="flex items-center space-x-3 px-4 py-2 text-sm hover:bg-white/10 transition">
+                                <i class="fas fa-user-cog w-4"></i>
+                                <span>Configuración</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 px-4 py-2 text-sm hover:bg-white/10 transition">
+                                <i class="fas fa-download w-4"></i>
+                                <span>Exportar Datos</span>
+                            </a>
+                            <hr class="my-2 border-white/10">
+                            <a href="#" class="flex items-center space-x-3 px-4 py-2 text-sm text-danger hover:bg-danger/10 transition">
+                                <i class="fas fa-sign-out-alt w-4"></i>
+                                <span>Cerrar Sesión</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div x-show="mobileMenu" x-transition class="lg:hidden border-t border-white/10">
+            <div class="px-4 py-2 space-y-1">
+                <button @click="currentView = 'dashboard'; mobileMenu = false" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-chart-line mr-2"></i> Dashboard
+                </button>
+                <button @click="currentView = 'properties'; mobileMenu = false" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-building mr-2"></i> Propiedades
+                </button>
+                <button @click="currentView = 'analytics'; mobileMenu = false" class="w-full text-left px-3 py-2 rounded-lg hover:bg-white/10 transition">
+                    <i class="fas fa-chart-pie mr-2"></i> Analíticas
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Search Modal -->
+    <div x-show="searchOpen" x-transition class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div class="flex items-start justify-center min-h-screen pt-20 px-4">
+            <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" @click="searchOpen = false"></div>
+            
+            <div class="relative glass-light rounded-2xl max-w-2xl w-full p-6" @click.away="searchOpen = false">
+                <div class="relative">
+                    <input type="text" 
+                           id="globalSearch"
+                           class="w-full px-6 py-4 pl-14 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-primary transition"
+                           placeholder="Buscar propiedades, corredores, códigos..."
+                           @input="handleGlobalSearch($event.target.value)">
+                    <i class="fas fa-search absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl"></i>
+                </div>
+                
+                <!-- Search Results -->
+                <div x-show="searchResults.length > 0" class="mt-4 max-h-96 overflow-y-auto">
+                    <template x-for="result in searchResults" :key="result.codigo">
+                        <div class="p-4 hover:bg-white/10 rounded-lg cursor-pointer transition" @click="selectSearchResult(result)">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-semibold" x-text="result.codigo"></p>
+                                    <p class="text-sm text-gray-400" x-text="result.corredor"></p>
+                                </div>
+                                <i class="fas fa-arrow-right text-gray-400"></i>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="pt-20 min-h-screen">
+        
+        <!-- Dashboard View -->
+        <div x-show="currentView === 'dashboard'" x-transition>
+            
+            <!-- Hero Stats Section -->
+            <section class="px-4 sm:px-6 lg:px-8 py-8">
+                <div class="max-w-7xl mx-auto">
+                    <h2 class="text-3xl font-display font-bold mb-8 neon-text" data-aos="fade-right">
+                        Dashboard Principal
+                    </h2>
+                    
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="stat-card glass rounded-2xl p-6" data-aos="fade-up" data-aos-delay="100">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-home text-white text-xl"></i>
+                                </div>
+                                <span class="text-xs text-success font-semibold">+12%</span>
+                            </div>
+                            <h3 class="text-3xl font-bold mb-1" id="totalCount">0</h3>
+                            <p class="text-sm text-gray-400">Total Propiedades</p>
+                            <div class="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-primary to-secondary rounded-full animate-pulse" style="width: 75%"></div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card glass rounded-2xl p-6" data-aos="fade-up" data-aos-delay="200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-accent to-success rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-users text-white text-xl"></i>
+                                </div>
+                                <span class="text-xs text-warning font-semibold">+5%</span>
+                            </div>
+                            <h3 class="text-3xl font-bold mb-1" id="corredorCount">0</h3>
+                            <p class="text-sm text-gray-400">Corredores Activos</p>
+                            <div class="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-accent to-success rounded-full animate-pulse" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card glass rounded-2xl p-6" data-aos="fade-up" data-aos-delay="300">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-warning to-danger rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-star text-white text-xl"></i>
+                                </div>
+                                <span class="text-xs text-success font-semibold">+18%</span>
+                            </div>
+                            <h3 class="text-3xl font-bold mb-1" id="tuMatchCount">0</h3>
+                            <p class="text-sm text-gray-400">TuMatch Premium</p>
+                            <div class="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-warning to-danger rounded-full animate-pulse" style="width: 85%"></div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card glass rounded-2xl p-6" data-aos="fade-up" data-aos-delay="400">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-secondary to-primary rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-chart-line text-white text-xl"></i>
+                                </div>
+                                <span class="text-xs text-success font-semibold">+23%</span>
+                            </div>
+                            <h3 class="text-3xl font-bold mb-1" id="conversionRate">0%</h3>
+                            <p class="text-sm text-gray-400">Tasa Conversión</p>
+                            <div class="mt-4 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-secondary to-primary rounded-full animate-pulse" style="width: 92%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+                        <div class="glass rounded-2xl p-6" data-aos="fade-right">
+                            <h3 class="text-xl font-bold mb-4">Distribución por Corredor</h3>
+                            <canvas id="corredorChart" width="400" height="200"></canvas>
+                        </div>
+                        
+                        <div class="glass rounded-2xl p-6" data-aos="fade-left">
+                            <h3 class="text-xl font-bold mb-4">Tendencia Semanal</h3>
+                            <canvas id="trendChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="glass rounded-2xl p-6 mt-8" data-aos="fade-up">
+                        <h3 class="text-xl font-bold mb-4">Actividad Reciente</h3>
+                        <div id="recentActivity" class="space-y-4">
+                            <!-- Activity items will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Properties View -->
+        <div x-show="currentView === 'properties'" x-transition>
+            
+            <!-- Advanced Filters -->
+            <section class="sticky top-16 z-40 glass border-b border-white/10">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    
+                    <!-- Search Bar -->
+                    <div class="flex flex-col lg:flex-row gap-4 mb-6">
+                        <div class="flex-1 relative">
+                            <input type="text" 
+                                   id="searchInput"
+                                   class="w-full px-6 py-3 pl-14 glass-light rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary transition"
+                                   placeholder="Buscar por código o corredor..."
+                                   @input="applyFilters()">
+                            <i class="fas fa-search absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        
+                        <select id="corredorFilter" 
+                                class="px-6 py-3 glass-light rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary transition"
+                                @change="applyFilters()">
+                            <option value="">Todos los corredores</option>
+                        </select>
+                        
+                        <select id="statusFilter" 
+                                class="px-6 py-3 glass-light rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-primary transition"
+                                @change="applyFilters()">
+                            <option value="">Todos los estados</option>
+                            <option value="pendiente">Pendiente</option>
+                            <option value="activo">Activo</option>
+                            <option value="finalizado">Finalizado</option>
+                        </select>
+                        
+                        <button onclick="loadData()" class="px-8 py-3 btn-gradient text-white font-semibold rounded-xl hover:shadow-lg transform hover:scale-105 transition">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Actualizar
+                        </button>
+                    </div>
+
+                    <!-- View Options -->
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <button @click="viewMode = 'grid'" 
+                                    :class="viewMode === 'grid' ? 'text-primary' : 'text-gray-400'"
+                                    class="p-2 hover:text-primary transition">
+                                <i class="fas fa-th-large text-xl"></i>
+                            </button>
+                            <button @click="viewMode = 'list'" 
+                                    :class="viewMode === 'list' ? 'text-primary' : 'text-gray-400'"
+                                    class="p-2 hover:text-primary transition">
+                                <i class="fas fa-list text-xl"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-400">
+                                Mostrando <span id="visibleCount" class="font-bold text-white">0</span> de <span id="totalPropertiesCount" class="font-bold text-white">0</span>
+                            </span>
+                            
+                            <button onclick="exportData()" class="px-4 py-2 glass-light rounded-lg hover:bg-white/10 transition">
+                                <i class="fas fa-download mr-2"></i>
+                                Exportar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Properties Grid/List -->
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                
+                <!-- Loading State -->
+                <div id="loading" class="flex flex-col items-center justify-center py-20">
+                    <div class="loader"></div>
+                    <p class="text-gray-400 font-medium mt-6">Cargando propiedades...</p>
+                    <p class="text-sm text-gray-500 mt-2" id="loadingStatus">Conectando con la base de datos...</p>
+                </div>
+
+                <!-- Grid View -->
+                <div x-show="viewMode === 'grid'" 
+                     id="grid" 
+                     class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+                     style="display: none;">
+                    <!-- Property cards will be inserted here -->
+                </div>
+
+                <!-- List View -->
+                <div x-show="viewMode === 'list'" 
+                     id="listView" 
+                     class="space-y-4" 
+                     style="display: none;">
+                    <!-- List items will be inserted here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden">
+                    <div class="text-center py-20">
+                        <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-building text-5xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-2">No se encontraron propiedades</h3>
+                        <p class="text-gray-400 mb-6">Intenta ajustar los filtros o actualizar los datos</p>
+                        <button onclick="loadData()" class="px-6 py-3 btn-gradient text-white font-semibold rounded-xl">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Actualizar Ahora
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Analytics View -->
+        <div x-show="currentView === 'analytics'" x-transition>
+            <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h2 class="text-3xl font-display font-bold mb-8 neon-text">
+                    Centro de Analíticas
+                </h2>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Performance Metrics -->
+                    <div class="lg:col-span-2 glass rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4">Rendimiento Mensual</h3>
+                        <canvas id="performanceChart" width="600" height="300"></canvas>
+                    </div>
+                    
+                    <!-- Top Performers -->
+                    <div class="glass rounded-2xl p-6">
+                        <h3 class="text-xl font-bold mb-4">Top Corredores</h3>
+                        <div id="topPerformers" class="space-y-4">
+                            <!-- Top performers will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conversion Funnel -->
+                <div class="glass rounded-2xl p-6 mt-6">
+                    <h3 class="text-xl font-bold mb-4">Embudo de Conversión</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-primary mb-2">100%</div>
+                            <p class="text-gray-400">Leads</p>
+                            <div class="mt-2 h-32 bg-gradient-to-t from-primary/20 to-primary/60 rounded-lg"></div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-accent mb-2">73%</div>
+                            <p class="text-gray-400">Contactados</p>
+                            <div class="mt-2 h-24 bg-gradient-to-t from-accent/20 to-accent/60 rounded-lg"></div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-warning mb-2">45%</div>
+                            <p class="text-gray-400">Visitas</p>
+                            <div class="mt-2 h-16 bg-gradient-to-t from-warning/20 to-warning/60 rounded-lg"></div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-4xl font-bold text-success mb-2">28%</div>
+                            <p class="text-gray-400">Ventas</p>
+                            <div class="mt-2 h-12 bg-gradient-to-t from-success/20 to-success/60 rounded-lg"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass border-t border-white/10 mt-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <i class="fas fa-home text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-bold">TuMatch</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        La plataforma inmobiliaria más avanzada para profesionales.
+                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Enlaces Rápidos</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition">Dashboard</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition">Propiedades</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition">Analíticas</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition">Reportes</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Contacto</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li><i class="fas fa-envelope mr-2"></i> corretaje@tumatchinmobiliario.cl</li>
+                        <li><i class="fas fa-phone mr-2"></i> +56 9 3410 7448</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Santiago, Chile</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Síguenos</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 glass-light rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 glass-light rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 glass-light rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 glass-light rounded-lg flex items-center justify-center hover:bg-primary hover:text-white transition">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-12 pt-8 border-t border-white/10 text-center">
+                <p class="text-gray-400 text-sm">
+                    © 2024 TuMatch Inmobiliario. Todos los derechos reservados. | 
+                    <a href="#" class="hover:text-primary transition">Privacidad</a> | 
+                    <a href="#" class="hover:text-primary transition">Términos</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Quick Actions Button -->
+    <div class="fixed bottom-8 right-8 z-40">
+        <button @click="quickActions = !quickActions" 
+                class="w-14 h-14 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110 transition animate-pulse-glow">
+            <i class="fas fa-plus text-white text-xl"></i>
+        </button>
+        
+        <div x-show="quickActions" x-transition class="absolute bottom-16 right-0 space-y-2">
+            <button onclick="window.print()" class="flex items-center space-x-2 px-4 py-2 glass-light rounded-lg hover:bg-white/10 transition whitespace-nowrap">
+                <i class="fas fa-print"></i>
+                <span>Imprimir</span>
+            </button>
+            <button onclick="exportData()" class="flex items-center space-x-2 px-4 py-2 glass-light rounded-lg hover:bg-white/10 transition whitespace-nowrap">
+                <i class="fas fa-file-excel"></i>
+                <span>Exportar Excel</span>
+            </button>
+            <button onclick="shareData()" class="flex items-center space-x-2 px-4 py-2 glass-light rounded-lg hover:bg-white/10 transition whitespace-nowrap">
+                <i class="fas fa-share-alt"></i>
+                <span>Compartir</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Alpine.js data
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('appData', () => ({
+                darkMode: true,
+                currentView: 'dashboard',
+                viewMode: 'grid',
+                searchOpen: false,
+                quickActions: false,
+                searchResults: [],
+                
+                handleGlobalSearch(value) {
+                    // Filter data based on search
+                    this.searchResults = allData.filter(item => 
+                        item.codigo.toLowerCase().includes(value.toLowerCase()) ||
+                        item.corredor.toLowerCase().includes(value.toLowerCase())
+                    ).slice(0, 10);
+                },
+                
+                selectSearchResult(result) {
+                    this.currentView = 'properties';
+                    this.searchOpen = false;
+                    // Focus on selected property
+                    setTimeout(() => {
+                        document.getElementById('searchInput').value = result.codigo;
+                        applyFilters();
+                    }, 300);
+                }
+            }));
+        });
+
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Core Data Management
+        const SPREADSHEET_ID = '1X7cbk_fD5mGTXxs1cOa4tCxeXBrpiNWV4sEJnBRwVUM';
+        const GID = '1154306850';
+        
+        let allData = [];
+        let filteredData = [];
+        let xmlCache = {
+            data: null,
+            timestamp: 0,
+            ttl: 24 * 60 * 60 * 1000,
+            propertiesMap: new Map()
+        };
+
+        // Enhanced Property Card
+        function createPropertyCard(item, index) {
+            const gradients = [
+                'from-primary to-secondary',
+                'from-accent to-success',
+                'from-warning to-danger',
+                'from-secondary to-primary'
+            ];
+            const gradient = gradients[index % gradients.length];
+            
+            return `
+                <div class="premium-card rounded-2xl overflow-hidden group" data-aos="fade-up" data-aos-delay="${index * 50}">
+                    <!-- Image Section -->
+                    <div class="relative h-56 image-overlay property-image" data-codigo="${item.codigo}">
+                        <div class="w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center">
+                            <div class="loader"></div>
+                        </div>
+                        ${item.isTM ? `
+                            <div class="absolute top-4 left-4 px-3 py-1 glass-light rounded-full text-xs font-bold">
+                                <i class="fas fa-star text-warning mr-1"></i> TuMatch Premium
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold truncate">${item.codigo}</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="viewProperty('${item.codigo}')" class="p-2 glass-light rounded-lg hover:bg-white/20 transition">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </button>
+                                <button onclick="editProperty('${item.codigo}')" class="p-2 glass-light rounded-lg hover:bg-white/20 transition">
+                                    <i class="fas fa-edit text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-user text-white text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs text-gray-400">Corredor</p>
+                                    <p class="font-semibold truncate">${item.corredor}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 glass-light rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-users text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs text-gray-400">Referido</p>
+                                    <p class="text-sm truncate">${item.referido}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 glass-light rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-clipboard-check text-xs"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs text-gray-400">Estado</p>
+                                    <p class="text-sm">${item.firmaOrden || 'Pendiente'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-white/10">
+                            <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                               target="_blank"
+                               class="w-full px-4 py-2 btn-gradient text-white text-sm font-semibold rounded-lg flex items-center justify-center">
+                                Ver Ficha Pública
+                                <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // List View Item
+        function createListItem(item, index) {
+            return `
+                <div class="glass rounded-xl p-4 hover:bg-white/5 transition" data-aos="fade-right" data-aos-delay="${index * 30}">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-20 h-20 rounded-lg overflow-hidden property-image-thumb" data-codigo="${item.codigo}">
+                            <div class="w-full h-full bg-gradient-to-br from-primary to-secondary"></div>
+                        </div>
+                        
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <h3 class="font-bold">${item.codigo}</h3>
+                                ${item.isTM ? '<span class="px-2 py-1 bg-warning/20 text-warning text-xs font-semibold rounded">TuMatch</span>' : ''}
+                            </div>
+                            <p class="text-sm text-gray-400">Corredor: ${item.corredor}</p>
+                            <p class="text-xs text-gray-500">Referido: ${item.referido}</p>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button onclick="viewProperty('${item.codigo}')" class="px-3 py-2 glass-light rounded-lg hover:bg-white/20 transition">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                               target="_blank"
+                               class="px-3 py-2 glass-light rounded-lg hover:bg-white/20 transition">
+                                <i class="fas fa-external-link-alt"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Data
+        async function loadData(isAutoRefresh = false) {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('grid');
+            const listView = document.getElementById('listView');
+            
+            if (!isAutoRefresh) {
+                loading.style.display = 'flex';
+                grid.style.display = 'none';
+                listView.style.display = 'none';
+                updateLoadingStatus('Conectando con Google Sheets...');
+            }
+
+            try {
+                const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID}`;
+                const response = await fetch(CSV_URL);
+                const csvText = await response.text();
+                
+                updateLoadingStatus('Procesando datos...');
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                allData = [];
+                const corredores = new Set();
+
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    
+                    const codigo = values[1]?.trim() || '';
+                    const corredor = values[4]?.trim() || '';
+                    const referido = values[6]?.trim() || '';
+                    const firmaOrden = values[7]?.trim() || '';
+                    const estado = values[8]?.trim() || '';
+                    
+                    if (estado) continue;
+                    if (!codigo || !corredor) continue;
+
+                    const isTM = referido.toLowerCase().includes('francisco') && 
+                                referido.toLowerCase().includes('garcia');
+
+                    allData.push({
+                        codigo,
+                        corredor,
+                        referido: isTM ? 'TuMatch' : (referido || 'Sin referido'),
+                        firmaOrden: firmaOrden || 'Pendiente',
+                        isTM
+                    });
+
+                    corredores.add(corredor);
+                }
+
+                updateCorredorFilter(corredores);
+                await applyFilters();
+                updateStats();
+                updateCharts();
+                
+                if (!isAutoRefresh) {
+                    showToast('Datos actualizados correctamente', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error al cargar datos', 'error');
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Export Data to CSV
+        function exportData() {
+            let csv = 'Código,Corredor,Referido,Estado\n';
+            filteredData.forEach(item => {
+                csv += `"${item.codigo}","${item.corredor}","${item.referido}","${item.firmaOrden}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `propiedades_tumatch_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            
+            showToast('Datos exportados correctamente', 'success');
+        }
+
+        // Share Data
+        function shareData() {
+            const shareText = `TuMatch Inmobiliario - ${allData.length} propiedades activas`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'TuMatch Inmobiliario',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showToast('Enlace copiado al portapapeles', 'success');
+            }
+        }
+
+        // View Property Details
+        function viewProperty(codigo) {
+            showToast(`Abriendo detalles de ${codigo}`, 'info');
+            // Here you could open a modal with detailed property information
+        }
+
+        // Edit Property
+        function editProperty(codigo) {
+            showToast(`Editando propiedad ${codigo}`, 'info');
+            // Here you could open an edit modal
+        }
+
+        // Update Loading Status
+        function updateLoadingStatus(message) {
+            const status = document.getElementById('loadingStatus');
+            if (status) status.textContent = message;
+        }
+
+        // Toast Notification
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            
+            const colors = {
+                success: 'from-success to-emerald-600',
+                error: 'from-danger to-red-600',
+                info: 'from-accent to-blue-600',
+                warning: 'from-warning to-amber-600'
+            };
+            
+            toast.className = `glass rounded-xl p-4 flex items-center space-x-3 min-w-[300px] transform translate-x-full transition-transform duration-500`;
+            toast.innerHTML = `
+                <div class="w-10 h-10 bg-gradient-to-br ${colors[type]} rounded-lg flex items-center justify-center">
+                    <i class="fas ${icons[type]} text-white"></i>
+                </div>
+                <div>
+                    <p class="text-white font-semibold">${message}</p>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    toast.remove();
+                }, 500);
+            }, 3000);
+        }
+
+        // Parse CSV Line
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
+        }
+
+        // Update Corredor Filter
+        function updateCorredorFilter(corredores) {
+            const filter = document.getElementById('corredorFilter');
+            filter.innerHTML = '<option value="">Todos los corredores</option>';
+            
+            Array.from(corredores).sort().forEach(corredor => {
+                const option = document.createElement('option');
+                option.value = corredor;
+                option.textContent = corredor;
+                filter.appendChild(option);
+            });
+        }
+
+        // Apply Filters
+        async function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const corredorFilter = document.getElementById('corredorFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredData = allData.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    item.corredor.toLowerCase().includes(searchTerm) ||
+                    item.codigo.toLowerCase().includes(searchTerm);
+                
+                const matchesCorredor = !corredorFilter || item.corredor === corredorFilter;
+                
+                const matchesStatus = !statusFilter || 
+                    (statusFilter === 'pendiente' && !item.firmaOrden) ||
+                    (statusFilter === 'activo' && item.firmaOrden);
+
+                return matchesSearch && matchesCorredor && matchesStatus;
+            });
+
+            renderProperties();
+            updateStats();
+        }
+
+        // Render Properties
+        function renderProperties() {
+            const grid = document.getElementById('grid');
+            const listView = document.getElementById('listView');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filteredData.length === 0) {
+                grid.style.display = 'none';
+                listView.style.display = 'none';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            // Render Grid View
+            grid.innerHTML = filteredData.map((item, index) => createPropertyCard(item, index)).join('');
+            grid.style.display = 'grid';
+            
+            // Render List View
+            listView.innerHTML = filteredData.map((item, index) => createListItem(item, index)).join('');
+            
+            // Load images
+            loadPropertyImages();
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allData.length;
+            document.getElementById('visibleCount').textContent = filteredData.length;
+            document.getElementById('totalPropertiesCount').textContent = allData.length;
+            document.getElementById('corredorCount').textContent = new Set(allData.map(item => item.corredor)).size;
+            document.getElementById('tuMatchCount').textContent = allData.filter(item => item.isTM).length;
+            
+            const conversionRate = allData.length > 0 ? 
+                ((allData.filter(item => item.firmaOrden).length / allData.length) * 100).toFixed(1) : 0;
+            document.getElementById('conversionRate').textContent = conversionRate + '%';
+        }
+
+        // Update Charts
+        function updateCharts() {
+            // Corredor Distribution Chart
+            const corredorCounts = {};
+            allData.forEach(item => {
+                corredorCounts[item.corredor] = (corredorCounts[item.corredor] || 0) + 1;
+            });
+            
+            const topCorredores = Object.entries(corredorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            const ctx1 = document.getElementById('corredorChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: topCorredores.map(c => c[0]),
+                        datasets: [{
+                            data: topCorredores.map(c => c[1]),
+                            backgroundColor: [
+                                'rgba(255, 107, 71, 0.8)',
+                                'rgba(233, 30, 99, 0.8)',
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(245, 158, 11, 0.8)'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#fff'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Trend Chart
+            const ctx2 = document.getElementById('trendChart');
+            if (ctx2) {
+                new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                        datasets: [{
+                            label: 'Propiedades',
+                            data: [12, 19, 15, 25, 22, 30, 28],
+                            borderColor: 'rgba(255, 107, 71, 1)',
+                            backgroundColor: 'rgba(255, 107, 71, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#fff'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Performance Chart
+            const ctx3 = document.getElementById('performanceChart');
+            if (ctx3) {
+                new Chart(ctx3, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Ventas',
+                            data: [65, 78, 90, 81, 97, 110],
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)'
+                        }, {
+                            label: 'Leads',
+                            data: [120, 135, 140, 125, 145, 160],
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#fff'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: {
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#fff'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update Recent Activity
+            const recentActivity = document.getElementById('recentActivity');
+            if (recentActivity) {
+                const activities = filteredData.slice(0, 5).map(item => `
+                    <div class="flex items-center justify-between p-3 glass-light rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center">
+                                <i class="fas fa-home text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="font-semibold">${item.codigo}</p>
+                                <p class="text-xs text-gray-400">${item.corredor}</p>
+                            </div>
+                        </div>
+                        <span class="text-xs text-gray-400">Hace 2 min</span>
+                    </div>
+                `).join('');
+                recentActivity.innerHTML = activities;
+            }
+
+            // Update Top Performers
+            const topPerformers = document.getElementById('topPerformers');
+            if (topPerformers) {
+                const performers = topCorredores.slice(0, 3).map((c, i) => `
+                    <div class="flex items-center justify-between p-3 glass-light rounded-lg">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-warning to-amber-600 rounded-lg flex items-center justify-center font-bold">
+                                ${i + 1}
+                            </div>
+                            <div>
+                                <p class="font-semibold">${c[0]}</p>
+                                <p class="text-xs text-gray-400">${c[1]} propiedades</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                topPerformers.innerHTML = performers;
+            }
+        }
+
+        // Load XML Feed
+        async function loadXMLFeed() {
+            const now = Date.now();
+            
+            if (xmlCache.data && (now - xmlCache.timestamp < xmlCache.ttl)) {
+                return xmlCache.propertiesMap;
+            }
+            
+            try {
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                let response;
+                
+                // Try different methods to get XML
+                const corsProxies = [
+                    'https://corsproxy.io/?',
+                    'https://api.allorigins.win/raw?url=',
+                    ''
+                ];
+                
+                for (const proxy of corsProxies) {
+                    try {
+                        const fetchUrl = proxy ? proxy + encodeURIComponent(xmlUrl) : xmlUrl;
+                        response = await fetch(fetchUrl);
+                        
+                        if (response.ok) break;
+                    } catch (error) {
+                        continue;
+                    }
+                }
+                
+                if (!response || !response.ok) {
+                    return xmlCache.propertiesMap;
+                }
+                
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+                
+                xmlCache.propertiesMap.clear();
+                
+                const listings = xmlDoc.querySelectorAll('listing');
+                listings.forEach(listing => {
+                    const referenceId = listing.querySelector('reference_id')?.textContent.trim();
+                    if (!referenceId) return;
+                    
+                    const images = [];
+                    const picturesElement = listing.querySelector('pictures');
+                    
+                    if (picturesElement) {
+                        const urlElements = picturesElement.querySelectorAll('url');
+                        urlElements.forEach(urlElement => {
+                            const imageUrl = urlElement.textContent.trim();
+                            if (imageUrl && imageUrl.startsWith('http')) {
+                                images.push(imageUrl);
+                            }
+                        });
+                    }
+                    
+                    if (images.length > 0) {
+                        xmlCache.propertiesMap.set(referenceId, images);
+                    }
+                });
+                
+                xmlCache.data = xmlText;
+                xmlCache.timestamp = now;
+                
+                return xmlCache.propertiesMap;
+                
+            } catch (error) {
+                console.error('Error loading XML:', error);
+                return xmlCache.propertiesMap;
+            }
+        }
+
+        // Get Property Image
+        async function getPropertyImage(codigo) {
+            try {
+                const propertiesMap = await loadXMLFeed();
+                
+                // Extract possible IDs
+                let possibleIds = [];
+                const matches = codigo.match(/\d+/g);
+                if (matches) {
+                    possibleIds = possibleIds.concat(matches);
+                }
+                possibleIds.push(codigo.replace(/\s+/g, ''));
+                possibleIds.push(codigo);
+                
+                // Try to find image
+                for (const id of possibleIds) {
+                    const images = propertiesMap.get(id);
+                    if (images && images.length > 0) {
+                        return images[0];
+                    }
+                }
+                
+                // Fallback to placeholder
+                const placeholders = [
+                    'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&h=300&fit=crop',
+                    'https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=400&h=300&fit=crop'
+                ];
+                
+                const index = parseInt(codigo.replace(/\D/g, '')) % placeholders.length;
+                return placeholders[index];
+                
+            } catch (error) {
+                return null;
+            }
+        }
+
+        // Load Property Images
+        async function loadPropertyImages() {
+            const containers = document.querySelectorAll('.property-image');
+            
+            for (const container of containers) {
+                const codigo = container.dataset.codigo;
+                const imageUrl = await getPropertyImage(codigo);
+                
+                if (imageUrl) {
+                    const img = new Image();
+                    img.onload = () => {
+                        container.innerHTML = `
+                            <img src="${imageUrl}" alt="${codigo}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        `;
+                    };
+                    img.src = imageUrl;
+                }
+            }
+            
+            // Load thumbnails
+            const thumbs = document.querySelectorAll('.property-image-thumb');
+            for (const thumb of thumbs) {
+                const codigo = thumb.dataset.codigo;
+                const imageUrl = await getPropertyImage(codigo);
+                
+                if (imageUrl) {
+                    thumb.innerHTML = `
+                        <img src="${imageUrl}" alt="${codigo}" class="w-full h-full object-cover">
+                    `;
+                }
+            }
+        }
+
+        // Initialize
+        async function initialize() {
+            await loadXMLFeed();
+            await loadData();
+            
+            // Auto refresh every 60 seconds
+            setInterval(() => loadData(true), 60000);
+        }
+
+        initialize();
+    </script>
+</body>
+</html>

@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TuMatch - Portal Inmobiliario Premium</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js for interactions -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- AOS for scroll animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                        'display': ['Plus Jakarta Sans', 'sans-serif']
+                    },
+                    colors: {
+                        'primary': '#FF6B47',
+                        'secondary': '#E91E63',
+                        'accent': '#3B82F6',
+                        'success': '#10B981',
+                        'warning': '#F59E0B',
+                        'dark': {
+                            '900': '#0F172A',
+                            '800': '#1E293B',
+                            '700': '#334155',
+                            '600': '#475569',
+                            '500': '#64748B'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s ease-in-out infinite',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'slide-down': 'slideDown 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                        'shimmer': 'shimmer 2s linear infinite',
+                        'gradient': 'gradient 8s ease infinite'
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                        'mesh-gradient': 'linear-gradient(to right bottom, #FF6B47 20%, #E91E63 40%, #3B82F6 60%, #10B981 80%)'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Custom Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            25% { transform: translateY(-20px) rotate(1deg); }
+            75% { transform: translateY(-10px) rotate(-1deg); }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Mesh Gradient Background */
+        .mesh-gradient {
+            background-image: 
+                radial-gradient(at 40% 20%, hsla(28, 100%, 74%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(340, 100%, 76%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(242, 100%, 70%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, hsla(343, 100%, 76%, 0.2) 0px, transparent 50%);
+            background-size: 200% 200%;
+            animation: gradient 15s ease infinite;
+        }
+
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Neon Glow */
+        .neon-glow {
+            box-shadow: 
+                0 0 5px theme('colors.primary'),
+                0 0 10px theme('colors.primary'),
+                0 0 15px theme('colors.primary'),
+                0 0 20px theme('colors.primary');
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #FF6B47, #E91E63);
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #E91E63, #FF6B47);
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #1E293B 25%, #334155 50%, #1E293B 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Hover Card Effect */
+        .hover-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .hover-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B47 0%, #E91E63 50%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Animated Gradient Border */
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(0deg, transparent, #FF6B47, #E91E63, transparent);
+            background-size: 100% 200%;
+            animation: gradient 3s ease infinite;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            background-color: #1E293B;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Pulse Animation for Live Indicator */
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+<body x-data="{ darkMode: true, sidebarOpen: false, filterOpen: false, searchFocused: false }" 
+      :class="darkMode ? 'dark bg-dark-900' : 'bg-gray-50'" 
+      class="font-sans antialiased transition-colors duration-500">
+    
+    <!-- Animated Background -->
+    <div class="fixed inset-0 -z-10 overflow-hidden">
+        <div class="absolute inset-0 mesh-gradient opacity-30"></div>
+        <div class="absolute top-20 -right-20 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-float"></div>
+        <div class="absolute bottom-20 -left-20 w-96 h-96 bg-secondary/20 rounded-full filter blur-3xl animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl animate-pulse-slow"></div>
+    </div>
+
+    <!-- Top Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-dark border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-4">
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden text-white hover:text-primary transition-colors">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                            <i class="fas fa-home text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-xl font-display font-bold text-white">TuMatch</h1>
+                            <p class="text-xs text-gray-400">Portal Premium</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Search -->
+                <div class="hidden md:flex flex-1 max-w-xl mx-8">
+                    <div class="relative w-full" @click.away="searchFocused = false">
+                        <input 
+                            type="text"
+                            id="searchInput"
+                            @focus="searchFocused = true"
+                            class="w-full px-4 py-2 pl-10 pr-4 text-white bg-dark-800/50 border border-white/10 rounded-xl focus:outline-none focus:border-primary focus:bg-dark-800 transition-all duration-300"
+                            :class="searchFocused ? 'scale-105' : ''"
+                            placeholder="Buscar propiedades, corredores..."
+                        >
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <kbd class="absolute right-3 top-1/2 transform -translate-y-1/2 px-2 py-1 text-xs text-gray-400 bg-dark-700 rounded hidden lg:block">⌘K</kbd>
+                    </div>
+                </div>
+
+                <!-- Right Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Live Indicator -->
+                    <div class="hidden sm:flex items-center space-x-2 px-3 py-1 bg-success/10 border border-success/30 rounded-full">
+                        <div class="w-2 h-2 bg-success rounded-full pulse-dot"></div>
+                        <span class="text-xs text-success font-medium">En vivo</span>
+                    </div>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+                    </button>
+
+                    <!-- Dark Mode Toggle -->
+                    <button @click="darkMode = !darkMode" class="p-2 text-gray-400 hover:text-white transition-colors">
+                        <i class="fas" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" class="flex items-center space-x-2 p-2 rounded-lg hover:bg-dark-800/50 transition-colors">
+                            <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg"></div>
+                            <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                        
+                        <!-- Dropdown -->
+                        <div x-show="open" 
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             @click.away="open = false"
+                             class="absolute right-0 mt-2 w-48 glass-dark rounded-xl shadow-xl py-2">
+                            <a href="#" class="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-white/10 transition-colors">
+                                <i class="fas fa-user"></i>
+                                <span>Mi Perfil</span>
+                            </a>
+                            <a href="#" class="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-white/10 transition-colors">
+                                <i class="fas fa-cog"></i>
+                                <span>Configuración</span>
+                            </a>
+                            <hr class="my-2 border-white/10">
+                            <a href="#" class="flex items-center space-x-3 px-4 py-2 text-gray-300 hover:bg-white/10 transition-colors">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Cerrar Sesión</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Sidebar -->
+    <div x-show="sidebarOpen" 
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         @click="sidebarOpen = false"
+         class="lg:hidden fixed inset-0 bg-black/50 z-40"></div>
+    
+    <aside x-show="sidebarOpen"
+           x-transition:enter="transition ease-out duration-300"
+           x-transition:enter-start="-translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           class="lg:hidden fixed left-0 top-0 bottom-0 w-64 glass-dark z-50">
+        <!-- Sidebar Content -->
+        <div class="p-6">
+            <h2 class="text-white font-bold mb-4">Menú</h2>
+            <!-- Add menu items here -->
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="pt-16 min-h-screen">
+        <!-- Hero Section -->
+        <section class="relative py-20 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center" data-aos="fade-up">
+                    <h1 class="text-5xl lg:text-7xl font-display font-bold mb-6">
+                        <span class="gradient-text">Portal de Asignaciones</span>
+                    </h1>
+                    <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+                        Gestiona tus propiedades inmobiliarias con la plataforma más avanzada del mercado
+                    </p>
+                    
+                    <!-- Quick Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto" data-aos="fade-up" data-aos-delay="100">
+                        <div class="glass-dark rounded-xl p-4">
+                            <div class="text-3xl font-bold gradient-text" id="totalCount">0</div>
+                            <div class="text-sm text-gray-400">Total Propiedades</div>
+                        </div>
+                        <div class="glass-dark rounded-xl p-4">
+                            <div class="text-3xl font-bold text-success" id="activeCount">0</div>
+                            <div class="text-sm text-gray-400">Activas</div>
+                        </div>
+                        <div class="glass-dark rounded-xl p-4">
+                            <div class="text-3xl font-bold text-accent" id="corredorCount">0</div>
+                            <div class="text-sm text-gray-400">Corredores</div>
+                        </div>
+                        <div class="glass-dark rounded-xl p-4">
+                            <div class="text-3xl font-bold text-warning" id="tmCount">0</div>
+                            <div class="text-sm text-gray-400">TuMatch</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Advanced Filters Section -->
+        <section class="py-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="glass-dark rounded-2xl p-6" data-aos="fade-up">
+                    <!-- Filter Toggle -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">
+                            <i class="fas fa-filter mr-2"></i>
+                            Filtros Avanzados
+                        </h3>
+                        <button @click="filterOpen = !filterOpen" class="text-gray-400 hover:text-white transition-colors">
+                            <i class="fas" :class="filterOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                        </button>
+                    </div>
+
+                    <!-- Filter Content -->
+                    <div x-show="filterOpen" x-transition class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Corredor</label>
+                            <select id="corredorFilter" class="w-full px-4 py-2 bg-dark-800/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors">
+                                <option value="">Todos los corredores</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Estado</label>
+                            <select id="estadoFilter" class="w-full px-4 py-2 bg-dark-800/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors">
+                                <option value="">Todos los estados</option>
+                                <option value="activo">Activo</option>
+                                <option value="pendiente">Pendiente</option>
+                                <option value="finalizado">Finalizado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Tipo</label>
+                            <select id="tipoFilter" class="w-full px-4 py-2 bg-dark-800/50 border border-white/10 rounded-lg text-white focus:outline-none focus:border-primary transition-colors">
+                                <option value="">Todos los tipos</option>
+                                <option value="tumatch">TuMatch</option>
+                                <option value="otros">Otros</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-between mt-6">
+                        <button onclick="loadData()" class="px-6 py-2 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Actualizar Datos
+                        </button>
+                        <div class="flex items-center space-x-4">
+                            <button class="px-4 py-2 bg-dark-800/50 border border-white/10 text-gray-400 rounded-lg hover:bg-dark-800 hover:text-white transition-all duration-300">
+                                <i class="fas fa-download mr-2"></i>
+                                Exportar
+                            </button>
+                            <button class="px-4 py-2 bg-dark-800/50 border border-white/10 text-gray-400 rounded-lg hover:bg-dark-800 hover:text-white transition-all duration-300">
+                                <i class="fas fa-print mr-2"></i>
+                                Imprimir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Properties Grid -->
+        <section class="py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <!-- Loading State -->
+                <div id="loading" class="hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Loading Skeleton Cards -->
+                        <div class="glass-dark rounded-2xl p-6 animate-pulse">
+                            <div class="skeleton h-48 rounded-xl mb-4"></div>
+                            <div class="skeleton h-4 w-3/4 rounded mb-2"></div>
+                            <div class="skeleton h-4 w-1/2 rounded"></div>
+                        </div>
+                        <div class="glass-dark rounded-2xl p-6 animate-pulse">
+                            <div class="skeleton h-48 rounded-xl mb-4"></div>
+                            <div class="skeleton h-4 w-3/4 rounded mb-2"></div>
+                            <div class="skeleton h-4 w-1/2 rounded"></div>
+                        </div>
+                        <div class="glass-dark rounded-2xl p-6 animate-pulse">
+                            <div class="skeleton h-48 rounded-xl mb-4"></div>
+                            <div class="skeleton h-4 w-3/4 rounded mb-2"></div>
+                            <div class="skeleton h-4 w-1/2 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Properties Grid -->
+                <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="hidden">
+                    <div class="text-center py-20">
+                        <div class="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-search text-5xl text-gray-400"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-2">No se encontraron propiedades</h3>
+                        <p class="text-gray-400 mb-6">Intenta ajustar los filtros o actualizar los datos</p>
+                        <button onclick="loadData()" class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white font-semibold rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Actualizar Ahora
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-20 py-12 border-t border-white/10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <!-- Brand -->
+                    <div>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center">
+                                <i class="fas fa-home text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-white">TuMatch</h3>
+                        </div>
+                        <p class="text-gray-400 text-sm">
+                            La plataforma inmobiliaria más avanzada para gestionar tus propiedades.
+                        </p>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div>
+                        <h4 class="text-white font-semibold mb-4">Enlaces Rápidos</h4>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Dashboard</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Propiedades</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Corredores</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-primary transition-colors">Reportes</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact -->
+                    <div>
+                        <h4 class="text-white font-semibold mb-4">Contacto</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-400">
+                                <i class="fas fa-envelope mr-2"></i>
+                                info@tumatch.cl
+                            </li>
+                            <li class="text-gray-400">
+                                <i class="fas fa-phone mr-2"></i>
+                                +56 9 1234 5678
+                            </li>
+                            <li class="text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                Santiago, Chile
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Social -->
+                    <div>
+                        <h4 class="text-white font-semibold mb-4">Síguenos</h4>
+                        <div class="flex space-x-4">
+                            <a href="#" class="w-10 h-10 bg-dark-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-dark-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-dark-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-dark-800 rounded-lg flex items-center justify-center text-gray-400 hover:bg-primary hover:text-white transition-all duration-300">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 pt-8 border-t border-white/10 text-center">
+                    <p class="text-gray-400 text-sm">
+                        © 2024 TuMatch Inmobiliario. Todos los derechos reservados.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 transform translate-x-full transition-transform duration-500 z-50">
+        <div class="glass-dark rounded-lg p-4 flex items-center space-x-3 min-w-[300px]">
+            <div class="w-10 h-10 bg-success/20 rounded-lg flex items-center justify-center">
+                <i class="fas fa-check text-success"></i>
+            </div>
+            <div>
+                <h4 class="text-white font-semibold">Actualizado</h4>
+                <p class="text-gray-400 text-sm">Los datos se han actualizado correctamente</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
+        // Data Management
+        const SPREADSHEET_ID = '1X7cbk_fD5mGTXxs1cOa4tCxeXBrpiNWV4sEJnBRwVUM';
+        const GID = '1154306850';
+        
+        let allData = [];
+        let filteredData = [];
+        let corredores = new Set();
+
+        // Enhanced Property Card Component
+        function createPropertyCard(item, index) {
+            const gradients = [
+                'from-primary to-secondary',
+                'from-accent to-success',
+                'from-warning to-primary',
+                'from-secondary to-accent',
+                'from-success to-warning'
+            ];
+            
+            const gradient = gradients[index % gradients.length];
+            
+            return `
+                <div class="hover-card glass-dark rounded-2xl overflow-hidden group" data-aos="fade-up" data-aos-delay="${index * 50}">
+                    <!-- Image Section -->
+                    <div class="relative h-48 bg-gradient-to-br ${gradient} overflow-hidden">
+                        <div class="absolute inset-0 bg-black/20"></div>
+                        <div class="absolute top-4 left-4">
+                            ${item.isTM ? `
+                                <span class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-full">
+                                    <i class="fas fa-star mr-1"></i> TuMatch
+                                </span>
+                            ` : ''}
+                        </div>
+                        <div class="absolute bottom-4 left-4 right-4">
+                            <h3 class="text-white font-bold text-lg truncate">${item.codigo}</h3>
+                        </div>
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                               target="_blank" 
+                               class="px-4 py-2 bg-white text-dark-900 font-semibold rounded-lg transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                                <i class="fas fa-external-link-alt mr-2"></i>Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Section -->
+                    <div class="p-6 space-y-4">
+                        <!-- Corredor -->
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br ${gradient} rounded-lg flex items-center justify-center text-white font-bold">
+                                ${item.corredor.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <p class="text-white font-semibold">${item.corredor}</p>
+                                <p class="text-gray-400 text-xs">Corredor</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Grid -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-dark-800/50 rounded-lg p-3">
+                                <p class="text-gray-400 text-xs mb-1">Referido</p>
+                                <p class="text-white font-medium text-sm truncate">${item.referido}</p>
+                            </div>
+                            <div class="bg-dark-800/50 rounded-lg p-3">
+                                <p class="text-gray-400 text-xs mb-1">Estado</p>
+                                <p class="text-white font-medium text-sm">${item.firmaOrden || 'Pendiente'}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex space-x-2 pt-2">
+                            <button class="flex-1 px-3 py-2 bg-dark-800/50 text-gray-400 rounded-lg hover:bg-dark-800 hover:text-white transition-all duration-300">
+                                <i class="fas fa-edit mr-2"></i>Editar
+                            </button>
+                            <button class="flex-1 px-3 py-2 bg-dark-800/50 text-gray-400 rounded-lg hover:bg-dark-800 hover:text-white transition-all duration-300">
+                                <i class="fas fa-share mr-2"></i>Compartir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Parse CSV Line
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current.trim());
+            return result;
+        }
+
+        // Load Data
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const grid = document.getElementById('grid');
+            const emptyState = document.getElementById('emptyState');
+            
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            
+            try {
+                const CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${GID}`;
+                const response = await fetch(CSV_URL);
+                const csvText = await response.text();
+                
+                const lines = csvText.split('\n').filter(line => line.trim());
+                
+                allData = [];
+                corredores.clear();
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    
+                    const codigo = values[1]?.trim() || '';
+                    const corredor = values[4]?.trim() || '';
+                    const referido = values[6]?.trim() || '';
+                    const firmaOrden = values[7]?.trim() || '';
+                    const estado = values[8]?.trim() || '';
+                    
+                    if (estado) continue;
+                    if (!codigo || !corredor) continue;
+                    
+                    const isTM = referido.toLowerCase().includes('francisco') && 
+                                referido.toLowerCase().includes('garcia');
+                    
+                    allData.push({
+                        codigo,
+                        corredor,
+                        referido: isTM ? 'TuMatch' : (referido || 'Sin referido'),
+                        firmaOrden: firmaOrden || 'Pendiente',
+                        isTM
+                    });
+                    
+                    corredores.add(corredor);
+                }
+                
+                updateFilters();
+                await applyFilters();
+                showToast('Datos actualizados correctamente');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                emptyState.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+            }
+        }
+
+        // Update Filters
+        function updateFilters() {
+            const corredorFilter = document.getElementById('corredorFilter');
+            corredorFilter.innerHTML = '<option value="">Todos los corredores</option>';
+            
+            Array.from(corredores).sort().forEach(corredor => {
+                const option = document.createElement('option');
+                option.value = corredor;
+                option.textContent = corredor;
+                corredorFilter.appendChild(option);
+            });
+        }
+
+        // Apply Filters
+        async function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const corredorFilter = document.getElementById('corredorFilter').value;
+            const tipoFilter = document.getElementById('tipoFilter').value;
+            
+            filteredData = allData.filter(item => {
+                const matchesSearch = !searchTerm || 
+                    item.corredor.toLowerCase().includes(searchTerm) ||
+                    item.codigo.toLowerCase().includes(searchTerm);
+                
+                const matchesCorredor = !corredorFilter || item.corredor === corredorFilter;
+                
+                const matchesTipo = !tipoFilter || 
+                    (tipoFilter === 'tumatch' && item.isTM) ||
+                    (tipoFilter === 'otros' && !item.isTM);
+                
+                return matchesSearch && matchesCorredor && matchesTipo;
+            });
+            
+            renderGrid();
+            updateStats();
+        }
+
+        // Render Grid
+        function renderGrid() {
+            const grid = document.getElementById('grid');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredData.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            
+            grid.innerHTML = filteredData.map((item, index) => createPropertyCard(item, index)).join('');
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allData.length;
+            document.getElementById('activeCount').textContent = filteredData.length;
+            document.getElementById('corredorCount').textContent = corredores.size;
+            document.getElementById('tmCount').textContent = allData.filter(item => item.isTM).length;
+        }
+
+        // Show Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Event Listeners
+        document.getElementById('searchInput').addEventListener('input', debounce(applyFilters, 300));
+        document.getElementById('corredorFilter').addEventListener('change', applyFilters);
+        document.getElementById('tipoFilter').addEventListener('change', applyFilters);
+        document.getElementById('estadoFilter').addEventListener('change', applyFilters);
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Cmd/Ctrl + K for search
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('searchInput').focus();
+            }
+            
+            // Cmd/Ctrl + R for refresh
+            if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
+                e.preventDefault();
+                loadData();
+            }
+        });
+
+        // Debounce Function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Initialize
+        loadData();
+        
+        // Auto-refresh every 60 seconds
+        setInterval(loadData, 60000);
+    </script>
+</body>
+</html>

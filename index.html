@@ -815,10 +815,8 @@
         async function loadMoreImagesFromXML() {
             try {
                 console.log('🌐 Intentando cargar XML en producción...');
-                // Usar proxy CORS para evitar problemas de CORS
-                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(xmlUrl)}`;
-                const response = await fetch(proxyUrl);
+                // Usar nuestro propio endpoint API para evitar problemas de CORS
+                const response = await fetch('/api/xml-proxy');
                 const xmlText = await response.text();
                 
                 const parser = new DOMParser();
@@ -901,10 +899,8 @@
         async function loadPropertyDataFromXML() {
             try {
                 console.log('📡 Cargando datos adicionales del XML...');
-                // Usar proxy CORS para evitar problemas de CORS
-                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(xmlUrl)}`;
-                const response = await fetch(proxyUrl);
+                // Usar nuestro propio endpoint API para evitar problemas de CORS
+                const response = await fetch('/api/xml-proxy');
                 const xmlText = await response.text();
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, 'text/xml');

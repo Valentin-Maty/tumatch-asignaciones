@@ -13,7 +13,12 @@
       "WebFetch(domain:2clicsalmcl.blob.core.windows.net)",
       "Bash(start \"C:\\Users\\rocko\\Desktop\\Listado de propiedades\\test-xml.html\")",
       "WebFetch(domain:docs.google.com)",
-      "WebFetch(domain:doc-0k-60-sheets.googleusercontent.com)"
+      "WebFetch(domain:doc-0k-60-sheets.googleusercontent.com)",
+      "Bash(start \"C:\\Users\\rocko\\Desktop\\Listado de propiedades\\index-enhanced.html\")",
+      "Bash(start \"C:\\Users\\rocko\\Desktop\\Listado de propiedades\\index-improved.html\")",
+      "Bash(start \"C:\\Users\\rocko\\Desktop\\Listado de propiedades\\index-ultimate.html\")",
+      "Bash(git pull:*)",
+      "WebFetch(domain:listadopropiedades.vercel.app)"
     ],
     "deny": []
   }
