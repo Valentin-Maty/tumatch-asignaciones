@@ -531,7 +531,7 @@
             <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                     
-                    <!-- Team Leaders Chart -->
+                    <!-- Team Leaders Chart con KPIs -->
                     <div class="xl:col-span-2 glass-strong rounded-2xl p-8">
                         <div class="flex items-center justify-between mb-6">
                             <div>
@@ -543,8 +543,44 @@
                                 <span class="text-xs text-zinc-400">Propiedades</span>
                             </div>
                         </div>
-                        <div class="relative h-80">
-                            <canvas id="teamLeaderChart"></canvas>
+                        
+                        <!-- Grid con Chart y KPIs lado a lado -->
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            <!-- Chart ocupa 2 columnas -->
+                            <div class="lg:col-span-2">
+                                <div class="relative h-80">
+                                    <canvas id="teamLeaderChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- KPIs en la columna derecha -->
+                            <div class="space-y-4">
+                                <!-- Tipos de Propiedades -->
+                                <div class="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-xl p-4 border border-zinc-700/50">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center mr-2">
+                                            <i class="fas fa-building text-white text-xs"></i>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-white">Tipos de Propiedades</h4>
+                                    </div>
+                                    <div class="space-y-2" id="propertyTypesContainer">
+                                        <!-- Se llenará dinámicamente -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Tipo de Operación -->
+                                <div class="bg-gradient-to-br from-zinc-800/50 to-zinc-900/50 rounded-xl p-4 border border-zinc-700/50">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-2">
+                                            <i class="fas fa-exchange-alt text-white text-xs"></i>
+                                        </div>
+                                        <h4 class="text-sm font-bold text-white">Tipo de Operación</h4>
+                                    </div>
+                                    <div class="space-y-2" id="operationTypesContainer">
+                                        <!-- Se llenará dinámicamente -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -572,58 +608,6 @@
                 </div>
             </section>
 
-            <!-- Información Adicional -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    
-                    <!-- Resumen por Tipo de Propiedad -->
-                    <div class="glass-strong rounded-2xl p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center mr-3">
-                                <i class="fas fa-building text-white"></i>
-                            </div>
-                            <h3 class="text-lg font-bold text-white">Tipos de Propiedades</h3>
-                        </div>
-                        <div class="space-y-3" id="propertyTypesContainer">
-                            <!-- Se llenará dinámicamente -->
-                        </div>
-                    </div>
-
-                    <!-- Operaciones (Venta vs Arriendo) -->
-                    <div class="glass-strong rounded-2xl p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-3">
-                                <i class="fas fa-exchange-alt text-white"></i>
-                            </div>
-                            <h3 class="text-lg font-bold text-white">Tipo de Operación</h3>
-                        </div>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                                    <span class="text-sm text-zinc-300">Ventas</span>
-                                </div>
-                                <span class="text-sm font-bold text-green-400" id="ventasCount">0</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
-                                    <span class="text-sm text-zinc-300">Arriendos</span>
-                                </div>
-                                <span class="text-sm font-bold text-blue-400" id="arriendosCount">0</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-gray-500 rounded-full mr-2"></div>
-                                    <span class="text-sm text-zinc-300">Sin definir</span>
-                                </div>
-                                <span class="text-sm font-bold text-gray-400" id="sinDefinirCount">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                </div>
-            </section>
             
             <!-- Activity Feed -->
             <section class="max-w-7xl mx-auto px-6 lg:px-8">
@@ -1508,16 +1492,62 @@
             // Update additional dashboard metrics
             const additionalMetrics = {
                 'properties-growth': propertiesWithXmlData.length > 0 ? `+${((propertiesWithXmlData.length/totalProperties)*100).toFixed(0)}%` : '0%',
-                'conversions-today': teamLeaders,
-                'ventasCount': ventaCount,
-                'arriendosCount': arriendoCount,
-                'sinDefinirCount': totalProperties - ventaCount - arriendoCount
+                'conversions-today': teamLeaders
             };
 
             Object.entries(additionalMetrics).forEach(([id, value]) => {
                 const element = document.getElementById(id);
                 if (element) element.textContent = value;
             });
+            
+            // Update property types in new container
+            const propertyTypesContainer = document.getElementById('propertyTypesContainer');
+            if (propertyTypesContainer) {
+                propertyTypesContainer.innerHTML = `
+                    <div class="text-xs space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-400">Casas</span>
+                            <span class="text-white font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-400">Departamentos</span>
+                            <span class="text-white font-medium">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-zinc-400">Otros</span>
+                            <span class="text-white font-medium">${totalProperties}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Update operation types in new container
+            const operationContainer = document.getElementById('operationTypesContainer');
+            if (operationContainer) {
+                operationContainer.innerHTML = `
+                    <div class="flex items-center justify-between py-1">
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                            <span class="text-xs text-zinc-300">Ventas</span>
+                        </div>
+                        <span class="text-xs font-bold text-green-400">${ventaCount}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-1">
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                            <span class="text-xs text-zinc-300">Arriendos</span>
+                        </div>
+                        <span class="text-xs font-bold text-blue-400">${arriendoCount}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-1">
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-gray-500 rounded-full mr-2"></div>
+                            <span class="text-xs text-zinc-300">Sin definir</span>
+                        </div>
+                        <span class="text-xs font-bold text-gray-400">${totalProperties - ventaCount - arriendoCount}</span>
+                    </div>
+                `;
+            }
 
             // Update average price display
             const avgPriceElement = document.getElementById('averagePriceDisplay');
