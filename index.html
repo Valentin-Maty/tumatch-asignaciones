@@ -815,8 +815,10 @@
         async function loadMoreImagesFromXML() {
             try {
                 console.log('🌐 Intentando cargar XML en producción...');
-                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
-                const response = await fetch(xmlUrl);
+                // Usar proxy CORS para evitar problemas de CORS
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const xmlUrl = encodeURIComponent('https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml');
+                const response = await fetch(proxyUrl + xmlUrl);
                 const xmlText = await response.text();
                 
                 const parser = new DOMParser();
@@ -899,7 +901,10 @@
         async function loadPropertyDataFromXML() {
             try {
                 console.log('📡 Cargando datos adicionales del XML...');
-                const response = await fetch('https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml');
+                // Usar proxy CORS para evitar problemas de CORS
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const xmlUrl = encodeURIComponent('https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml');
+                const response = await fetch(proxyUrl + xmlUrl);
                 const xmlText = await response.text();
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
