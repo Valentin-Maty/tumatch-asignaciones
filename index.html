@@ -723,10 +723,18 @@
                         </label>
                         <select id="priceFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
                             <option value="">💵 Todos los precios</option>
-                            <option value="0-50000000">💸 Hasta $50M</option>
-                            <option value="50000000-100000000">💎 $50M - $100M</option>
-                            <option value="100000000-200000000">🏆 $100M - $200M</option>
-                            <option value="200000000-999999999">💰 Más de $200M</option>
+                            <optgroup label="🇨🇱 Precios en CLP (Pesos)">
+                                <option value="clp_0-50000000">💸 Hasta $50M CLP</option>
+                                <option value="clp_50000000-150000000">💎 $50M - $150M CLP</option>
+                                <option value="clp_150000000-300000000">🏆 $150M - $300M CLP</option>
+                                <option value="clp_300000000-999999999999">💰 Más de $300M CLP</option>
+                            </optgroup>
+                            <optgroup label="🏦 Precios en UF">
+                                <option value="uf_0-2000">🏠 Hasta 2.000 UF</option>
+                                <option value="uf_2000-4000">🏡 2.000 - 4.000 UF</option>
+                                <option value="uf_4000-8000">🏘️ 4.000 - 8.000 UF</option>
+                                <option value="uf_8000-999999">🏰 Más de 8.000 UF</option>
+                            </optgroup>
                         </select>
                     </div>
                     
@@ -1213,15 +1221,23 @@
                     return xmlData.operation === operationFilter;
                 })();
                 
-                // Filtro de rango de precio (basado en datos del XML)
+                // Filtro de rango de precio (maneja CLP y UF)
                 const matchesPrice = !priceFilter || (() => {
                     const xmlData = getPropertyData(item.codigo);
-                    if (!xmlData.price) return false;
+                    if (!xmlData.price || !xmlData.currency) return false;
                     
+                    const [currencyType, range] = priceFilter.split('_');
+                    const [min, max] = range.split('-').map(num => parseInt(num));
                     const price = parseInt(xmlData.price);
-                    const [min, max] = priceFilter.split('-').map(num => parseInt(num));
                     
-                    return price >= min && price <= max;
+                    // Filtrar por moneda y rango
+                    if (currencyType === 'clp' && xmlData.currency === 'CLP') {
+                        return price >= min && price <= max;
+                    } else if (currencyType === 'uf' && xmlData.currency === 'CLF') {
+                        return price >= min && price <= max;
+                    }
+                    
+                    return false;
                 })();
                 
                 const matchesSearch = !searchInput || 
@@ -1270,13 +1286,23 @@
                 activeFilters.push(`Operación: ${operationText}`);
             }
             if (priceFilter) {
-                const [min, max] = priceFilter.split('-');
-                const minM = parseInt(min) / 1000000;
-                const maxM = parseInt(max) / 1000000;
-                if (maxM >= 999) {
-                    activeFilters.push(`Precio: Más de $${minM}M`);
-                } else {
-                    activeFilters.push(`Precio: $${minM}M - $${maxM}M`);
+                const [currencyType, range] = priceFilter.split('_');
+                const [min, max] = range.split('-').map(num => parseInt(num));
+                
+                if (currencyType === 'clp') {
+                    const minM = min / 1000000;
+                    const maxM = max / 1000000;
+                    if (maxM >= 999999) {
+                        activeFilters.push(`Precio: Más de $${minM}M CLP`);
+                    } else {
+                        activeFilters.push(`Precio: $${minM}M - $${maxM}M CLP`);
+                    }
+                } else if (currencyType === 'uf') {
+                    if (max >= 999999) {
+                        activeFilters.push(`Precio: Más de ${min.toLocaleString()} UF`);
+                    } else {
+                        activeFilters.push(`Precio: ${min.toLocaleString()} - ${max.toLocaleString()} UF`);
+                    }
                 }
             }
             if (searchInput) {
