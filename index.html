@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TuMatch - Portal de Asignaciones Premium</title>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -432,6 +436,64 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        }
+
+        /* Estilos para modal de mapa */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a1d, #2d2d35);
+            border-radius: 20px;
+            border: 1px solid rgba(139, 69, 19, 0.2);
+            max-width: 90vw;
+            max-height: 90vh;
+            width: 600px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-header {
+            padding: 20px 24px 16px 24px;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(139, 69, 19, 0.1), rgba(255, 215, 0, 0.05));
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .close-modal {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
         }
     </style>
 </head>
@@ -1415,7 +1477,7 @@
             
             return `
                 <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
-                     onclick="window.open('https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')">
+                     onclick="openMapModal('${item.codigo}')">
                     <!-- Imagen de la propiedad con overlay -->
                     <div class="relative h-48 overflow-hidden rounded-t-2xl">
                         ${propertyImage ? 
@@ -1465,7 +1527,7 @@
                                    target="_blank" 
                                    class="text-xs text-white hover:text-cyan-300 transition-colors flex items-center space-x-1">
                                     <i class="fas fa-external-link-alt"></i>
-                                    <span>Ver en 2Clics</span>
+                                    <span>Ver Mapa</span>
                                 </a>
                             </div>
                         </div>
@@ -2045,6 +2107,120 @@
             // Auto refresh every 60 seconds
             setInterval(() => loadData(true), 60000);
         });
+
+        // Funciones para el modal del mapa
+        function openMapModal(propertyCode) {
+            const xmlData = getPropertyData(propertyCode);
+            if (!xmlData.latitude || !xmlData.longitude) {
+                alert('No hay información de ubicación disponible para esta propiedad');
+                return;
+            }
+
+            document.getElementById('mapModal').style.display = 'block';
+            document.getElementById('mapCoordinates').textContent = `${xmlData.latitude}, ${xmlData.longitude}`;
+            
+            // Inicializar mapa de Leaflet
+            setTimeout(() => {
+                const map = L.map('mapContainer').setView([xmlData.latitude, xmlData.longitude], 15);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Marcador personalizado
+                const marker = L.marker([xmlData.latitude, xmlData.longitude]).addTo(map);
+                marker.bindPopup(`
+                    <div style="text-align: center; font-family: 'Inter', sans-serif;">
+                        <strong style="color: #8b4513;">${xmlData.title || 'Propiedad'}</strong><br>
+                        <span style="color: #666; font-size: 12px;">${xmlData.propertyType || 'Tipo no especificado'}</span>
+                    </div>
+                `).openPopup();
+
+                // Obtener información de ubicación usando geocoding reverso
+                fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${xmlData.latitude}&lon=${xmlData.longitude}&accept-language=es`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const locationInfo = document.getElementById('mapLocationInfo');
+                        if (data && data.display_name) {
+                            const addressParts = data.display_name.split(', ');
+                            const comuna = data.address?.municipality || data.address?.city || data.address?.town || '';
+                            const region = data.address?.state || data.address?.region || '';
+                            
+                            let locationText = '';
+                            if (comuna && region) {
+                                locationText = `${comuna}, ${region}`;
+                            } else {
+                                locationText = addressParts.slice(0, 3).join(', ');
+                            }
+                            locationInfo.textContent = locationText;
+                        } else {
+                            locationInfo.textContent = 'Ubicación no disponible';
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('mapLocationInfo').textContent = 'Error al cargar información de ubicación';
+                    });
+                
+                // Guardar referencia del mapa para limpieza posterior
+                window.currentMap = map;
+            }, 100);
+        }
+
+        function closeMapModal() {
+            document.getElementById('mapModal').style.display = 'none';
+            // Limpiar el mapa
+            if (window.currentMap) {
+                window.currentMap.remove();
+                window.currentMap = null;
+            }
+        }
+
+        // Event listeners para el modal
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('closeMapModal').addEventListener('click', closeMapModal);
+            
+            // Cerrar modal al hacer click en el overlay
+            document.getElementById('mapModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeMapModal();
+                }
+            });
+            
+            // Cerrar modal con ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeMapModal();
+                }
+            });
+        });
     </script>
+
+        <!-- Modal para mapa -->
+        <div id="mapModal" class="modal-overlay" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fas fa-map-marker-alt text-purple-400"></i>
+                        Ubicación de la Propiedad
+                    </h3>
+                    <button id="closeMapModal" class="close-modal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="mapContainer" style="height: 400px; width: 100%; border-radius: 12px; overflow: hidden;"></div>
+                    <div class="mt-4 p-4 bg-zinc-800/50 rounded-lg border border-zinc-700/30">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-location-dot text-purple-400"></i>
+                            <div>
+                                <p id="mapLocationInfo" class="text-white font-medium">Cargando información de ubicación...</p>
+                                <p class="text-zinc-400 text-sm mt-1">Coordenadas: <span id="mapCoordinates"></span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 </body>
 </html>
