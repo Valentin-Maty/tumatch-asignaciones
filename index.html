@@ -351,16 +351,42 @@
             background: rgba(15, 15, 15, 0.9);
         }
 
-        /* Mejoras específicas para select */
-        .input-modern option {
-            background: rgba(15, 15, 15, 0.95);
-            color: var(--text-primary);
+        /* Estilos para optgroups y options en selects - tema oscuro */
+        select.input-modern optgroup {
+            background: rgba(30, 30, 30, 0.98) !important;
+            color: #a1a1aa !important;
+            font-weight: 600;
+            font-size: 0.875rem;
             padding: 8px 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .input-modern option:hover {
-            background: rgba(139, 92, 246, 0.2);
+        select.input-modern option {
+            background: rgba(15, 15, 15, 0.98) !important;
+            color: #ffffff !important;
+            padding: 8px 12px;
+            border: none;
         }
+
+        select.input-modern option:hover,
+        select.input-modern option:focus,
+        select.input-modern option:checked {
+            background: rgba(139, 92, 246, 0.3) !important;
+            color: #ffffff !important;
+        }
+
+        /* Específico para el filtro de precios */
+        #priceFilter optgroup {
+            background: rgba(30, 30, 30, 0.98) !important;
+            color: #fbbf24 !important;
+            font-weight: 700;
+        }
+
+        #priceFilter option {
+            background: rgba(15, 15, 15, 0.98) !important;
+            color: #ffffff !important;
+        }
+
 
         /* Loading mejorado */
         .loading-modern {
