@@ -816,9 +816,9 @@
             try {
                 console.log('🌐 Intentando cargar XML en producción...');
                 // Usar proxy CORS para evitar problemas de CORS
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const xmlUrl = encodeURIComponent('https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml');
-                const response = await fetch(proxyUrl + xmlUrl);
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(xmlUrl)}`;
+                const response = await fetch(proxyUrl);
                 const xmlText = await response.text();
                 
                 const parser = new DOMParser();
@@ -902,9 +902,9 @@
             try {
                 console.log('📡 Cargando datos adicionales del XML...');
                 // Usar proxy CORS para evitar problemas de CORS
-                const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const xmlUrl = encodeURIComponent('https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml');
-                const response = await fetch(proxyUrl + xmlUrl);
+                const xmlUrl = 'https://2clicsalmcl.blob.core.windows.net/chile/xml/proppit/feed.xml';
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(xmlUrl)}`;
+                const response = await fetch(proxyUrl);
                 const xmlText = await response.text();
                 const parser = new DOMParser();
                 const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
