@@ -529,14 +529,14 @@
             
             <!-- Analytics Grid Completo -->
             <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
-                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
                     
                     <!-- Team Leaders Chart con KPIs -->
-                    <div class="xl:col-span-2 glass-strong rounded-2xl p-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <div>
-                                <h3 class="text-xl font-bold text-white mb-2">📊 Distribución por Team Leader</h3>
-                                <p class="text-sm text-zinc-400">Propiedades asignadas por equipo de trabajo</p>
+                    <div class="xl:col-span-2 glass-strong rounded-2xl p-4 sm:p-6 lg:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6">
+                            <div class="mb-2 sm:mb-0">
+                                <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">📊 Distribución por Team Leader</h3>
+                                <p class="text-xs sm:text-sm text-zinc-400">Propiedades asignadas por equipo de trabajo</p>
                             </div>
                             <div class="flex items-center space-x-2">
                                 <div class="w-3 h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full"></div>
@@ -544,69 +544,64 @@
                             </div>
                         </div>
                         
-                        <!-- Layout optimizado: Chart + KPIs en el mismo espacio -->
-                        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                            <!-- Chart principal - 2/3 del ancho -->
-                            <div class="xl:col-span-2">
-                                <div class="relative h-80">
-                                    <canvas id="teamLeaderChart"></canvas>
+                        <!-- Chart principal -->
+                        <div class="relative h-64 sm:h-72 lg:h-80 mb-6 lg:mb-8">
+                            <canvas id="teamLeaderChart"></canvas>
+                        </div>
+                        
+                        <!-- KPIs debajo del gráfico -->
+                        <div class="space-y-4 lg:space-y-6">
+                            <!-- Tipos de Propiedades -->
+                            <div class="glass-strong rounded-xl p-4 sm:p-6 border border-zinc-700/30">
+                                <div class="flex items-center mb-4 sm:mb-6">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                                        <i class="fas fa-building text-white text-sm sm:text-lg"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg sm:text-xl font-bold text-white">Tipos de Propiedades</h4>
+                                        <p class="text-xs sm:text-sm text-zinc-400">Distribución por categoría</p>
+                                    </div>
+                                </div>
+                                <div class="space-y-3 sm:space-y-4" id="propertyTypesContainer">
+                                    <!-- Se llenará dinámicamente -->
                                 </div>
                             </div>
                             
-                            <!-- KPIs en el lado derecho - 1/3 del ancho -->
-                            <div class="space-y-4">
-                                <!-- Tipos de Propiedades -->
-                                <div class="glass-strong rounded-xl p-4 border border-zinc-700/30">
-                                    <div class="flex items-center mb-4">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center mr-3">
-                                            <i class="fas fa-building text-white"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="text-lg font-bold text-white">Tipos de Propiedades</h4>
-                                            <p class="text-xs text-zinc-400">Por categoría</p>
-                                        </div>
+                            <!-- Tipo de Operación -->
+                            <div class="glass-strong rounded-xl p-4 sm:p-6 border border-zinc-700/30">
+                                <div class="flex items-center mb-4 sm:mb-6">
+                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4">
+                                        <i class="fas fa-exchange-alt text-white text-sm sm:text-lg"></i>
                                     </div>
-                                    <div class="space-y-3" id="propertyTypesContainer">
-                                        <!-- Se llenará dinámicamente -->
+                                    <div>
+                                        <h4 class="text-lg sm:text-xl font-bold text-white">Tipo de Operación</h4>
+                                        <p class="text-xs sm:text-sm text-zinc-400">Ventas vs Arriendos</p>
                                     </div>
                                 </div>
-                                
-                                <!-- Tipo de Operación -->
-                                <div class="glass-strong rounded-xl p-4 border border-zinc-700/30">
-                                    <div class="flex items-center mb-4">
-                                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mr-3">
-                                            <i class="fas fa-exchange-alt text-white"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="text-lg font-bold text-white">Tipo de Operación</h4>
-                                            <p class="text-xs text-zinc-400">Ventas vs Arriendos</p>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-3" id="operationTypesContainer">
-                                        <!-- Se llenará dinámicamente -->
-                                    </div>
+                                <div class="space-y-3 sm:space-y-4" id="operationTypesContainer">
+                                    <!-- Se llenará dinámicamente -->
                                 </div>
                             </div>
                         </div>
                     </div>
                     
                     <!-- Top Corredores Ranking -->
-                    <div class="glass-strong rounded-2xl p-8">
-                        <div class="flex items-center justify-between mb-6">
-                            <div>
-                                <h3 class="text-xl font-bold text-white mb-2 flex items-center">
-                                    <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-3">
-                                        <i class="fas fa-trophy text-white text-sm"></i>
+                    <div class="glass-strong rounded-2xl p-4 sm:p-6 lg:p-8">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6">
+                            <div class="mb-2 sm:mb-0">
+                                <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 flex items-center">
+                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                                        <i class="fas fa-trophy text-white text-xs sm:text-sm"></i>
                                     </div>
                                     Top Corredores
                                 </h3>
-                                <p class="text-sm text-zinc-400">Ranking por cantidad de propiedades</p>
+                                <p class="text-xs sm:text-sm text-zinc-400">Ranking por cantidad de propiedades</p>
                             </div>
-                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-4 py-2 rounded-full border border-yellow-500/20">
+                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-yellow-500/20">
                                 🏆 Hall of Fame
                             </div>
                         </div>
-                        <div id="corredorRankingContainer" class="space-y-4">
+                        <div id="corredorRankingContainer" class="space-y-2 sm:space-y-4">
                             <!-- Se llenará dinámicamente con el ranking personalizado -->
                         </div>
                     </div>
@@ -1511,31 +1506,37 @@
             if (propertyTypesContainer) {
                 propertyTypesContainer.innerHTML = `
                     <div class="space-y-2">
-                        <div class="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-home text-amber-400 w-4 mr-2"></i>
-                                    <span class="text-white text-sm">Casas</span>
+                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-home text-white text-xs sm:text-sm"></i>
                                 </div>
-                                <span class="text-lg font-bold text-amber-400">0</span>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-bold text-amber-400">0</div>
+                                    <div class="text-xs sm:text-sm text-white font-medium">Casas</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-building text-blue-400 w-4 mr-2"></i>
-                                    <span class="text-white text-sm">Departamentos</span>
+                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-building text-white text-xs sm:text-sm"></i>
                                 </div>
-                                <span class="text-lg font-bold text-blue-400">0</span>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-bold text-blue-400">0</div>
+                                    <div class="text-xs sm:text-sm text-white font-medium">Departamentos</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-th-large text-purple-400 w-4 mr-2"></i>
-                                    <span class="text-white text-sm">Otros</span>
+                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-th-large text-white text-xs sm:text-sm"></i>
                                 </div>
-                                <span class="text-lg font-bold text-purple-400">${totalProperties}</span>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-bold text-purple-400">${totalProperties}</div>
+                                    <div class="text-xs sm:text-sm text-white font-medium">Otros Tipos</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1547,31 +1548,37 @@
             if (operationContainer) {
                 operationContainer.innerHTML = `
                     <div class="space-y-2">
-                        <div class="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-dollar-sign text-green-400 w-4 mr-2"></i>
-                                    <span class="text-white text-sm">Ventas</span>
+                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-green-400 to-emerald-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-dollar-sign text-white text-xs sm:text-sm"></i>
                                 </div>
-                                <span class="text-lg font-bold text-green-400">${ventaCount}</span>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-bold text-green-400">${ventaCount}</div>
+                                    <div class="text-xs sm:text-sm text-white font-medium">Ventas</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-key text-blue-400 w-4 mr-2"></i>
-                                    <span class="text-white text-sm">Arriendos</span>
+                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-key text-white text-xs sm:text-sm"></i>
                                 </div>
-                                <span class="text-lg font-bold text-blue-400">${arriendoCount}</span>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-bold text-blue-400">${arriendoCount}</div>
+                                    <div class="text-xs sm:text-sm text-white font-medium">Arriendos</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-all duration-200">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center">
-                                    <i class="fas fa-question text-gray-400 w-4 mr-2"></i>
-                                    <span class="text-white text-sm">Sin definir</span>
+                        <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
+                            <div class="flex items-center space-x-2 sm:space-x-3">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-gray-400 to-gray-600 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-question text-white text-xs sm:text-sm"></i>
                                 </div>
-                                <span class="text-lg font-bold text-gray-400">${totalProperties - ventaCount - arriendoCount}</span>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-bold text-gray-400">${totalProperties - ventaCount - arriendoCount}</div>
+                                    <div class="text-xs sm:text-sm text-white font-medium">Sin definir</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1760,20 +1767,20 @@
                 }
                 
                 html += `
-                    <div class="group relative overflow-hidden bg-gradient-to-r ${gradientClass} border ${borderClass} rounded-xl p-4 hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm">
+                    <div class="group relative overflow-hidden bg-gradient-to-r ${gradientClass} border ${borderClass} rounded-xl p-3 sm:p-4 hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm">
                         <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-4">
-                                <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 font-bold text-lg">
+                            <div class="flex items-center space-x-3 sm:space-x-4">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-xl bg-white/10 font-bold text-base sm:text-lg">
                                     ${medalIcon}
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-white text-lg group-hover:text-yellow-300 transition-colors">${name}</h4>
-                                    <p class="text-sm text-zinc-300">${count} propiedades • ${percentage}%</p>
+                                    <h4 class="font-bold text-white text-base sm:text-lg group-hover:text-yellow-300 transition-colors">${name}</h4>
+                                    <p class="text-xs sm:text-sm text-zinc-300">${count} propiedades • ${percentage}%</p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-bold text-white">${count}</div>
-                                <div class="w-20 bg-white/20 rounded-full h-2 mt-1">
+                                <div class="text-xl sm:text-2xl font-bold text-white">${count}</div>
+                                <div class="w-16 sm:w-20 bg-white/20 rounded-full h-2 mt-1">
                                     <div class="h-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500" style="width: ${Math.min(100, (count / (topCorredores[0]?.[1] || 1)) * 100)}%"></div>
                                 </div>
                             </div>
