@@ -687,7 +687,7 @@
                     <h3 class="text-2xl font-bold text-gradient">Filtros Avanzados</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-user-tie mr-2 text-purple-400"></i>Corredor
@@ -714,6 +714,19 @@
                             <option value="">🏷️ Venta y Arriendo</option>
                             <option value="sale">💰 Solo Ventas</option>
                             <option value="rent">🏠 Solo Arriendos</option>
+                        </select>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+                            <i class="fas fa-dollar-sign mr-2 text-yellow-400"></i>Rango de Precio
+                        </label>
+                        <select id="priceFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
+                            <option value="">💵 Todos los precios</option>
+                            <option value="0-50000000">💸 Hasta $50M</option>
+                            <option value="50000000-100000000">💎 $50M - $100M</option>
+                            <option value="100000000-200000000">🏆 $100M - $200M</option>
+                            <option value="200000000-999999999">💰 Más de $200M</option>
                         </select>
                     </div>
                     
@@ -1095,7 +1108,7 @@
                 
                 // Initialize with all data shown
                 filteredData = allData;
-                updateResultsIndicator('', '', '', '');
+                updateResultsIndicator('', '', '', '', '');
                 renderProperties();
                 updateStats();
                 
@@ -1184,6 +1197,7 @@
             const corredorFilter = document.getElementById('corredorFilter').value;
             const teamLeaderFilter = document.getElementById('teamLeaderFilter').value;
             const operationFilter = document.getElementById('operationFilter').value;
+            const priceFilter = document.getElementById('priceFilter').value;
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
             
             filteredData = allData.filter(item => {
@@ -1199,21 +1213,32 @@
                     return xmlData.operation === operationFilter;
                 })();
                 
+                // Filtro de rango de precio (basado en datos del XML)
+                const matchesPrice = !priceFilter || (() => {
+                    const xmlData = getPropertyData(item.codigo);
+                    if (!xmlData.price) return false;
+                    
+                    const price = parseInt(xmlData.price);
+                    const [min, max] = priceFilter.split('-').map(num => parseInt(num));
+                    
+                    return price >= min && price <= max;
+                })();
+                
                 const matchesSearch = !searchInput || 
                     item.codigo.toLowerCase().includes(searchInput) ||
                     (item.referido && item.referido.toLowerCase().includes(searchInput)) ||
                     (item.teamLeader && item.teamLeader.toLowerCase().includes(searchInput)) ||
                     (item.ordenEnviada && item.ordenEnviada.toLowerCase().includes(searchInput));
                 
-                return matchesCorredor && matchesTeamLeader && matchesOperation && matchesSearch;
+                return matchesCorredor && matchesTeamLeader && matchesOperation && matchesPrice && matchesSearch;
             });
             
-            updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, searchInput);
+            updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, priceFilter, searchInput);
             renderProperties();
         }
 
         // Update Results Indicator
-        function updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, searchInput) {
+        function updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, priceFilter, searchInput) {
             const indicator = document.getElementById('resultsIndicator');
             const countElement = document.getElementById('resultsCount');
             const filtersElement = document.getElementById('activeFilters');
@@ -1243,6 +1268,16 @@
             if (operationFilter) {
                 const operationText = operationFilter === 'sale' ? 'Ventas' : operationFilter === 'rent' ? 'Arriendos' : operationFilter;
                 activeFilters.push(`Operación: ${operationText}`);
+            }
+            if (priceFilter) {
+                const [min, max] = priceFilter.split('-');
+                const minM = parseInt(min) / 1000000;
+                const maxM = parseInt(max) / 1000000;
+                if (maxM >= 999) {
+                    activeFilters.push(`Precio: Más de $${minM}M`);
+                } else {
+                    activeFilters.push(`Precio: $${minM}M - $${maxM}M`);
+                }
             }
             if (searchInput) {
                 activeFilters.push(`Búsqueda: "${searchInput}"`);
@@ -1553,27 +1588,21 @@
                 if (element) element.textContent = value;
             });
             
-            // Calculate property types from XML data (igual que operaciones)
-            let casasCount = 0;
-            let departamentosCount = 0;
-            let otrosCount = 0;
-
-            allData.forEach(item => {
+            // Calculate property types using the SAME pattern as operation counts
+            const casasCount = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
-                if (xmlData && xmlData.type) {
-                    // Usar la misma lógica que las operaciones
-                    if (xmlData.type === 'casa') {
-                        casasCount++;
-                    } else if (xmlData.type === 'departamento') {
-                        departamentosCount++;
-                    } else {
-                        otrosCount++;
-                    }
-                } else {
-                    // Si no hay datos del XML, contar como "otros"
-                    otrosCount++;
-                }
-            });
+                return xmlData.type === 'casa';
+            }).length;
+            
+            const departamentosCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.type === 'departamento';
+            }).length;
+            
+            const otrosCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.type && xmlData.type !== 'casa' && xmlData.type !== 'departamento';
+            }).length;
 
             // Update property types in new container
             const propertyTypesContainer = document.getElementById('propertyTypesContainer');
@@ -1949,6 +1978,7 @@
             document.getElementById('corredorFilter').addEventListener('change', applyFilters);
             document.getElementById('teamLeaderFilter').addEventListener('change', applyFilters);
             document.getElementById('operationFilter').addEventListener('change', applyFilters);
+            document.getElementById('priceFilter').addEventListener('change', applyFilters);
             document.getElementById('searchInput').addEventListener('input', applyFilters);
             
             // Intentar cargar más imágenes del XML (funciona en producción)
