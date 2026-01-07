@@ -1707,17 +1707,18 @@
             // Calculate property types using the SAME pattern as operation counts
             const casasCount = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
-                return xmlData.type === 'casa';
+                return xmlData.propertyType && (xmlData.propertyType.toLowerCase() === 'house' || xmlData.propertyType.toLowerCase() === 'casa');
             }).length;
             
             const departamentosCount = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
-                return xmlData.type === 'departamento';
+                return xmlData.propertyType && (xmlData.propertyType.toLowerCase() === 'apartment' || xmlData.propertyType.toLowerCase() === 'departamento');
             }).length;
             
             const otrosCount = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
-                return xmlData.type && xmlData.type !== 'casa' && xmlData.type !== 'departamento';
+                const propertyType = xmlData.propertyType ? xmlData.propertyType.toLowerCase() : '';
+                return propertyType && propertyType !== 'house' && propertyType !== 'casa' && propertyType !== 'apartment' && propertyType !== 'departamento';
             }).length;
 
             // Update property types in new container
