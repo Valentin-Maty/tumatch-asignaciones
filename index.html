@@ -1477,7 +1477,7 @@
             
             return `
                 <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
-                     onclick="openMapModal('${item.codigo}')">
+                     onclick="window.open('https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
                     <!-- Imagen de la propiedad con overlay -->
                     <div class="relative h-48 overflow-hidden rounded-t-2xl">
                         ${propertyImage ? 
@@ -1523,12 +1523,11 @@
                         <!-- Enlace a propiedad en 2clics (badge central) -->
                         <div class="absolute top-3 left-1/2 transform -translate-x-1/2">
                             <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
-                                <a href="https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}" 
-                                   target="_blank" 
-                                   class="text-xs text-white hover:text-cyan-300 transition-colors flex items-center space-x-1">
-                                    <i class="fas fa-external-link-alt"></i>
+                                <button onclick="event.stopPropagation(); openMapModal('${item.codigo}')" 
+                                   class="text-xs text-white hover:text-cyan-300 transition-colors flex items-center space-x-1 bg-transparent border-none cursor-pointer">
+                                    <i class="fas fa-map-marker-alt"></i>
                                     <span>Ver Mapa</span>
-                                </a>
+                                </button>
                             </div>
                         </div>
                     </div>
