@@ -1553,6 +1553,28 @@
                 if (element) element.textContent = value;
             });
             
+            // Calculate property types from XML data
+            let casasCount = 0;
+            let departamentosCount = 0;
+            let otrosCount = 0;
+
+            allData.forEach(item => {
+                const xmlData = getPropertyData(item.codigo);
+                if (xmlData && xmlData.type) {
+                    const type = xmlData.type.toLowerCase();
+                    if (type.includes('casa') || type.includes('house')) {
+                        casasCount++;
+                    } else if (type.includes('departamento') || type.includes('apartment') || type.includes('depto')) {
+                        departamentosCount++;
+                    } else {
+                        otrosCount++;
+                    }
+                } else {
+                    // Si no hay datos del XML, contar como "otros"
+                    otrosCount++;
+                }
+            });
+
             // Update property types in new container
             const propertyTypesContainer = document.getElementById('propertyTypesContainer');
             if (propertyTypesContainer) {
@@ -1564,7 +1586,7 @@
                                     <i class="fas fa-home text-white text-xs sm:text-sm"></i>
                                 </div>
                                 <div>
-                                    <div class="text-lg sm:text-xl font-bold text-amber-400">0</div>
+                                    <div class="text-lg sm:text-xl font-bold text-amber-400">${casasCount}</div>
                                     <div class="text-xs sm:text-sm text-white font-medium">Casas</div>
                                 </div>
                             </div>
@@ -1575,7 +1597,7 @@
                                     <i class="fas fa-building text-white text-xs sm:text-sm"></i>
                                 </div>
                                 <div>
-                                    <div class="text-lg sm:text-xl font-bold text-blue-400">0</div>
+                                    <div class="text-lg sm:text-xl font-bold text-blue-400">${departamentosCount}</div>
                                     <div class="text-xs sm:text-sm text-white font-medium">Departamentos</div>
                                 </div>
                             </div>
@@ -1586,7 +1608,7 @@
                                     <i class="fas fa-th-large text-white text-xs sm:text-sm"></i>
                                 </div>
                                 <div>
-                                    <div class="text-lg sm:text-xl font-bold text-purple-400">${totalProperties}</div>
+                                    <div class="text-lg sm:text-xl font-bold text-purple-400">${otrosCount}</div>
                                     <div class="text-xs sm:text-sm text-white font-medium">Otros Tipos</div>
                                 </div>
                             </div>
