@@ -501,7 +501,24 @@
     </style>
 </head>
 
-<body x-data="{ currentView: 'properties' }" class="font-sans antialiased">
+<body x-data="{ 
+    currentView: 'properties',
+    init() {
+        this.$watch('currentView', (value) => {
+            if (value === 'dashboard' && window.allData && window.allData.length > 0) {
+                // Actualizar estadísticas del dashboard al cambiar de vista
+                setTimeout(() => {
+                    if (typeof window.updateStats === 'function') {
+                        window.updateStats();
+                    }
+                    if (typeof window.updateCharts === 'function') {
+                        window.updateCharts();
+                    }
+                }, 100);
+            }
+        });
+    }
+}" class="font-sans antialiased">
     
     <!-- Navigation ultramoderna con tabs responsive -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-white/5">
@@ -1198,6 +1215,7 @@
                 }
                 
                 allData = newData;
+                window.allData = allData; // Update window reference
                 console.log('✅ Datos procesados:', allData.length, 'propiedades');
                 console.log('👥 Corredores encontrados:', corredores.size);
                 console.log('👑 Team Leaders encontrados:', teamLeaders.size);
@@ -2246,6 +2264,11 @@
             document.getElementById('operationFilter').addEventListener('change', applyFilters);
             document.getElementById('priceFilter').addEventListener('change', applyFilters);
             document.getElementById('searchInput').addEventListener('input', applyFilters);
+            
+            // Expose functions to window for Alpine.js integration
+            window.updateStats = updateStats;
+            window.updateCharts = updateCharts;
+            window.allData = allData;
             
             // Intentar cargar más imágenes del XML (funciona en producción)
             loadMoreImagesFromXML();
