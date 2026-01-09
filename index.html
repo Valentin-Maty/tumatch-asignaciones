@@ -1205,11 +1205,11 @@
                 updateCorredorFilter(corredores);
                 updateTeamLeaderFilter(teamLeaders);
                 
-                // Initialize with all data shown
-                filteredData = allData;
-                updateResultsIndicator('', '', '', '', '');
-                renderProperties();
-                updateStats();
+                // Cargar filtros guardados si existen
+                loadSavedFilters();
+                
+                // Aplicar filtros (usa los valores guardados si existen)
+                applyFilters();
                 
                 console.log('📈 Stats actualizadas');
                 
@@ -1249,8 +1249,21 @@
                 select.appendChild(option);
             });
             
-            // Restore previous value if still valid
-            if (uniqueCorredores.includes(currentValue)) {
+            // Restaurar el valor guardado en localStorage si existe
+            const savedFilters = localStorage.getItem('propertyFilters');
+            if (savedFilters) {
+                try {
+                    const filters = JSON.parse(savedFilters);
+                    if (filters.corredor && uniqueCorredores.includes(filters.corredor)) {
+                        select.value = filters.corredor;
+                    }
+                } catch (e) {
+                    // Si el valor actual sigue siendo válido, mantenerlo
+                    if (uniqueCorredores.includes(currentValue)) {
+                        select.value = currentValue;
+                    }
+                }
+            } else if (uniqueCorredores.includes(currentValue)) {
                 select.value = currentValue;
             }
         }
@@ -1285,9 +1298,65 @@
                 select.appendChild(option);
             });
             
-            // Restore previous value if still valid
-            if (uniqueTeamLeaders.includes(currentValue) || currentValue === 'SIN_ASIGNAR') {
+            // Restaurar el valor guardado en localStorage si existe
+            const savedFilters = localStorage.getItem('propertyFilters');
+            if (savedFilters) {
+                try {
+                    const filters = JSON.parse(savedFilters);
+                    if (filters.teamLeader && (uniqueTeamLeaders.includes(filters.teamLeader) || filters.teamLeader === 'SIN_ASIGNAR')) {
+                        select.value = filters.teamLeader;
+                    }
+                } catch (e) {
+                    // Si el valor actual sigue siendo válido, mantenerlo
+                    if (uniqueTeamLeaders.includes(currentValue) || currentValue === 'SIN_ASIGNAR') {
+                        select.value = currentValue;
+                    }
+                }
+            } else if (uniqueTeamLeaders.includes(currentValue) || currentValue === 'SIN_ASIGNAR') {
                 select.value = currentValue;
+            }
+        }
+
+        // Save filters to localStorage
+        function saveFilters() {
+            const filters = {
+                corredor: document.getElementById('corredorFilter').value,
+                teamLeader: document.getElementById('teamLeaderFilter').value,
+                operation: document.getElementById('operationFilter').value,
+                price: document.getElementById('priceFilter').value,
+                search: document.getElementById('searchInput').value
+            };
+            localStorage.setItem('propertyFilters', JSON.stringify(filters));
+        }
+
+        // Load filters from localStorage
+        function loadSavedFilters() {
+            const savedFilters = localStorage.getItem('propertyFilters');
+            if (savedFilters) {
+                try {
+                    const filters = JSON.parse(savedFilters);
+                    
+                    // Restaurar valores de los filtros
+                    if (filters.corredor !== undefined) {
+                        document.getElementById('corredorFilter').value = filters.corredor;
+                    }
+                    if (filters.teamLeader !== undefined) {
+                        document.getElementById('teamLeaderFilter').value = filters.teamLeader;
+                    }
+                    if (filters.operation !== undefined) {
+                        document.getElementById('operationFilter').value = filters.operation;
+                    }
+                    if (filters.price !== undefined) {
+                        document.getElementById('priceFilter').value = filters.price;
+                    }
+                    if (filters.search !== undefined) {
+                        document.getElementById('searchInput').value = filters.search;
+                    }
+                    
+                    console.log('✅ Filtros restaurados desde localStorage:', filters);
+                } catch (error) {
+                    console.error('Error al cargar filtros guardados:', error);
+                }
             }
         }
 
@@ -1298,6 +1367,9 @@
             const operationFilter = document.getElementById('operationFilter').value;
             const priceFilter = document.getElementById('priceFilter').value;
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Guardar filtros cada vez que se aplican
+            saveFilters();
             
             filteredData = allData.filter(item => {
                 const matchesCorredor = !corredorFilter || item.corredor === corredorFilter;
