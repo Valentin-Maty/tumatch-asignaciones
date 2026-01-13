@@ -754,7 +754,7 @@
                     </div>
                     
                     <!-- Distribución Geográfica -->
-                    <div class="glass-strong rounded-2xl p-4 sm:p-6 lg:p-8">
+                    <div class="glass-strong rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col h-full">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6">
                             <div class="mb-2 sm:mb-0">
                                 <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 flex items-center">
@@ -771,9 +771,9 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-6">
+                        <div class="flex flex-col gap-4 flex-1">
                             <!-- Por Región - TODAS las regiones -->
-                            <div class="bg-white/5 rounded-xl p-4 border border-cyan-500/10">
+                            <div class="bg-white/5 rounded-xl p-4 border border-cyan-500/10 flex-1 flex flex-col min-h-0">
                                 <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
                                     <div class="flex items-center">
                                         <i class="fas fa-globe-americas text-cyan-400 mr-2"></i>
@@ -781,7 +781,7 @@
                                     </div>
                                     <span class="text-xs text-cyan-400/70 font-normal">Ordenado por cantidad</span>
                                 </h4>
-                                <div id="regionStatsContainer" class="space-y-2">
+                                <div id="regionStatsContainer" class="space-y-2 flex-1 overflow-y-auto custom-scrollbar">
                                     <div class="flex items-center justify-center py-4">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
                                         <span class="ml-2 text-xs text-zinc-400">Cargando regiones...</span>
@@ -790,7 +790,7 @@
                             </div>
 
                             <!-- Por Comuna - Top 10 -->
-                            <div class="bg-white/5 rounded-xl p-4 border border-purple-500/10">
+                            <div class="bg-white/5 rounded-xl p-4 border border-purple-500/10 flex-1 flex flex-col min-h-0">
                                 <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
                                     <div class="flex items-center">
                                         <i class="fas fa-city text-purple-400 mr-2"></i>
@@ -798,7 +798,7 @@
                                     </div>
                                     <span class="text-xs text-purple-400/70 font-normal">Mayor concentración</span>
                                 </h4>
-                                <div id="comunaStatsContainer" class="space-y-2">
+                                <div id="comunaStatsContainer" class="space-y-2 flex-1 overflow-y-auto custom-scrollbar">
                                     <div class="flex items-center justify-center py-4">
                                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
                                         <span class="ml-2 text-xs text-zinc-400">Cargando comunas...</span>
@@ -2369,11 +2369,12 @@
                 if (allRegiones.length > 0) {
                     const maxRegionCount = allRegiones[0][1];
                     regionContainer.innerHTML = `
-                        <div class="mb-3 flex items-center justify-between">
+                        <div class="flex flex-col h-full">
+                        <div class="mb-3 flex items-center justify-between flex-shrink-0">
                             <span class="text-xs text-zinc-400">${allRegiones.length} regiones con propiedades</span>
                             <span class="text-xs text-cyan-400 font-semibold">${totalWithRegion} props. geolocalizadas</span>
                         </div>
-                        <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+                        <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-0">
                             ${allRegiones.map(([region, count], index) => {
                                 const percentage = ((count / maxRegionCount) * 100).toFixed(0);
                                 const globalPercentage = ((count / totalProperties) * 100).toFixed(1);
@@ -2393,6 +2394,7 @@
                                 `;
                             }).join('')}
                         </div>
+                        </div>
                     `;
                 } else {
                     regionContainer.innerHTML = '<p class="text-xs text-zinc-500">Sin datos de región disponibles</p>';
@@ -2406,11 +2408,12 @@
                     const maxComunaCount = topComunas[0][1];
                     const totalComunas = Object.keys(comunaCounts).length;
                     comunaContainer.innerHTML = `
-                        <div class="mb-3 flex items-center justify-between">
+                        <div class="flex flex-col h-full">
+                        <div class="mb-3 flex items-center justify-between flex-shrink-0">
                             <span class="text-xs text-zinc-400">Top 10 de ${totalComunas} comunas</span>
                             <span class="text-xs text-purple-400 font-semibold">${totalWithComuna} props. con comuna</span>
                         </div>
-                        <div class="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2">
+                        <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-0">
                             ${topComunas.map(([comuna, count], index) => {
                                 const percentage = ((count / maxComunaCount) * 100).toFixed(0);
                                 const globalPercentage = ((count / totalProperties) * 100).toFixed(1);
@@ -2433,6 +2436,7 @@
                                     </div>
                                 `;
                             }).join('')}
+                        </div>
                         </div>
                     `;
                 } else {
