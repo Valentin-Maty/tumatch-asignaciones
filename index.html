@@ -734,24 +734,41 @@
                         </div>
                     </div>
                     
-                    <!-- Top Corredores Ranking -->
+                    <!-- Distribución Geográfica -->
                     <div class="glass-strong rounded-2xl p-4 sm:p-6 lg:p-8">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6">
                             <div class="mb-2 sm:mb-0">
                                 <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 flex items-center">
-                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
-                                        <i class="fas fa-trophy text-white text-xs sm:text-sm"></i>
+                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
+                                        <i class="fas fa-map-marker-alt text-white text-xs sm:text-sm"></i>
                                     </div>
-                                    Top Corredores
+                                    Distribución Geográfica
                                 </h3>
-                                <p class="text-xs sm:text-sm text-zinc-400">Ranking por cantidad de propiedades</p>
+                                <p class="text-xs sm:text-sm text-zinc-400">Propiedades por ubicación</p>
                             </div>
-                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-yellow-500/20 to-orange-500/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-yellow-500/20">
-                                🏆 Hall of Fame
+                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-blue-500/20">
+                                📍 Cobertura
                             </div>
                         </div>
-                        <div id="corredorRankingContainer" class="space-y-2 sm:space-y-4">
-                            <!-- Se llenará dinámicamente con el ranking personalizado -->
+                        <!-- Por Región -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center">
+                                <i class="fas fa-globe-americas text-cyan-400 mr-2"></i>
+                                Por Región
+                            </h4>
+                            <div id="regionStatsContainer" class="space-y-2">
+                                <p class="text-xs text-zinc-500">Cargando...</p>
+                            </div>
+                        </div>
+                        <!-- Por Comuna -->
+                        <div>
+                            <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center">
+                                <i class="fas fa-city text-purple-400 mr-2"></i>
+                                Top Comunas
+                            </h4>
+                            <div id="comunaStatsContainer" class="space-y-2">
+                                <p class="text-xs text-zinc-500">Cargando...</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -1135,7 +1152,14 @@
                     const bathrooms = listing.getElementsByTagName('bathrooms')[0]?.textContent;
                     const floorArea = listing.getElementsByTagName('floorArea')[0]?.textContent;
                     const plotArea = listing.getElementsByTagName('plotArea')[0]?.textContent;
-                    
+
+                    // Información de ubicación
+                    const region = listing.getElementsByTagName('region')[0]?.textContent ||
+                                   listing.getElementsByTagName('state')[0]?.textContent || '';
+                    const comuna = listing.getElementsByTagName('comuna')[0]?.textContent ||
+                                   listing.getElementsByTagName('city')[0]?.textContent ||
+                                   listing.getElementsByTagName('municipality')[0]?.textContent || '';
+
                     if (referenceId) {
                         propertyData.set(referenceId, {
                             title: title || '',
@@ -1148,7 +1172,9 @@
                             bedrooms: bedrooms ? parseInt(bedrooms) : null,
                             bathrooms: bathrooms ? parseInt(bathrooms) : null,
                             floorArea: floorArea ? parseFloat(floorArea) : null,
-                            plotArea: plotArea ? parseFloat(plotArea) : null
+                            plotArea: plotArea ? parseFloat(plotArea) : null,
+                            region: region,
+                            comuna: comuna
                         });
                     }
                 }
@@ -2022,16 +2048,94 @@
             }
 
             // Update property types
+            // Update location stats (Región y Comuna)
+            updateLocationStats();
+
             // Update charts
             updateCharts();
             updateActivityFeed();
+        }
+
+        // Update Location Stats (Región y Comuna)
+        function updateLocationStats() {
+            // Contar por región
+            const regionCounts = {};
+            const comunaCounts = {};
+
+            allData.forEach(item => {
+                const xmlData = getPropertyData(item.codigo);
+                if (xmlData.region && xmlData.region.trim()) {
+                    regionCounts[xmlData.region] = (regionCounts[xmlData.region] || 0) + 1;
+                }
+                if (xmlData.comuna && xmlData.comuna.trim()) {
+                    comunaCounts[xmlData.comuna] = (comunaCounts[xmlData.comuna] || 0) + 1;
+                }
+            });
+
+            // Ordenar y tomar top 5
+            const topRegiones = Object.entries(regionCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const topComunas = Object.entries(comunaCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const totalProperties = allData.length;
+
+            // Renderizar regiones
+            const regionContainer = document.getElementById('regionStatsContainer');
+            if (regionContainer) {
+                if (topRegiones.length > 0) {
+                    regionContainer.innerHTML = topRegiones.map(([region, count], index) => {
+                        const percentage = ((count / totalProperties) * 100).toFixed(1);
+                        const colors = ['from-cyan-400 to-blue-500', 'from-purple-400 to-pink-500', 'from-green-400 to-emerald-500', 'from-amber-400 to-orange-500', 'from-red-400 to-rose-500'];
+                        return `
+                            <div class="bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-all">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs text-white font-medium truncate">${region}</span>
+                                    <span class="text-xs text-cyan-400 font-bold">${count}</span>
+                                </div>
+                                <div class="w-full bg-zinc-700 rounded-full h-1.5">
+                                    <div class="bg-gradient-to-r ${colors[index]} h-1.5 rounded-full" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    regionContainer.innerHTML = '<p class="text-xs text-zinc-500">Sin datos de región disponibles</p>';
+                }
+            }
+
+            // Renderizar comunas
+            const comunaContainer = document.getElementById('comunaStatsContainer');
+            if (comunaContainer) {
+                if (topComunas.length > 0) {
+                    comunaContainer.innerHTML = topComunas.map(([comuna, count], index) => {
+                        const percentage = ((count / totalProperties) * 100).toFixed(1);
+                        const colors = ['from-purple-400 to-pink-500', 'from-cyan-400 to-blue-500', 'from-amber-400 to-orange-500', 'from-green-400 to-emerald-500', 'from-red-400 to-rose-500'];
+                        return `
+                            <div class="bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-all">
+                                <div class="flex items-center justify-between mb-1">
+                                    <span class="text-xs text-white font-medium truncate">${comuna}</span>
+                                    <span class="text-xs text-purple-400 font-bold">${count}</span>
+                                </div>
+                                <div class="w-full bg-zinc-700 rounded-full h-1.5">
+                                    <div class="bg-gradient-to-r ${colors[index]} h-1.5 rounded-full" style="width: ${percentage}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    comunaContainer.innerHTML = '<p class="text-xs text-zinc-500">Sin datos de comuna disponibles</p>';
+                }
+            }
         }
 
 
         // Update Charts
         function updateCharts() {
             updatePerformanceChart();
-            updateCorredorRanking();
         }
 
         // Performance Chart
@@ -2122,94 +2226,6 @@
                     }
                 }
             });
-        }
-
-        // Top Corredores Custom Ranking Display
-        function updateCorredorRanking() {
-            const container = document.getElementById('corredorRankingContainer');
-            if (!container) {
-                console.log('❌ Container corredorRankingContainer no encontrado');
-                return;
-            }
-
-            // Validar que hay datos
-            if (allData.length === 0) {
-                container.innerHTML = '<div class="text-center text-zinc-400 py-8">Sin datos disponibles</div>';
-                return;
-            }
-
-            // Get top corredores
-            const corredorCounts = {};
-            allData.forEach(item => {
-                if (item.corredor && item.corredor.trim()) {
-                    corredorCounts[item.corredor] = (corredorCounts[item.corredor] || 0) + 1;
-                }
-            });
-
-            const topCorredores = Object.entries(corredorCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 8); // Top 8 instead of 6
-
-            console.log('🏆 Top Corredores Ranking:', topCorredores);
-
-            if (topCorredores.length === 0) {
-                container.innerHTML = '<div class="text-center text-zinc-400 py-8">No se encontraron corredores</div>';
-                return;
-            }
-
-            // Generate custom ranking HTML
-            let html = '';
-            topCorredores.forEach((corredor, index) => {
-                const [name, count] = corredor;
-                const percentage = ((count / allData.length) * 100).toFixed(1);
-                const position = index + 1;
-                
-                let medalIcon = '';
-                let gradientClass = '';
-                let borderClass = '';
-                
-                if (position === 1) {
-                    medalIcon = '🥇';
-                    gradientClass = 'from-yellow-400/20 to-orange-500/20';
-                    borderClass = 'border-yellow-500/30';
-                } else if (position === 2) {
-                    medalIcon = '🥈';
-                    gradientClass = 'from-gray-300/20 to-gray-500/20';
-                    borderClass = 'border-gray-400/30';
-                } else if (position === 3) {
-                    medalIcon = '🥉';
-                    gradientClass = 'from-orange-600/20 to-yellow-600/20';
-                    borderClass = 'border-orange-500/30';
-                } else {
-                    medalIcon = `#${position}`;
-                    gradientClass = 'from-purple-500/10 to-cyan-500/10';
-                    borderClass = 'border-purple-500/20';
-                }
-                
-                html += `
-                    <div class="group relative overflow-hidden bg-gradient-to-r ${gradientClass} border ${borderClass} rounded-xl p-3 sm:p-4 hover:scale-[1.02] transition-all duration-300 backdrop-blur-sm">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3 sm:space-x-4">
-                                <div class="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-lg sm:rounded-xl bg-white/10 font-bold text-base sm:text-lg">
-                                    ${medalIcon}
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-white text-base sm:text-lg group-hover:text-yellow-300 transition-colors">${name}</h4>
-                                    <p class="text-xs sm:text-sm text-zinc-300">${count} propiedades • ${percentage}%</p>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-xl sm:text-2xl font-bold text-white">${count}</div>
-                                <div class="w-16 sm:w-20 bg-white/20 rounded-full h-2 mt-1">
-                                    <div class="h-2 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500" style="width: ${Math.min(100, (count / (topCorredores[0]?.[1] || 1)) * 100)}%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
         }
 
         // Update Activity Feed
