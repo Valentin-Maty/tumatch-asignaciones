@@ -2105,26 +2105,67 @@
             updateActivityFeed();
         }
 
-        // Cache de ubicaciones para evitar llamadas repetidas a Nominatim
+        // Cache de ubicaciones persistente en localStorage
         const locationCache = new Map();
+        const LOCATION_CACHE_KEY = 'tumatch_location_cache_v1';
+
+        // Cargar caché desde localStorage al iniciar
+        function loadLocationCache() {
+            try {
+                const cached = localStorage.getItem(LOCATION_CACHE_KEY);
+                if (cached) {
+                    const data = JSON.parse(cached);
+                    Object.entries(data).forEach(([key, value]) => {
+                        locationCache.set(key, value);
+                    });
+                    console.log(`📍 Caché de ubicaciones cargado: ${locationCache.size} ubicaciones`);
+                }
+            } catch (e) {
+                console.warn('Error cargando caché de ubicaciones:', e);
+            }
+        }
+
+        // Guardar caché en localStorage
+        function saveLocationCache() {
+            try {
+                const data = {};
+                locationCache.forEach((value, key) => {
+                    data[key] = value;
+                });
+                localStorage.setItem(LOCATION_CACHE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.warn('Error guardando caché de ubicaciones:', e);
+            }
+        }
+
+        // Cargar caché al iniciar
+        loadLocationCache();
 
         // Obtener ubicación desde coordenadas usando Nominatim
         async function getLocationFromCoords(lat, lon) {
-            const cacheKey = `${lat},${lon}`;
+            // Redondear coordenadas para agrupar ubicaciones cercanas
+            const roundedLat = Math.round(lat * 1000) / 1000;
+            const roundedLon = Math.round(lon * 1000) / 1000;
+            const cacheKey = `${roundedLat},${roundedLon}`;
+
             if (locationCache.has(cacheKey)) {
                 return locationCache.get(cacheKey);
             }
 
             try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=es`);
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=es&zoom=10`);
                 const data = await response.json();
 
                 if (data && data.address) {
                     const location = {
-                        comuna: data.address.municipality || data.address.city || data.address.town || data.address.suburb || '',
+                        comuna: data.address.municipality || data.address.city || data.address.town || data.address.suburb || data.address.county || '',
                         region: data.address.state || data.address.region || ''
                     };
                     locationCache.set(cacheKey, location);
+                    // Guardar caché cada 10 nuevas ubicaciones
+                    if (locationCache.size % 10 === 0) {
+                        saveLocationCache();
+                    }
                     return location;
                 }
             } catch (error) {
@@ -2134,37 +2175,94 @@
             return { comuna: '', region: '' };
         }
 
-        // Update Location Stats (Región y Comuna) - OPTIMIZADO: usa datos del XML directamente
-        function updateLocationStats() {
+        // Update Location Stats (Región y Comuna) - Usa coordenadas del mapa con Nominatim
+        async function updateLocationStats() {
             const regionCounts = {};
             const comunaCounts = {};
 
-            console.log('📍 Calculando estadísticas de ubicación desde datos XML...');
+            // Mostrar indicador de carga
+            const regionContainer = document.getElementById('regionStatsContainer');
+            const comunaContainer = document.getElementById('comunaStatsContainer');
 
-            // Procesar todas las propiedades usando datos del XML (instantáneo)
-            allData.forEach(item => {
+            console.log('📍 Obteniendo ubicaciones desde coordenadas del mapa...');
+
+            // Filtrar propiedades que tienen coordenadas
+            const propertiesWithCoords = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
-
-                // Obtener región y comuna del XML
-                let region = xmlData.region || '';
-                let comuna = xmlData.comuna || '';
-
-                // Normalizar nombres de regiones de Chile
-                if (region) {
-                    region = normalizeRegionName(region);
-                    regionCounts[region] = (regionCounts[region] || 0) + 1;
-                }
-
-                if (comuna) {
-                    comuna = normalizeComunaName(comuna);
-                    comunaCounts[comuna] = (comunaCounts[comuna] || 0) + 1;
-                }
+                return xmlData.latitude && xmlData.longitude;
             });
+
+            const totalWithCoords = propertiesWithCoords.length;
+            console.log(`📍 Propiedades con coordenadas: ${totalWithCoords} de ${allData.length}`);
+
+            if (totalWithCoords === 0) {
+                if (regionContainer) regionContainer.innerHTML = '<p class="text-xs text-zinc-500">No hay propiedades con coordenadas</p>';
+                if (comunaContainer) comunaContainer.innerHTML = '<p class="text-xs text-zinc-500">No hay propiedades con coordenadas</p>';
+                return;
+            }
+
+            // Actualizar UI con progreso
+            let processed = 0;
+            const updateProgress = () => {
+                const percent = Math.round((processed / totalWithCoords) * 100);
+                if (regionContainer) {
+                    regionContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-4">
+                            <div class="w-full bg-zinc-700 rounded-full h-2 mb-2">
+                                <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-2 rounded-full transition-all" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="text-xs text-cyan-400">${processed}/${totalWithCoords} propiedades (${percent}%)</span>
+                        </div>
+                    `;
+                }
+            };
+
+            // Procesar en lotes pequeños para no sobrecargar Nominatim
+            const batchSize = 10;
+            const delayBetweenBatches = 1100; // Nominatim permite 1 req/seg
+
+            for (let i = 0; i < propertiesWithCoords.length; i += batchSize) {
+                const batch = propertiesWithCoords.slice(i, i + batchSize);
+
+                // Procesar lote en paralelo
+                await Promise.all(batch.map(async (item) => {
+                    const xmlData = getPropertyData(item.codigo);
+                    const location = await getLocationFromCoords(xmlData.latitude, xmlData.longitude);
+
+                    if (location.region) {
+                        const normalizedRegion = normalizeRegionName(location.region);
+                        regionCounts[normalizedRegion] = (regionCounts[normalizedRegion] || 0) + 1;
+                    }
+
+                    if (location.comuna) {
+                        const normalizedComuna = normalizeComunaName(location.comuna);
+                        comunaCounts[normalizedComuna] = (comunaCounts[normalizedComuna] || 0) + 1;
+                    }
+
+                    processed++;
+                }));
+
+                // Actualizar progreso y renderizar parcialmente
+                updateProgress();
+
+                // Renderizar resultados parciales cada 20 propiedades
+                if (processed % 20 === 0 || processed === totalWithCoords) {
+                    renderLocationStats(regionCounts, comunaCounts, allData.length);
+                }
+
+                // Esperar entre lotes (excepto el último)
+                if (i + batchSize < propertiesWithCoords.length) {
+                    await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+                }
+            }
 
             console.log('📍 Regiones encontradas:', Object.keys(regionCounts).length);
             console.log('📍 Comunas encontradas:', Object.keys(comunaCounts).length);
 
-            // Renderizar estadísticas (instantáneo)
+            // Guardar caché para próximas visitas
+            saveLocationCache();
+
+            // Renderizar estadísticas finales
             renderLocationStats(regionCounts, comunaCounts, allData.length);
         }
 
