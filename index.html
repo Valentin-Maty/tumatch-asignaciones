@@ -1570,7 +1570,7 @@
             
             return `
                 <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
-                     onclick="window.open('https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
+                     onclick="window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
                     <!-- Imagen de la propiedad con overlay -->
                     <div class="relative h-48 overflow-hidden rounded-t-2xl">
                         ${propertyImage ? 
@@ -1586,7 +1586,7 @@
                         <!-- Overlay con código de propiedad -->
                         <div class="absolute top-3 left-3 right-3 flex justify-between items-start">
                             <div class="glass px-3 py-1.5 rounded-xl backdrop-blur-lg hover:bg-white/20 transition-all duration-200 cursor-pointer">
-                                <a href="https://app.2clics.cl/pub/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}" 
+                                <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}" 
                                    target="_blank" 
                                    class="text-lg font-bold text-white hover:text-cyan-300 transition-colors">
                                     ${item.codigo}
