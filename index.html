@@ -2370,9 +2370,8 @@
                     const maxRegionCount = allRegiones[0][1];
                     regionContainer.innerHTML = `
                         <div class="flex flex-col h-full">
-                        <div class="mb-3 flex items-center justify-between flex-shrink-0">
+                        <div class="mb-3 flex-shrink-0">
                             <span class="text-xs text-zinc-400">${allRegiones.length} regiones con propiedades</span>
-                            <span class="text-xs text-cyan-400 font-semibold">${totalWithRegion} props. geolocalizadas</span>
                         </div>
                         <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-0">
                             ${allRegiones.map(([region, count], index) => {
@@ -2409,9 +2408,8 @@
                     const totalComunas = Object.keys(comunaCounts).length;
                     comunaContainer.innerHTML = `
                         <div class="flex flex-col h-full">
-                        <div class="mb-3 flex items-center justify-between flex-shrink-0">
+                        <div class="mb-3 flex-shrink-0">
                             <span class="text-xs text-zinc-400">Top 10 de ${totalComunas} comunas</span>
-                            <span class="text-xs text-purple-400 font-semibold">${totalWithComuna} props. con comuna</span>
                         </div>
                         <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-0">
                             ${topComunas.map(([comuna, count], index) => {
