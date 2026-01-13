@@ -28,7 +28,7 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const fichaUrl = `https://cl.fichapublica.com/pub/propiedad/${propertyId}`;
+        const fichaUrl = `https://www.tumatchpropiedades.cl/propiedad/${propertyId}`;
         const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fichaUrl)}`;
         
         const response = await fetch(allOriginsUrl);

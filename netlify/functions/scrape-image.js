@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
         console.log(`[Netlify Function] Procesando propiedad: ${propertyId}`);
 
         // Usar la API de AllOrigins para bypass CORS y obtener el HTML
-        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://cl.fichapublica.com/pub/propiedad/${propertyId}`)}`;
+        const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.tumatchpropiedades.cl/propiedad/${propertyId}`)}`;
         
         try {
             const response = await fetch(allOriginsUrl);

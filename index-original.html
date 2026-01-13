@@ -1272,7 +1272,7 @@
                 }
                 
                 const numero = numeroMatch[1];
-                const fichaUrl = `https://cl.fichapublica.com/pub/propiedad/${numero}`;
+                const fichaUrl = `https://www.tumatchpropiedades.cl/propiedad/${numero}`;
                 
                 console.log('🌐 ÚLTIMA OPORTUNIDAD: Intentando web scraping desde:', fichaUrl);
                 console.log('⚠️  Este código NO existe en el XML feed oficial');
@@ -1417,7 +1417,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-xs text-gray-400 uppercase tracking-wide font-semibold mb-1">Código</p>
-                                <a href="https://cl.fichapublica.com/pub/propiedad/${item.codigo.split('-').pop()}" 
+                                <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.split('-').pop()}" 
                                    target="_blank" 
                                    rel="noopener noreferrer" 
                                    class="inline-flex items-center gap-2 text-brand-coral hover:text-brand-magenta font-bold transition-colors duration-300 group-hover/item:underline"

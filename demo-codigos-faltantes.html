@@ -187,7 +187,7 @@
             // Simular intento de web scraping
             await new Promise(resolve => setTimeout(resolve, 300));
             const numero = codigo.match(/(\d+)/)[1];
-            log(`🌐 Intentando web scraping desde: https://cl.fichapublica.com/pub/propiedad/${numero}`, 'info');
+            log(`🌐 Intentando web scraping desde: https://www.tumatchpropiedades.cl/propiedad/${numero}`, 'info');
             
             await new Promise(resolve => setTimeout(resolve, 800));
             log(`⚠️ Web scraping no disponible en demo`, 'warning');

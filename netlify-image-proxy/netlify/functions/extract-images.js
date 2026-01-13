@@ -44,7 +44,7 @@ exports.handler = async (event, context) => {
 
         console.log(`[extract-images] Procesando propiedad: ${propertyId}`);
         
-        const fichaUrl = `https://cl.fichapublica.com/pub/propiedad/${propertyId}`;
+        const fichaUrl = `https://www.tumatchpropiedades.cl/propiedad/${propertyId}`;
         
         // Usar AllOrigins para obtener el HTML y evitar CORS
         const allOriginsUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fichaUrl)}`;
