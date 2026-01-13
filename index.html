@@ -438,6 +438,25 @@
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
         }
 
+        /* Scrollbar personalizado más sutil para contenedores */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.3);
+            border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(139, 92, 246, 0.5);
+        }
+        .custom-scrollbar {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+        }
+
         /* Estilos para modal de mapa */
         .modal-overlay {
             position: fixed;
@@ -744,30 +763,47 @@
                                     </div>
                                     Distribución Geográfica
                                 </h3>
-                                <p class="text-xs sm:text-sm text-zinc-400">Propiedades por ubicación</p>
+                                <p class="text-xs sm:text-sm text-zinc-400">Cobertura completa por ubicación</p>
                             </div>
-                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-blue-500/20">
-                                📍 Cobertura
-                            </div>
-                        </div>
-                        <!-- Por Región -->
-                        <div class="mb-6">
-                            <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center">
-                                <i class="fas fa-globe-americas text-cyan-400 mr-2"></i>
-                                Por Región
-                            </h4>
-                            <div id="regionStatsContainer" class="space-y-2">
-                                <p class="text-xs text-zinc-500">Cargando...</p>
+                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-blue-500/20 flex items-center gap-1">
+                                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                Tiempo real
                             </div>
                         </div>
-                        <!-- Por Comuna -->
-                        <div>
-                            <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center">
-                                <i class="fas fa-city text-purple-400 mr-2"></i>
-                                Top Comunas
-                            </h4>
-                            <div id="comunaStatsContainer" class="space-y-2">
-                                <p class="text-xs text-zinc-500">Cargando...</p>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            <!-- Por Región - TODAS las regiones -->
+                            <div class="bg-white/5 rounded-xl p-4 border border-cyan-500/10">
+                                <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-globe-americas text-cyan-400 mr-2"></i>
+                                        Todas las Regiones
+                                    </div>
+                                    <span class="text-xs text-cyan-400/70 font-normal">Ordenado por cantidad</span>
+                                </h4>
+                                <div id="regionStatsContainer" class="space-y-2">
+                                    <div class="flex items-center justify-center py-4">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
+                                        <span class="ml-2 text-xs text-zinc-400">Cargando regiones...</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Por Comuna - Top 10 -->
+                            <div class="bg-white/5 rounded-xl p-4 border border-purple-500/10">
+                                <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-city text-purple-400 mr-2"></i>
+                                        Top 10 Comunas
+                                    </div>
+                                    <span class="text-xs text-purple-400/70 font-normal">Mayor concentración</span>
+                                </h4>
+                                <div id="comunaStatsContainer" class="space-y-2">
+                                    <div class="flex items-center justify-center py-4">
+                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
+                                        <span class="ml-2 text-xs text-zinc-400">Cargando comunas...</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2098,120 +2134,209 @@
             return { comuna: '', region: '' };
         }
 
-        // Update Location Stats (Región y Comuna) usando coordenadas
-        async function updateLocationStats() {
+        // Update Location Stats (Región y Comuna) - OPTIMIZADO: usa datos del XML directamente
+        function updateLocationStats() {
             const regionCounts = {};
             const comunaCounts = {};
 
-            // Mostrar indicador de carga
-            const regionContainer = document.getElementById('regionStatsContainer');
-            const comunaContainer = document.getElementById('comunaStatsContainer');
-            if (regionContainer) regionContainer.innerHTML = '<p class="text-xs text-cyan-400 animate-pulse">⏳ Obteniendo ubicaciones...</p>';
-            if (comunaContainer) comunaContainer.innerHTML = '<p class="text-xs text-purple-400 animate-pulse">⏳ Procesando datos...</p>';
+            console.log('📍 Calculando estadísticas de ubicación desde datos XML...');
 
-            console.log('📍 Calculando estadísticas de ubicación desde coordenadas...');
-
-            // Obtener propiedades con coordenadas
-            const propertiesWithCoords = allData.filter(item => {
+            // Procesar todas las propiedades usando datos del XML (instantáneo)
+            allData.forEach(item => {
                 const xmlData = getPropertyData(item.codigo);
-                return xmlData.latitude && xmlData.longitude;
+
+                // Obtener región y comuna del XML
+                let region = xmlData.region || '';
+                let comuna = xmlData.comuna || '';
+
+                // Normalizar nombres de regiones de Chile
+                if (region) {
+                    region = normalizeRegionName(region);
+                    regionCounts[region] = (regionCounts[region] || 0) + 1;
+                }
+
+                if (comuna) {
+                    comuna = normalizeComunaName(comuna);
+                    comunaCounts[comuna] = (comunaCounts[comuna] || 0) + 1;
+                }
             });
-
-            console.log(`📍 Propiedades con coordenadas: ${propertiesWithCoords.length} de ${allData.length}`);
-
-            // Procesar en lotes para respetar límites de Nominatim (1 req/seg)
-            const batchSize = 5;
-            const delayBetweenBatches = 1100; // 1.1 segundos
-
-            for (let i = 0; i < propertiesWithCoords.length; i += batchSize) {
-                const batch = propertiesWithCoords.slice(i, i + batchSize);
-
-                await Promise.all(batch.map(async (item) => {
-                    const xmlData = getPropertyData(item.codigo);
-                    const location = await getLocationFromCoords(xmlData.latitude, xmlData.longitude);
-
-                    if (location.comuna) {
-                        comunaCounts[location.comuna] = (comunaCounts[location.comuna] || 0) + 1;
-                    }
-                    if (location.region) {
-                        regionCounts[location.region] = (regionCounts[location.region] || 0) + 1;
-                    }
-                }));
-
-                // Actualizar UI mientras se procesan
-                if (i > 0 && i % 10 === 0) {
-                    renderLocationStats(regionCounts, comunaCounts, allData.length);
-                }
-
-                // Esperar entre lotes
-                if (i + batchSize < propertiesWithCoords.length) {
-                    await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
-                }
-            }
 
             console.log('📍 Regiones encontradas:', Object.keys(regionCounts).length);
             console.log('📍 Comunas encontradas:', Object.keys(comunaCounts).length);
 
-            // Renderizar estadísticas finales
+            // Renderizar estadísticas (instantáneo)
             renderLocationStats(regionCounts, comunaCounts, allData.length);
         }
 
-        // Renderizar estadísticas de ubicación
+        // Normalizar nombres de regiones
+        function normalizeRegionName(region) {
+            const regionMap = {
+                'metropolitana': 'Región Metropolitana',
+                'region metropolitana': 'Región Metropolitana',
+                'rm': 'Región Metropolitana',
+                'santiago': 'Región Metropolitana',
+                'valparaiso': 'Región de Valparaíso',
+                'valparaíso': 'Región de Valparaíso',
+                'biobio': 'Región del Biobío',
+                'biobío': 'Región del Biobío',
+                'bio bio': 'Región del Biobío',
+                'araucania': 'Región de La Araucanía',
+                'araucanía': 'Región de La Araucanía',
+                'los lagos': 'Región de Los Lagos',
+                'los rios': 'Región de Los Ríos',
+                'los ríos': 'Región de Los Ríos',
+                'ohiggins': 'Región del Libertador B. O\'Higgins',
+                'o\'higgins': 'Región del Libertador B. O\'Higgins',
+                'maule': 'Región del Maule',
+                'coquimbo': 'Región de Coquimbo',
+                'atacama': 'Región de Atacama',
+                'antofagasta': 'Región de Antofagasta',
+                'tarapaca': 'Región de Tarapacá',
+                'tarapacá': 'Región de Tarapacá',
+                'arica': 'Región de Arica y Parinacota',
+                'magallanes': 'Región de Magallanes',
+                'aysen': 'Región de Aysén',
+                'aysén': 'Región de Aysén',
+                'nuble': 'Región de Ñuble',
+                'ñuble': 'Región de Ñuble'
+            };
+
+            const normalized = region.toLowerCase().trim();
+            return regionMap[normalized] || region;
+        }
+
+        // Normalizar nombres de comunas
+        function normalizeComunaName(comuna) {
+            // Capitalizar primera letra de cada palabra
+            return comuna.split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ')
+                .replace(/^La /, 'La ')
+                .replace(/^Las /, 'Las ')
+                .replace(/^Los /, 'Los ')
+                .replace(/^El /, 'El ');
+        }
+
+        // Renderizar estadísticas de ubicación - MEJORADO: todas las regiones y top 10 comunas
         function renderLocationStats(regionCounts, comunaCounts, totalProps) {
-            // Ordenar y tomar top 5
-            const topRegiones = Object.entries(regionCounts)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
+            // Ordenar TODAS las regiones y top 10 comunas
+            const allRegiones = Object.entries(regionCounts)
+                .sort((a, b) => b[1] - a[1]);
 
             const topComunas = Object.entries(comunaCounts)
                 .sort((a, b) => b[1] - a[1])
-                .slice(0, 5);
+                .slice(0, 10);
 
             const totalProperties = totalProps || allData.length;
+            const totalWithRegion = allRegiones.reduce((sum, [_, count]) => sum + count, 0);
+            const totalWithComuna = Object.values(comunaCounts).reduce((sum, count) => sum + count, 0);
 
-            // Renderizar regiones
+            // Colores para las regiones (más variedad)
+            const regionColors = [
+                'from-cyan-400 to-blue-500',
+                'from-purple-400 to-pink-500',
+                'from-green-400 to-emerald-500',
+                'from-amber-400 to-orange-500',
+                'from-red-400 to-rose-500',
+                'from-indigo-400 to-violet-500',
+                'from-teal-400 to-cyan-500',
+                'from-orange-400 to-red-500',
+                'from-lime-400 to-green-500',
+                'from-fuchsia-400 to-purple-500',
+                'from-sky-400 to-blue-500',
+                'from-rose-400 to-pink-500',
+                'from-emerald-400 to-teal-500',
+                'from-violet-400 to-indigo-500',
+                'from-yellow-400 to-amber-500',
+                'from-blue-400 to-indigo-500'
+            ];
+
+            // Colores para comunas
+            const comunaColors = [
+                'from-purple-400 to-pink-500',
+                'from-cyan-400 to-blue-500',
+                'from-amber-400 to-orange-500',
+                'from-green-400 to-emerald-500',
+                'from-red-400 to-rose-500',
+                'from-indigo-400 to-violet-500',
+                'from-teal-400 to-cyan-500',
+                'from-fuchsia-400 to-purple-500',
+                'from-lime-400 to-green-500',
+                'from-sky-400 to-blue-500'
+            ];
+
+            // Renderizar TODAS las regiones
             const regionContainer = document.getElementById('regionStatsContainer');
             if (regionContainer) {
-                if (topRegiones.length > 0) {
-                    regionContainer.innerHTML = topRegiones.map(([region, count], index) => {
-                        const percentage = ((count / totalProperties) * 100).toFixed(1);
-                        const colors = ['from-cyan-400 to-blue-500', 'from-purple-400 to-pink-500', 'from-green-400 to-emerald-500', 'from-amber-400 to-orange-500', 'from-red-400 to-rose-500'];
-                        return `
-                            <div class="bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-all">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="text-xs text-white font-medium truncate">${region}</span>
-                                    <span class="text-xs text-cyan-400 font-bold">${count}</span>
-                                </div>
-                                <div class="w-full bg-zinc-700 rounded-full h-1.5">
-                                    <div class="bg-gradient-to-r ${colors[index]} h-1.5 rounded-full" style="width: ${percentage}%"></div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
+                if (allRegiones.length > 0) {
+                    const maxRegionCount = allRegiones[0][1];
+                    regionContainer.innerHTML = `
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="text-xs text-zinc-400">${allRegiones.length} regiones con propiedades</span>
+                            <span class="text-xs text-cyan-400 font-semibold">${totalWithRegion} props. geolocalizadas</span>
+                        </div>
+                        <div class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar pr-2">
+                            ${allRegiones.map(([region, count], index) => {
+                                const percentage = ((count / maxRegionCount) * 100).toFixed(0);
+                                const globalPercentage = ((count / totalProperties) * 100).toFixed(1);
+                                return `
+                                    <div class="bg-white/5 rounded-lg p-2.5 hover:bg-white/10 transition-all cursor-pointer group">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-xs text-white font-medium truncate flex-1 mr-2 group-hover:text-cyan-300 transition-colors">${region}</span>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs text-zinc-400">${globalPercentage}%</span>
+                                                <span class="text-xs text-cyan-400 font-bold bg-cyan-400/10 px-2 py-0.5 rounded">${count}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full bg-zinc-700/50 rounded-full h-2">
+                                            <div class="bg-gradient-to-r ${regionColors[index % regionColors.length]} h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
                 } else {
                     regionContainer.innerHTML = '<p class="text-xs text-zinc-500">Sin datos de región disponibles</p>';
                 }
             }
 
-            // Renderizar comunas
+            // Renderizar TOP 10 comunas
             const comunaContainer = document.getElementById('comunaStatsContainer');
             if (comunaContainer) {
                 if (topComunas.length > 0) {
-                    comunaContainer.innerHTML = topComunas.map(([comuna, count], index) => {
-                        const percentage = ((count / totalProperties) * 100).toFixed(1);
-                        const colors = ['from-purple-400 to-pink-500', 'from-cyan-400 to-blue-500', 'from-amber-400 to-orange-500', 'from-green-400 to-emerald-500', 'from-red-400 to-rose-500'];
-                        return `
-                            <div class="bg-white/5 rounded-lg p-2 hover:bg-white/10 transition-all">
-                                <div class="flex items-center justify-between mb-1">
-                                    <span class="text-xs text-white font-medium truncate">${comuna}</span>
-                                    <span class="text-xs text-purple-400 font-bold">${count}</span>
-                                </div>
-                                <div class="w-full bg-zinc-700 rounded-full h-1.5">
-                                    <div class="bg-gradient-to-r ${colors[index]} h-1.5 rounded-full" style="width: ${percentage}%"></div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
+                    const maxComunaCount = topComunas[0][1];
+                    const totalComunas = Object.keys(comunaCounts).length;
+                    comunaContainer.innerHTML = `
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="text-xs text-zinc-400">Top 10 de ${totalComunas} comunas</span>
+                            <span class="text-xs text-purple-400 font-semibold">${totalWithComuna} props. con comuna</span>
+                        </div>
+                        <div class="space-y-2 max-h-80 overflow-y-auto custom-scrollbar pr-2">
+                            ${topComunas.map(([comuna, count], index) => {
+                                const percentage = ((count / maxComunaCount) * 100).toFixed(0);
+                                const globalPercentage = ((count / totalProperties) * 100).toFixed(1);
+                                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                                return `
+                                    <div class="bg-white/5 rounded-lg p-2.5 hover:bg-white/10 transition-all cursor-pointer group">
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                                <span class="text-xs ${index < 3 ? 'text-lg' : 'text-zinc-500 font-medium'}">${medal}</span>
+                                                <span class="text-xs text-white font-medium truncate group-hover:text-purple-300 transition-colors">${comuna}</span>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs text-zinc-400">${globalPercentage}%</span>
+                                                <span class="text-xs text-purple-400 font-bold bg-purple-400/10 px-2 py-0.5 rounded">${count}</span>
+                                            </div>
+                                        </div>
+                                        <div class="w-full bg-zinc-700/50 rounded-full h-2">
+                                            <div class="bg-gradient-to-r ${comunaColors[index % comunaColors.length]} h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
                 } else {
                     comunaContainer.innerHTML = '<p class="text-xs text-zinc-500">Sin datos de comuna disponibles</p>';
                 }
