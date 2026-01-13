@@ -771,37 +771,35 @@
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-4 flex-1">
+                        <div class="flex flex-col gap-3">
                             <!-- Por Región - TODAS las regiones -->
-                            <div class="bg-white/5 rounded-xl p-4 border border-cyan-500/10 flex-1 flex flex-col min-h-0">
-                                <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
+                            <div class="bg-white/5 rounded-xl p-3 border border-cyan-500/10">
+                                <h4 class="text-xs font-semibold text-zinc-300 mb-2 flex items-center justify-between">
                                     <div class="flex items-center">
                                         <i class="fas fa-globe-americas text-cyan-400 mr-2"></i>
                                         Todas las Regiones
                                     </div>
-                                    <span class="text-xs text-cyan-400/70 font-normal">Ordenado por cantidad</span>
                                 </h4>
-                                <div id="regionStatsContainer" class="space-y-2 flex-1 overflow-y-auto custom-scrollbar">
-                                    <div class="flex items-center justify-center py-4">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-400"></div>
-                                        <span class="ml-2 text-xs text-zinc-400">Cargando regiones...</span>
+                                <div id="regionStatsContainer" class="space-y-1.5 max-h-40 overflow-y-auto custom-scrollbar">
+                                    <div class="flex items-center justify-center py-2">
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-cyan-400"></div>
+                                        <span class="ml-2 text-xs text-zinc-400">Cargando...</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Por Comuna - Top 10 -->
-                            <div class="bg-white/5 rounded-xl p-4 border border-purple-500/10 flex-1 flex flex-col min-h-0">
-                                <h4 class="text-sm font-semibold text-zinc-300 mb-3 flex items-center justify-between">
+                            <div class="bg-white/5 rounded-xl p-3 border border-purple-500/10">
+                                <h4 class="text-xs font-semibold text-zinc-300 mb-2 flex items-center justify-between">
                                     <div class="flex items-center">
                                         <i class="fas fa-city text-purple-400 mr-2"></i>
                                         Top 10 Comunas
                                     </div>
-                                    <span class="text-xs text-purple-400/70 font-normal">Mayor concentración</span>
                                 </h4>
-                                <div id="comunaStatsContainer" class="space-y-2 flex-1 overflow-y-auto custom-scrollbar">
-                                    <div class="flex items-center justify-center py-4">
-                                        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-400"></div>
-                                        <span class="ml-2 text-xs text-zinc-400">Cargando comunas...</span>
+                                <div id="comunaStatsContainer" class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
+                                    <div class="flex items-center justify-center py-2">
+                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
+                                        <span class="ml-2 text-xs text-zinc-400">Cargando...</span>
                                     </div>
                                 </div>
                             </div>
@@ -2369,30 +2367,19 @@
                 if (allRegiones.length > 0) {
                     const maxRegionCount = allRegiones[0][1];
                     regionContainer.innerHTML = `
-                        <div class="flex flex-col h-full">
-                        <div class="mb-3 flex-shrink-0">
-                            <span class="text-xs text-zinc-400">${allRegiones.length} regiones con propiedades</span>
-                        </div>
-                        <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-0">
+                        <div class="space-y-1">
                             ${allRegiones.map(([region, count], index) => {
                                 const percentage = ((count / maxRegionCount) * 100).toFixed(0);
-                                const globalPercentage = ((count / totalProperties) * 100).toFixed(1);
                                 return `
-                                    <div class="bg-white/5 rounded-lg p-2.5 hover:bg-white/10 transition-all cursor-pointer group">
-                                        <div class="flex items-center justify-between mb-1.5">
-                                            <span class="text-xs text-white font-medium truncate flex-1 mr-2 group-hover:text-cyan-300 transition-colors">${region}</span>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-xs text-zinc-400">${globalPercentage}%</span>
-                                                <span class="text-xs text-cyan-400 font-bold bg-cyan-400/10 px-2 py-0.5 rounded">${count}</span>
-                                            </div>
+                                    <div class="flex items-center justify-between py-1 px-2 rounded hover:bg-white/5 transition-all group">
+                                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                                            <div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r ${regionColors[index % regionColors.length]}"></div>
+                                            <span class="text-xs text-zinc-300 truncate group-hover:text-cyan-300">${region}</span>
                                         </div>
-                                        <div class="w-full bg-zinc-700/50 rounded-full h-2">
-                                            <div class="bg-gradient-to-r ${regionColors[index % regionColors.length]} h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
-                                        </div>
+                                        <span class="text-xs text-cyan-400 font-semibold ml-2">${count}</span>
                                     </div>
                                 `;
                             }).join('')}
-                        </div>
                         </div>
                     `;
                 } else {
@@ -2407,34 +2394,19 @@
                     const maxComunaCount = topComunas[0][1];
                     const totalComunas = Object.keys(comunaCounts).length;
                     comunaContainer.innerHTML = `
-                        <div class="flex flex-col h-full">
-                        <div class="mb-3 flex-shrink-0">
-                            <span class="text-xs text-zinc-400">Top 10 de ${totalComunas} comunas</span>
-                        </div>
-                        <div class="space-y-2 overflow-y-auto custom-scrollbar pr-2 flex-1 min-h-0">
+                        <div class="space-y-1">
                             ${topComunas.map(([comuna, count], index) => {
-                                const percentage = ((count / maxComunaCount) * 100).toFixed(0);
-                                const globalPercentage = ((count / totalProperties) * 100).toFixed(1);
-                                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`;
+                                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
                                 return `
-                                    <div class="bg-white/5 rounded-lg p-2.5 hover:bg-white/10 transition-all cursor-pointer group">
-                                        <div class="flex items-center justify-between mb-1.5">
-                                            <div class="flex items-center gap-2 flex-1 min-w-0">
-                                                <span class="text-xs ${index < 3 ? 'text-lg' : 'text-zinc-500 font-medium'}">${medal}</span>
-                                                <span class="text-xs text-white font-medium truncate group-hover:text-purple-300 transition-colors">${comuna}</span>
-                                            </div>
-                                            <div class="flex items-center gap-2">
-                                                <span class="text-xs text-zinc-400">${globalPercentage}%</span>
-                                                <span class="text-xs text-purple-400 font-bold bg-purple-400/10 px-2 py-0.5 rounded">${count}</span>
-                                            </div>
+                                    <div class="flex items-center justify-between py-1 px-2 rounded hover:bg-white/5 transition-all group">
+                                        <div class="flex items-center gap-2 flex-1 min-w-0">
+                                            ${medal ? `<span class="text-sm">${medal}</span>` : `<div class="w-1.5 h-1.5 rounded-full bg-gradient-to-r ${comunaColors[index % comunaColors.length]}"></div>`}
+                                            <span class="text-xs text-zinc-300 truncate group-hover:text-purple-300">${comuna}</span>
                                         </div>
-                                        <div class="w-full bg-zinc-700/50 rounded-full h-2">
-                                            <div class="bg-gradient-to-r ${comunaColors[index % comunaColors.length]} h-2 rounded-full transition-all duration-500" style="width: ${percentage}%"></div>
-                                        </div>
+                                        <span class="text-xs text-purple-400 font-semibold ml-2">${count}</span>
                                     </div>
                                 `;
                             }).join('')}
-                        </div>
                         </div>
                     `;
                 } else {
