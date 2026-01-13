@@ -1153,12 +1153,25 @@
                     const floorArea = listing.getElementsByTagName('floorArea')[0]?.textContent;
                     const plotArea = listing.getElementsByTagName('plotArea')[0]?.textContent;
 
-                    // Información de ubicación
-                    const region = listing.getElementsByTagName('region')[0]?.textContent ||
-                                   listing.getElementsByTagName('state')[0]?.textContent || '';
-                    const comuna = listing.getElementsByTagName('comuna')[0]?.textContent ||
-                                   listing.getElementsByTagName('city')[0]?.textContent ||
-                                   listing.getElementsByTagName('municipality')[0]?.textContent || '';
+                    // Información de ubicación - buscar en múltiples campos posibles
+                    let region = listing.getElementsByTagName('region')[0]?.textContent ||
+                                 listing.getElementsByTagName('state')[0]?.textContent ||
+                                 listing.getElementsByTagName('province')[0]?.textContent || '';
+                    let comuna = listing.getElementsByTagName('comuna')[0]?.textContent ||
+                                 listing.getElementsByTagName('city')[0]?.textContent ||
+                                 listing.getElementsByTagName('municipality')[0]?.textContent ||
+                                 listing.getElementsByTagName('city_area')[0]?.textContent ||
+                                 listing.getElementsByTagName('neighborhood')[0]?.textContent ||
+                                 listing.getElementsByTagName('location')[0]?.textContent || '';
+
+                    // Si no hay comuna/region, intentar extraer del título
+                    if (!comuna && title) {
+                        // Buscar patrones como "Casa en Las Condes" o "Depto en Providencia"
+                        const titleMatch = title.match(/(?:en|in)\s+([^,]+)/i);
+                        if (titleMatch) {
+                            comuna = titleMatch[1].trim();
+                        }
+                    }
 
                     if (referenceId) {
                         propertyData.set(referenceId, {
@@ -2058,19 +2071,34 @@
 
         // Update Location Stats (Región y Comuna)
         function updateLocationStats() {
-            // Contar por región
+            // Contar por región y comuna
             const regionCounts = {};
             const comunaCounts = {};
 
+            console.log('📍 Calculando estadísticas de ubicación...');
+            console.log('📊 Total propiedades:', allData.length);
+            console.log('📊 PropertyData size:', propertyData.size);
+
             allData.forEach(item => {
                 const xmlData = getPropertyData(item.codigo);
+
+                // Debug: mostrar datos de las primeras propiedades
+                if (Object.keys(regionCounts).length < 3 && (xmlData.region || xmlData.comuna)) {
+                    console.log(`🏠 ${item.codigo}: region="${xmlData.region}", comuna="${xmlData.comuna}"`);
+                }
+
                 if (xmlData.region && xmlData.region.trim()) {
-                    regionCounts[xmlData.region] = (regionCounts[xmlData.region] || 0) + 1;
+                    const regionClean = xmlData.region.trim();
+                    regionCounts[regionClean] = (regionCounts[regionClean] || 0) + 1;
                 }
                 if (xmlData.comuna && xmlData.comuna.trim()) {
-                    comunaCounts[xmlData.comuna] = (comunaCounts[xmlData.comuna] || 0) + 1;
+                    const comunaClean = xmlData.comuna.trim();
+                    comunaCounts[comunaClean] = (comunaCounts[comunaClean] || 0) + 1;
                 }
             });
+
+            console.log('📍 Regiones encontradas:', Object.keys(regionCounts).length);
+            console.log('📍 Comunas encontradas:', Object.keys(comunaCounts).length);
 
             // Ordenar y tomar top 5
             const topRegiones = Object.entries(regionCounts)
