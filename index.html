@@ -2069,37 +2069,95 @@
             updateActivityFeed();
         }
 
-        // Update Location Stats (Región y Comuna)
-        function updateLocationStats() {
-            // Contar por región y comuna
+        // Cache de ubicaciones para evitar llamadas repetidas a Nominatim
+        const locationCache = new Map();
+
+        // Obtener ubicación desde coordenadas usando Nominatim
+        async function getLocationFromCoords(lat, lon) {
+            const cacheKey = `${lat},${lon}`;
+            if (locationCache.has(cacheKey)) {
+                return locationCache.get(cacheKey);
+            }
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&accept-language=es`);
+                const data = await response.json();
+
+                if (data && data.address) {
+                    const location = {
+                        comuna: data.address.municipality || data.address.city || data.address.town || data.address.suburb || '',
+                        region: data.address.state || data.address.region || ''
+                    };
+                    locationCache.set(cacheKey, location);
+                    return location;
+                }
+            } catch (error) {
+                console.warn('Error obteniendo ubicación:', error);
+            }
+
+            return { comuna: '', region: '' };
+        }
+
+        // Update Location Stats (Región y Comuna) usando coordenadas
+        async function updateLocationStats() {
             const regionCounts = {};
             const comunaCounts = {};
 
-            console.log('📍 Calculando estadísticas de ubicación...');
-            console.log('📊 Total propiedades:', allData.length);
-            console.log('📊 PropertyData size:', propertyData.size);
+            // Mostrar indicador de carga
+            const regionContainer = document.getElementById('regionStatsContainer');
+            const comunaContainer = document.getElementById('comunaStatsContainer');
+            if (regionContainer) regionContainer.innerHTML = '<p class="text-xs text-cyan-400 animate-pulse">⏳ Obteniendo ubicaciones...</p>';
+            if (comunaContainer) comunaContainer.innerHTML = '<p class="text-xs text-purple-400 animate-pulse">⏳ Procesando datos...</p>';
 
-            allData.forEach(item => {
+            console.log('📍 Calculando estadísticas de ubicación desde coordenadas...');
+
+            // Obtener propiedades con coordenadas
+            const propertiesWithCoords = allData.filter(item => {
                 const xmlData = getPropertyData(item.codigo);
-
-                // Debug: mostrar datos de las primeras propiedades
-                if (Object.keys(regionCounts).length < 3 && (xmlData.region || xmlData.comuna)) {
-                    console.log(`🏠 ${item.codigo}: region="${xmlData.region}", comuna="${xmlData.comuna}"`);
-                }
-
-                if (xmlData.region && xmlData.region.trim()) {
-                    const regionClean = xmlData.region.trim();
-                    regionCounts[regionClean] = (regionCounts[regionClean] || 0) + 1;
-                }
-                if (xmlData.comuna && xmlData.comuna.trim()) {
-                    const comunaClean = xmlData.comuna.trim();
-                    comunaCounts[comunaClean] = (comunaCounts[comunaClean] || 0) + 1;
-                }
+                return xmlData.latitude && xmlData.longitude;
             });
+
+            console.log(`📍 Propiedades con coordenadas: ${propertiesWithCoords.length} de ${allData.length}`);
+
+            // Procesar en lotes para respetar límites de Nominatim (1 req/seg)
+            const batchSize = 5;
+            const delayBetweenBatches = 1100; // 1.1 segundos
+
+            for (let i = 0; i < propertiesWithCoords.length; i += batchSize) {
+                const batch = propertiesWithCoords.slice(i, i + batchSize);
+
+                await Promise.all(batch.map(async (item) => {
+                    const xmlData = getPropertyData(item.codigo);
+                    const location = await getLocationFromCoords(xmlData.latitude, xmlData.longitude);
+
+                    if (location.comuna) {
+                        comunaCounts[location.comuna] = (comunaCounts[location.comuna] || 0) + 1;
+                    }
+                    if (location.region) {
+                        regionCounts[location.region] = (regionCounts[location.region] || 0) + 1;
+                    }
+                }));
+
+                // Actualizar UI mientras se procesan
+                if (i > 0 && i % 10 === 0) {
+                    renderLocationStats(regionCounts, comunaCounts, allData.length);
+                }
+
+                // Esperar entre lotes
+                if (i + batchSize < propertiesWithCoords.length) {
+                    await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+                }
+            }
 
             console.log('📍 Regiones encontradas:', Object.keys(regionCounts).length);
             console.log('📍 Comunas encontradas:', Object.keys(comunaCounts).length);
 
+            // Renderizar estadísticas finales
+            renderLocationStats(regionCounts, comunaCounts, allData.length);
+        }
+
+        // Renderizar estadísticas de ubicación
+        function renderLocationStats(regionCounts, comunaCounts, totalProps) {
             // Ordenar y tomar top 5
             const topRegiones = Object.entries(regionCounts)
                 .sort((a, b) => b[1] - a[1])
@@ -2109,7 +2167,7 @@
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 5);
 
-            const totalProperties = allData.length;
+            const totalProperties = totalProps || allData.length;
 
             // Renderizar regiones
             const regionContainer = document.getElementById('regionStatsContainer');
