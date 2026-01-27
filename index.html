@@ -1749,7 +1749,7 @@
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-bold text-white">${item.corredor}</p>
-                                <p class="text-xs text-purple-300 font-medium">💰 Comisión: 30%</p>
+                                <p class="text-xs text-purple-300 font-medium">💰 Comisión: ${xmlData.operation === 'rent' && item.corredor === item.teamLeader ? '35%' : '30%'}</p>
                             </div>
                         </div>
                         
