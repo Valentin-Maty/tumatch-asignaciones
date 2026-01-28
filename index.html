@@ -912,7 +912,7 @@
                     <h3 class="text-2xl font-bold text-gradient">Filtros Avanzados</h3>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-user-tie mr-2 text-purple-400"></i>Corredor
@@ -921,7 +921,7 @@
                             <option value="">🏢 Todos los corredores</option>
                         </select>
                     </div>
-                    
+
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-crown mr-2 text-cyan-400"></i>Team Leader
@@ -930,7 +930,7 @@
                             <option value="">👑 Todos los team leaders</option>
                         </select>
                     </div>
-                    
+
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-exchange-alt mr-2 text-orange-400"></i>Tipo Operación
@@ -941,7 +941,7 @@
                             <option value="rent">🏠 Solo Arriendos</option>
                         </select>
                     </div>
-                    
+
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-dollar-sign mr-2 text-yellow-400"></i>Rango de Precio
@@ -962,18 +962,31 @@
                             </optgroup>
                         </select>
                     </div>
-                    
+
                     <div class="space-y-3">
                         <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
                             <i class="fas fa-search mr-2 text-emerald-400"></i>Búsqueda
                         </label>
                         <div class="relative">
-                            <input type="text" id="searchInput" placeholder="🔍 Código o referido..." 
+                            <input type="text" id="searchInput" placeholder="🔍 Código o referido..."
                                    class="input-modern w-full pl-4 pr-12 py-3 hover:bg-white/5 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400">
                                 <i class="fas fa-search"></i>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-zinc-300 uppercase tracking-wider">
+                            <i class="fas fa-sort mr-2 text-rose-400"></i>Ordenar por
+                        </label>
+                        <select id="sortFilter" class="input-modern w-full px-4 py-3 cursor-pointer hover:bg-white/5 transition-all duration-200">
+                            <option value="">📋 Sin ordenar</option>
+                            <option value="price_asc">💰 Precio: Menor a Mayor</option>
+                            <option value="price_desc">💰 Precio: Mayor a Menor</option>
+                            <option value="leads_desc">📈 Leads: Mayor a Menor</option>
+                            <option value="leads_asc">📉 Leads: Menor a Mayor</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -1717,7 +1730,8 @@
                 teamLeader: document.getElementById('teamLeaderFilter').value,
                 operation: document.getElementById('operationFilter').value,
                 price: document.getElementById('priceFilter').value,
-                search: document.getElementById('searchInput').value
+                search: document.getElementById('searchInput').value,
+                sort: document.getElementById('sortFilter').value
             };
             localStorage.setItem('propertyFilters', JSON.stringify(filters));
         }
@@ -1745,7 +1759,10 @@
                     if (filters.search !== undefined) {
                         document.getElementById('searchInput').value = filters.search;
                     }
-                    
+                    if (filters.sort !== undefined) {
+                        document.getElementById('sortFilter').value = filters.sort;
+                    }
+
                     console.log('✅ Filtros restaurados desde localStorage:', filters);
                 } catch (error) {
                     console.error('Error al cargar filtros guardados:', error);
@@ -1804,7 +1821,27 @@
                 
                 return matchesCorredor && matchesTeamLeader && matchesOperation && matchesPrice && matchesSearch;
             });
-            
+
+            // Ordenar según el filtro seleccionado
+            const sortFilter = document.getElementById('sortFilter')?.value || '';
+            if (sortFilter) {
+                filteredData.sort((a, b) => {
+                    if (sortFilter === 'price_asc' || sortFilter === 'price_desc') {
+                        const xmlA = getPropertyData(a.codigo);
+                        const xmlB = getPropertyData(b.codigo);
+                        const priceA = xmlA.price || 0;
+                        const priceB = xmlB.price || 0;
+                        return sortFilter === 'price_asc' ? priceA - priceB : priceB - priceA;
+                    }
+                    if (sortFilter === 'leads_desc' || sortFilter === 'leads_asc') {
+                        const leadsA = getLeadsForProperty(a.codigo);
+                        const leadsB = getLeadsForProperty(b.codigo);
+                        return sortFilter === 'leads_desc' ? leadsB - leadsA : leadsA - leadsB;
+                    }
+                    return 0;
+                });
+            }
+
             updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, priceFilter, searchInput);
             renderProperties();
 
@@ -2852,6 +2889,7 @@
             document.getElementById('operationFilter').addEventListener('change', applyFilters);
             document.getElementById('priceFilter').addEventListener('change', applyFilters);
             document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('sortFilter').addEventListener('change', applyFilters);
             
             // Expose functions to window for Alpine.js integration
             window.updateStats = updateStats;
