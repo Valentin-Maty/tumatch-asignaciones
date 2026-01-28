@@ -3096,7 +3096,7 @@
                                 <div style="color: #a1a1aa; font-size: 11px; margin-bottom: 4px;">Corredor</div>
                                 <div style="color: white; font-size: 13px; font-weight: 500;">${item.corredor}</div>
                             </div>
-                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\\d+/)?.[0] || ''}"
+                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}"
                                target="_blank"
                                style="display: block; margin-top: 10px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
                                 Ver detalles
@@ -3114,7 +3114,7 @@
             // Actualizar contador
             const countElement = document.getElementById('mapPropertiesCount');
             if (countElement) {
-                countElement.textContent = `${propertiesWithLocation} propiedades`;
+                countElement.textContent = `${propertiesWithLocation}`;
             }
 
             // Ajustar vista a los bounds si hay marcadores
@@ -3301,7 +3301,7 @@
                                 <div style="color: #a1a1aa; font-size: 11px; margin-bottom: 4px;">Corredor</div>
                                 <div style="color: white; font-size: 13px; font-weight: 500;">${item.corredor}</div>
                             </div>
-                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\\d+/)?.[0] || ''}"
+                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}"
                                target="_blank"
                                style="display: block; margin-top: 10px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
                                 Ver detalles
