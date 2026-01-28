@@ -673,20 +673,13 @@
                         <button onclick="loadData()" class="btn-modern px-3 py-2 rounded-lg text-sm flex items-center">
                             <i class="fas fa-sync-alt"></i>
                         </button>
-                        <button onclick="exportData()" class="btn-outline px-3 py-2 rounded-lg text-sm flex items-center">
-                            <i class="fas fa-download"></i>
-                        </button>
                     </div>
-                    
+
                     <!-- Desktop - con texto -->
                     <div class="hidden md:flex items-center space-x-2">
                         <button onclick="loadData()" class="btn-modern px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium flex items-center space-x-2">
                             <i class="fas fa-sync-alt text-sm"></i>
                             <span class="hidden lg:inline">Actualizar</span>
-                        </button>
-                        <button onclick="exportData()" class="btn-outline px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium flex items-center space-x-2">
-                            <i class="fas fa-download text-sm"></i>
-                            <span class="hidden lg:inline">Exportar</span>
                         </button>
                     </div>
                 </div>
@@ -2742,91 +2735,6 @@
         }
 
         // Export Data
-        function exportData() {
-            // Headers del CSV con toda la información visible en pantalla
-            let csv = 'Código,Corredor,Team Leader,Referido,Estado Firma,Orden Enviada,Título Propiedad,Tipo Propiedad,Operación,Precio,Moneda,Dormitorios,Baños,Superficie (m²),Terreno (m²),Latitud,Longitud\n';
-            
-            filteredData.forEach(item => {
-                const xmlData = getPropertyData(item.codigo);
-                
-                // Formatear precio
-                const formatPrice = (price, currency) => {
-                    if (!price) return '';
-                    if (currency === 'CLP') {
-                        return `$${price.toLocaleString('es-CL')}`;
-                    } else if (currency === 'CLF') {
-                        return `${price.toLocaleString('es-CL')} UF`;
-                    }
-                    return price.toString();
-                };
-                
-                // Formatear tipo de propiedad
-                const formatPropertyType = (type) => {
-                    const types = {
-                        'house': 'Casa',
-                        'apartment': 'Departamento', 
-                        'land': 'Terreno',
-                        'office': 'Oficina',
-                        'commercial': 'Comercial'
-                    };
-                    return types[type] || type || '';
-                };
-                
-                // Formatear operación
-                const formatOperation = (operation) => {
-                    const operations = {
-                        'sale': 'Venta',
-                        'rent': 'Arriendo',
-                        'sell': 'Venta',
-                        'rental': 'Arriendo'
-                    };
-                    return operations[operation] || operation || '';
-                };
-                
-                // Escapar comillas en CSV
-                const escape = (value) => {
-                    if (!value) return '';
-                    return `"${value.toString().replace(/"/g, '""')}"`;
-                };
-                
-                csv += [
-                    escape(item.codigo),
-                    escape(item.corredor),
-                    escape(item.teamLeader || ''),
-                    escape(item.referido),
-                    escape(item.firmaOrden ? 'Sí' : 'No'),
-                    escape(item.ordenEnviada || ''),
-                    escape(xmlData.title || ''),
-                    escape(formatPropertyType(xmlData.propertyType)),
-                    escape(formatOperation(xmlData.operation)),
-                    escape(formatPrice(xmlData.price, xmlData.currency)),
-                    escape(xmlData.currency || ''),
-                    escape(xmlData.bedrooms || ''),
-                    escape(xmlData.bathrooms || ''),
-                    escape(xmlData.floorArea || ''),
-                    escape(xmlData.plotArea || ''),
-                    escape(xmlData.latitude || ''),
-                    escape(xmlData.longitude || '')
-                ].join(',') + '\n';
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            
-            // Nombre del archivo con fecha
-            const fecha = new Date().toISOString().split('T')[0];
-            a.download = `propiedades_completo_${fecha}.csv`;
-            
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            
-            showToast(`Exportados ${filteredData.length} registros con información completa`, 'success');
-        }
-
         // Show Toast Notification
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
