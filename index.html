@@ -517,6 +517,32 @@
             background: rgba(255, 255, 255, 0.2);
             transform: rotate(90deg);
         }
+
+        /* Estilos para popups del mapa global */
+        .custom-popup .leaflet-popup-content-wrapper {
+            background: transparent;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .custom-popup .leaflet-popup-content {
+            margin: 0;
+            width: auto !important;
+        }
+
+        .custom-popup .leaflet-popup-tip {
+            background: #1a1a1d;
+        }
+
+        .custom-marker {
+            background: transparent;
+            border: none;
+        }
+
+        #globalMapContainer {
+            background: #1a1a1d;
+        }
     </style>
 </head>
 
@@ -564,10 +590,15 @@
                 <div class="flex items-center space-x-1">
                     <!-- Mobile tabs - compactos -->
                     <div class="flex md:hidden items-center space-x-1">
-                        <button @click="currentView = 'properties'" 
+                        <button @click="currentView = 'properties'"
                                 :class="currentView === 'properties' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'text-zinc-400 border-transparent'"
                                 class="px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center">
                             <i class="fas fa-building text-sm"></i>
+                        </button>
+                        <button @click="currentView = 'map'; initGlobalMap();"
+                                :class="currentView === 'map' ? 'bg-green-500/20 text-green-300 border-green-500/50' : 'text-zinc-400 border-transparent'"
+                                class="px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center">
+                            <i class="fas fa-map-marked-alt text-sm"></i>
                         </button>
                         <button @click="currentView = 'dashboard'"
                                 :class="currentView === 'dashboard' ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'text-zinc-400 border-transparent'"
@@ -583,11 +614,17 @@
 
                     <!-- Desktop tabs - completos -->
                     <div class="hidden md:flex items-center space-x-1">
-                        <button @click="currentView = 'properties'" 
+                        <button @click="currentView = 'properties'"
                                 :class="currentView === 'properties' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
                                 class="px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
                             <i class="fas fa-building text-sm"></i>
                             <span class="hidden lg:inline">Propiedades</span>
+                        </button>
+                        <button @click="currentView = 'map'; initGlobalMap();"
+                                :class="currentView === 'map' ? 'bg-green-500/20 text-green-300 border-green-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
+                                class="px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                            <i class="fas fa-map-marked-alt text-sm"></i>
+                            <span class="hidden lg:inline">Mapa</span>
                         </button>
                         <button @click="currentView = 'dashboard'"
                                 :class="currentView === 'dashboard' ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
@@ -1001,6 +1038,48 @@
                 </div>
             </section>
         </div> <!-- End Ranking Section -->
+
+        <!-- Map Section -->
+        <div x-show="currentView === 'map'" x-transition>
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+                <!-- Header -->
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/10 mb-6 animate-fade-scale">
+                        <div class="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                        <span class="text-sm font-medium text-zinc-300">Ubicaciones de Propiedades</span>
+                    </div>
+
+                    <h1 class="heading-xl animate-slide-up">
+                        Mapa de Propiedades
+                    </h1>
+                    <p class="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed animate-slide-up" style="animation-delay: 0.2s">
+                        Visualiza todas las propiedades disponibles en el mapa
+                    </p>
+                </div>
+
+                <!-- Stats del mapa -->
+                <div class="glass-strong rounded-xl p-4 mb-6 flex items-center justify-between animate-slide-up">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-map-marker-alt text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-zinc-300 font-medium">Propiedades con ubicación</p>
+                            <p id="mapPropertiesCount" class="text-xl font-bold text-gradient">0 propiedades</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2 text-xs text-zinc-400">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Haz clic en un marcador para ver detalles</span>
+                    </div>
+                </div>
+
+                <!-- Mapa contenedor -->
+                <div class="glass-strong rounded-2xl p-4 animate-slide-up" style="animation-delay: 0.3s">
+                    <div id="globalMapContainer" class="w-full rounded-xl overflow-hidden" style="height: 600px;"></div>
+                </div>
+            </section>
+        </div> <!-- End Map Section -->
     </main>
 
     <script>
@@ -1227,10 +1306,14 @@
                 }
                 
                 console.log('✅ Datos del XML cargados:', propertyData.size, 'propiedades');
-                
+
                 // Refresh properties display if data is already loaded
                 if (allData.length > 0) {
                     renderProperties();
+                    // Actualizar mapa global si existe
+                    if (globalMap) {
+                        updateGlobalMapMarkers();
+                    }
                 }
                 
             } catch (error) {
@@ -1546,6 +1629,11 @@
             
             updateResultsIndicator(corredorFilter, teamLeaderFilter, operationFilter, priceFilter, searchInput);
             renderProperties();
+
+            // Actualizar mapa global si existe
+            if (globalMap) {
+                updateGlobalMapMarkers();
+            }
         }
 
         // Update Results Indicator
@@ -2748,6 +2836,159 @@
             if (window.currentMap) {
                 window.currentMap.remove();
                 window.currentMap = null;
+            }
+        }
+
+        // Mapa global con todas las propiedades
+        let globalMap = null;
+
+        function initGlobalMap() {
+            const mapContainer = document.getElementById('globalMapContainer');
+            if (!mapContainer) return;
+
+            // Si ya existe el mapa, solo actualizamos los markers
+            if (globalMap) {
+                updateGlobalMapMarkers();
+                return;
+            }
+
+            // Crear el mapa centrado en Chile
+            globalMap = L.map('globalMapContainer').setView([-33.45, -70.65], 6);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(globalMap);
+
+            // Agregar marcadores
+            updateGlobalMapMarkers();
+
+            // Fix para cuando el mapa se muestra por primera vez
+            setTimeout(() => {
+                globalMap.invalidateSize();
+            }, 100);
+        }
+
+        function updateGlobalMapMarkers() {
+            if (!globalMap) return;
+
+            // Limpiar marcadores existentes
+            globalMap.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    globalMap.removeLayer(layer);
+                }
+            });
+
+            const bounds = [];
+            let propertiesWithLocation = 0;
+
+            // Usar datos filtrados si existen, sino todos los datos
+            const dataToShow = filteredData.length > 0 ? filteredData : allData;
+
+            // Agregar marcadores para cada propiedad con ubicación
+            dataToShow.forEach((item, index) => {
+                const xmlData = getPropertyData(item.codigo);
+                if (!xmlData.latitude || !xmlData.longitude) return;
+
+                propertiesWithLocation++;
+                const lat = parseFloat(xmlData.latitude);
+                const lng = parseFloat(xmlData.longitude);
+                bounds.push([lat, lng]);
+
+                // Crear icono personalizado
+                const markerColor = xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6';
+                const customIcon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div style="
+                        background: ${markerColor};
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 50% 50% 50% 0;
+                        transform: rotate(-45deg);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border: 3px solid white;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                    ">
+                        <i class="fas fa-home" style="transform: rotate(45deg); color: white; font-size: 12px;"></i>
+                    </div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                });
+
+                const marker = L.marker([lat, lng], { icon: customIcon }).addTo(globalMap);
+
+                // Crear popup con card de propiedad
+                const propertyImage = getPropertyImage(item.codigo);
+                const priceFormatted = xmlData.price ?
+                    (xmlData.currency === 'CLF' ? `UF ${xmlData.price.toLocaleString('es-CL')}` : `$${xmlData.price.toLocaleString('es-CL')}`)
+                    : 'Precio no disponible';
+                const operationText = xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '';
+                const propertyTypes = {
+                    'house': 'Casa',
+                    'apartment': 'Departamento',
+                    'land': 'Terreno',
+                    'office': 'Oficina',
+                    'commercial': 'Comercial'
+                };
+                const propertyTypeText = propertyTypes[xmlData.propertyType] || xmlData.propertyType || '';
+
+                const popupContent = `
+                    <div style="width: 280px; font-family: 'Inter', sans-serif;">
+                        <div style="position: relative; height: 120px; overflow: hidden; border-radius: 12px 12px 0 0;">
+                            ${propertyImage ?
+                                `<img src="${propertyImage}" alt="Propiedad" style="width: 100%; height: 100%; object-fit: cover;">` :
+                                `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-home" style="font-size: 32px; color: rgba(255,255,255,0.3);"></i>
+                                </div>`
+                            }
+                            <div style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 8px;">
+                                <span style="color: white; font-weight: bold; font-size: 14px;">${item.codigo}</span>
+                            </div>
+                            ${operationText ? `
+                            <div style="position: absolute; top: 8px; right: 8px; background: ${xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6'}; padding: 4px 10px; border-radius: 8px;">
+                                <span style="color: white; font-weight: 600; font-size: 11px;">${operationText}</span>
+                            </div>` : ''}
+                        </div>
+                        <div style="padding: 12px; background: #1a1a1d; border-radius: 0 0 12px 12px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="color: white; font-weight: bold; font-size: 16px;">${priceFormatted}</span>
+                                ${propertyTypeText ? `<span style="color: #a1a1aa; font-size: 12px;">${propertyTypeText}</span>` : ''}
+                            </div>
+                            <div style="display: flex; gap: 12px; margin-bottom: 10px; color: #a1a1aa; font-size: 12px;">
+                                ${xmlData.bedrooms ? `<span><i class="fas fa-bed"></i> ${xmlData.bedrooms}</span>` : ''}
+                                ${xmlData.bathrooms ? `<span><i class="fas fa-bath"></i> ${xmlData.bathrooms}</span>` : ''}
+                                ${xmlData.floorArea ? `<span><i class="fas fa-ruler-combined"></i> ${xmlData.floorArea}m²</span>` : ''}
+                            </div>
+                            <div style="padding-top: 8px; border-top: 1px solid #27272a;">
+                                <div style="color: #a1a1aa; font-size: 11px; margin-bottom: 4px;">Corredor</div>
+                                <div style="color: white; font-size: 13px; font-weight: 500;">${item.corredor}</div>
+                            </div>
+                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\\d+/)?.[0] || ''}"
+                               target="_blank"
+                               style="display: block; margin-top: 10px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
+                                Ver detalles
+                            </a>
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    className: 'custom-popup'
+                });
+            });
+
+            // Actualizar contador
+            const countElement = document.getElementById('mapPropertiesCount');
+            if (countElement) {
+                countElement.textContent = `${propertiesWithLocation} propiedades`;
+            }
+
+            // Ajustar vista a los bounds si hay marcadores
+            if (bounds.length > 0) {
+                globalMap.fitBounds(bounds, { padding: [50, 50] });
             }
         }
 
