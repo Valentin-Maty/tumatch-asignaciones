@@ -1199,9 +1199,13 @@
         // Global Variables
         const SPREADSHEET_ID = '1X7cbk_fD5mGTXxs1cOa4tCxeXBrpiNWV4sEJnBRwVUM';
         const GID = '1154306850';
-        
+        const LEADS_GID = '685867171';
+
         let allData = [];
         let filteredData = [];
+
+        // Cache de leads del mes actual por código de propiedad
+        const leadsCount = new Map();
         
         // Cache de datos de propiedades del XML
         const propertyData = new Map();
@@ -1447,6 +1451,76 @@
             return result;
         }
 
+        // Cargar leads del mes actual desde Google Sheets
+        async function loadLeadsData() {
+            try {
+                const LEADS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${LEADS_GID}`;
+                console.log('📡 Cargando leads desde:', LEADS_URL);
+
+                const response = await fetch(LEADS_URL);
+                const csvText = await response.text();
+
+                if (!csvText) {
+                    console.warn('⚠️ No se pudieron cargar los leads');
+                    return;
+                }
+
+                const lines = csvText.split('\n').filter(line => line.trim());
+                console.log('📊 Total de líneas de leads:', lines.length);
+
+                // Limpiar cache anterior
+                leadsCount.clear();
+
+                const now = new Date();
+                const currentMonth = now.getMonth(); // 0-indexed
+                const currentYear = now.getFullYear();
+
+                let totalLeadsMes = 0;
+
+                // Iterar desde la fila 1 (saltar header)
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+
+                    const fechaStr = (values[1] || '').trim(); // Columna B - Fecha
+                    const codigoLead = (values[7] || '').trim(); // Columna H - Código
+
+                    if (!fechaStr || !codigoLead) continue;
+
+                    // Parsear fecha DD/MM/YYYY
+                    const dateParts = fechaStr.split('/');
+                    if (dateParts.length !== 3) continue;
+
+                    const day = parseInt(dateParts[0], 10);
+                    const month = parseInt(dateParts[1], 10) - 1; // 0-indexed
+                    const year = parseInt(dateParts[2], 10);
+
+                    if (isNaN(day) || isNaN(month) || isNaN(year)) continue;
+
+                    // Filtrar solo mes actual
+                    if (month === currentMonth && year === currentYear) {
+                        // Extraer solo dígitos del código del lead
+                        const codigoNumeros = codigoLead.replace(/\D/g, '');
+                        if (!codigoNumeros) continue;
+
+                        const count = leadsCount.get(codigoNumeros) || 0;
+                        leadsCount.set(codigoNumeros, count + 1);
+                        totalLeadsMes++;
+                    }
+                }
+
+                console.log('✅ Leads del mes actual cargados:', totalLeadsMes, 'leads para', leadsCount.size, 'propiedades');
+            } catch (error) {
+                console.warn('⚠️ Error al cargar leads:', error.message);
+            }
+        }
+
+        // Obtener cantidad de leads del mes para un código de propiedad
+        function getLeadsForProperty(codigo) {
+            // Extraer solo los números del código (ej: "tu-385" -> "385")
+            const codigoNumeros = codigo.toString().replace(/\D/g, '');
+            return leadsCount.get(codigoNumeros) || 0;
+        }
+
         // Load Data Function (Original Working Version)
         async function loadData(isAutoRefresh = false) {
             console.log('🔄 Iniciando carga de datos...');
@@ -1524,8 +1598,14 @@
                 // Renderizar ranking
                 renderRanking();
 
+                // Cargar leads del mes actual
+                await loadLeadsData();
+
+                // Re-renderizar con leads cargados
+                applyFilters();
+
                 console.log('📈 Stats actualizadas');
-                
+
                 if (!isAutoRefresh) {
                     showToast('Datos actualizados correctamente', 'success');
                 }
@@ -1867,7 +1947,8 @@
             
             const priceInfo = formatPrice(xmlData.price, xmlData.currency, xmlData.operation);
             const propertyTypeFormatted = formatPropertyType(xmlData.propertyType);
-            
+            const leadsThisMonth = getLeadsForProperty(item.codigo);
+
             return `
                 <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
                      onclick="window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
@@ -1906,8 +1987,13 @@
                             ${propertyTypeFormatted ? `
                             <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
                                 <span class="text-xs text-white font-medium">🏠 ${propertyTypeFormatted}</span>
-                            </div>` : ''}
-                            
+                            </div>` : '<div></div>'}
+                            <div class="glass px-2.5 py-1 rounded-lg backdrop-blur-lg ${leadsThisMonth > 0 ? 'border border-yellow-500/40' : ''}">
+                                <span class="text-xs font-bold ${leadsThisMonth > 0 ? 'text-yellow-300' : 'text-zinc-400'} flex items-center space-x-1">
+                                    <i class="fas fa-users text-[10px]"></i>
+                                    <span>${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''}</span>
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Enlace a propiedad en 2clics (badge central) -->
