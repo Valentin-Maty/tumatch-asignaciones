@@ -1825,12 +1825,16 @@
             // Ordenar según el filtro seleccionado
             const sortFilter = document.getElementById('sortFilter')?.value || '';
             if (sortFilter) {
+                // Valor UF aproximado para normalizar precios (UF -> CLP)
+                const UF_VALUE = 38800;
+
                 filteredData.sort((a, b) => {
                     if (sortFilter === 'price_asc' || sortFilter === 'price_desc') {
                         const xmlA = getPropertyData(a.codigo);
                         const xmlB = getPropertyData(b.codigo);
-                        const priceA = xmlA.price || 0;
-                        const priceB = xmlB.price || 0;
+                        // Normalizar a CLP: si es UF (CLF), multiplicar por valor UF
+                        const priceA = (xmlA.price || 0) * (xmlA.currency === 'CLF' ? UF_VALUE : 1);
+                        const priceB = (xmlB.price || 0) * (xmlB.currency === 'CLF' ? UF_VALUE : 1);
                         return sortFilter === 'price_asc' ? priceA - priceB : priceB - priceA;
                     }
                     if (sortFilter === 'leads_desc' || sortFilter === 'leads_asc') {
