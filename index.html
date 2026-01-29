@@ -673,6 +673,9 @@
                         <button onclick="loadData()" class="btn-modern px-3 py-2 rounded-lg text-sm flex items-center">
                             <i class="fas fa-sync-alt"></i>
                         </button>
+                        <button onclick="exportZeroLeads()" class="btn-modern px-3 py-2 rounded-lg text-sm flex items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="fas fa-file-excel"></i>
+                        </button>
                     </div>
 
                     <!-- Desktop - con texto -->
@@ -680,6 +683,10 @@
                         <button onclick="loadData()" class="btn-modern px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium flex items-center space-x-2">
                             <i class="fas fa-sync-alt text-sm"></i>
                             <span class="hidden lg:inline">Actualizar</span>
+                        </button>
+                        <button onclick="exportZeroLeads()" class="btn-modern px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium flex items-center space-x-2" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                            <i class="fas fa-file-excel text-sm"></i>
+                            <span class="hidden lg:inline">Exportar 0 Leads</span>
                         </button>
                     </div>
                 </div>
@@ -3362,6 +3369,66 @@
             if (bounds.length > 0) {
                 globalMap.fitBounds(bounds, { padding: [50, 50] });
             }
+        }
+
+        // Función para exportar propiedades con 0 leads a Excel
+        function exportZeroLeads() {
+            // Filtrar propiedades con 0 leads
+            const zeroLeadsProperties = allData.filter(prop => {
+                const leads = getLeadsForProperty(prop.codigo);
+                return leads === 0;
+            });
+
+            if (zeroLeadsProperties.length === 0) {
+                alert('No hay propiedades con 0 leads para exportar.');
+                return;
+            }
+
+            // Crear contenido CSV con formato Excel (BOM para UTF-8)
+            const BOM = '\uFEFF';
+
+            // Cabeceras: Nombre TL, Nombre Corredor, Código Publicación, Leads
+            const headers = ['Nombre TL', 'Nombre Corredor', 'Código Publicación', 'Leads'];
+
+            // Función para escapar valores CSV
+            const escapeCSV = (value) => {
+                if (value === null || value === undefined) return '';
+                const str = String(value);
+                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            // Construir filas
+            const rows = zeroLeadsProperties.map(prop => {
+                return [
+                    escapeCSV(prop.teamLeader || ''),
+                    escapeCSV(prop.corredor || ''),
+                    escapeCSV(prop.codigo || ''),
+                    '0'
+                ].join(',');
+            });
+
+            // Unir todo
+            const csvContent = BOM + headers.join(',') + '\n' + rows.join('\n');
+
+            // Crear y descargar archivo
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            const fecha = new Date().toISOString().split('T')[0];
+            link.href = url;
+            link.download = `propiedades_0_leads_${fecha}.csv`;
+            link.style.display = 'none';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            console.log(`✅ Exportadas ${zeroLeadsProperties.length} propiedades con 0 leads`);
         }
 
         // Event listeners para el modal
