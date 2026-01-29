@@ -3373,8 +3373,8 @@
 
         // Función para exportar propiedades con 0 leads a Excel
         function exportZeroLeads() {
-            // Filtrar propiedades con 0 leads
-            const zeroLeadsProperties = allData.filter(prop => {
+            // Filtrar propiedades con 0 leads desde los datos filtrados actuales
+            const zeroLeadsProperties = filteredData.filter(prop => {
                 const leads = getLeadsForProperty(prop.codigo);
                 return leads === 0;
             });
