@@ -673,8 +673,7 @@
                         <button onclick="loadData()" class="btn-modern px-3 py-2 rounded-lg text-sm flex items-center">
                             <i class="fas fa-sync-alt"></i>
                         </button>
-                        <!-- Botón oculto - función disponible en consola: exportZeroLeads() -->
-                        <button onclick="exportZeroLeads()" class="btn-modern px-3 py-2 rounded-lg text-sm flex items-center" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <button onclick="exportLeadsHistorico()" class="btn-modern px-3 py-2 rounded-lg text-sm flex items-center" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                             <i class="fas fa-file-excel"></i>
                         </button>
                     </div>
@@ -685,10 +684,9 @@
                             <i class="fas fa-sync-alt text-sm"></i>
                             <span class="hidden lg:inline">Actualizar</span>
                         </button>
-                        <!-- Botón oculto - función disponible en consola: exportZeroLeads() -->
-                        <button onclick="exportZeroLeads()" class="btn-modern px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium flex items-center space-x-2" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                        <button onclick="exportLeadsHistorico()" class="btn-modern px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium flex items-center space-x-2" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
                             <i class="fas fa-file-excel text-sm"></i>
-                            <span class="hidden lg:inline">Exportar 0 Leads</span>
+                            <span class="hidden lg:inline">Exportar Leads</span>
                         </button>
                     </div>
                 </div>
@@ -3373,64 +3371,140 @@
             }
         }
 
-        // Función para exportar propiedades con 0 leads a Excel
-        function exportZeroLeads() {
-            // Filtrar propiedades con 0 leads desde los datos filtrados actuales
-            const zeroLeadsProperties = filteredData.filter(prop => {
-                const leads = getLeadsForProperty(prop.codigo);
-                return leads === 0;
-            });
+        // Función para exportar propiedades con leads históricos por mes
+        async function exportLeadsHistorico() {
+            const loadingMsg = document.createElement('div');
+            loadingMsg.innerHTML = '<div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a2e;padding:20px 40px;border-radius:12px;color:white;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.5);"><i class="fas fa-spinner fa-spin mr-2"></i> Cargando leads históricos...</div>';
+            document.body.appendChild(loadingMsg);
 
-            if (zeroLeadsProperties.length === 0) {
-                alert('No hay propiedades con 0 leads para exportar.');
-                return;
-            }
+            try {
+                // Cargar todos los leads desde Google Sheets
+                const LEADS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${LEADS_GID}`;
+                const response = await fetch(LEADS_URL);
+                const csvText = await response.text();
 
-            // Crear contenido CSV con formato Excel (BOM para UTF-8)
-            const BOM = '\uFEFF';
-
-            // Cabeceras: Nombre TL, Nombre Corredor, Código Publicación, Leads
-            const headers = ['Nombre TL', 'Nombre Corredor', 'Código Publicación', 'Leads'];
-
-            // Función para escapar valores CSV
-            const escapeCSV = (value) => {
-                if (value === null || value === undefined) return '';
-                const str = String(value);
-                if (str.includes(',') || str.includes('"') || str.includes('\n')) {
-                    return `"${str.replace(/"/g, '""')}"`;
+                if (!csvText) {
+                    alert('No se pudieron cargar los leads.');
+                    document.body.removeChild(loadingMsg);
+                    return;
                 }
-                return str;
-            };
 
-            // Construir filas
-            const rows = zeroLeadsProperties.map(prop => {
-                return [
-                    escapeCSV(prop.teamLeader || ''),
-                    escapeCSV(prop.corredor || ''),
-                    escapeCSV(prop.codigo || ''),
-                    '0'
-                ].join(',');
-            });
+                const lines = csvText.split('\n').filter(line => line.trim());
 
-            // Unir todo
-            const csvContent = BOM + headers.join(',') + '\n' + rows.join('\n');
+                // Generar lista de meses desde enero del año pasado hasta el mes actual
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth();
+                const lastYear = currentYear - 1;
 
-            // Crear y descargar archivo
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
+                const months = [];
+                const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-            const fecha = new Date().toISOString().split('T')[0];
-            link.href = url;
-            link.download = `propiedades_0_leads_${fecha}.csv`;
-            link.style.display = 'none';
+                // Desde enero del año pasado
+                for (let m = 0; m < 12; m++) {
+                    months.push({ year: lastYear, month: m, label: `${monthNames[m]} ${lastYear}` });
+                }
+                // Hasta el mes actual del año actual
+                for (let m = 0; m <= currentMonth; m++) {
+                    months.push({ year: currentYear, month: m, label: `${monthNames[m]} ${currentYear}` });
+                }
 
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+                // Crear mapa de leads por propiedad y mes
+                // Estructura: { codigoNumeros: { "2024-0": 5, "2024-1": 3, ... } }
+                const leadsHistorico = new Map();
 
-            console.log(`✅ Exportadas ${zeroLeadsProperties.length} propiedades con 0 leads`);
+                for (let i = 1; i < lines.length; i++) {
+                    const values = parseCSVLine(lines[i]);
+                    const fechaStr = (values[1] || '').trim();
+                    const codigoLead = (values[7] || '').trim();
+
+                    if (!fechaStr || !codigoLead) continue;
+
+                    const dateParts = fechaStr.split('/');
+                    if (dateParts.length !== 3) continue;
+
+                    const day = parseInt(dateParts[0], 10);
+                    const month = parseInt(dateParts[1], 10) - 1;
+                    const year = parseInt(dateParts[2], 10);
+
+                    if (isNaN(day) || isNaN(month) || isNaN(year)) continue;
+
+                    // Solo contar si está dentro del rango (desde enero año pasado)
+                    if (year < lastYear || (year === currentYear && month > currentMonth)) continue;
+
+                    const codigoNumeros = codigoLead.replace(/\D/g, '');
+                    if (!codigoNumeros) continue;
+
+                    const key = `${year}-${month}`;
+                    if (!leadsHistorico.has(codigoNumeros)) {
+                        leadsHistorico.set(codigoNumeros, {});
+                    }
+                    const propLeads = leadsHistorico.get(codigoNumeros);
+                    propLeads[key] = (propLeads[key] || 0) + 1;
+                }
+
+                // Crear contenido CSV
+                const BOM = '\uFEFF';
+
+                // Cabeceras
+                const headers = ['Nombre TL', 'Nombre Corredor', 'Código Publicación', ...months.map(m => m.label), 'Total'];
+
+                const escapeCSV = (value) => {
+                    if (value === null || value === undefined) return '';
+                    const str = String(value);
+                    if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                        return `"${str.replace(/"/g, '""')}"`;
+                    }
+                    return str;
+                };
+
+                // Construir filas con TODAS las propiedades
+                const rows = filteredData.map(prop => {
+                    const codigoNumeros = prop.codigo.toString().replace(/\D/g, '');
+                    const propLeads = leadsHistorico.get(codigoNumeros) || {};
+
+                    let total = 0;
+                    const monthValues = months.map(m => {
+                        const key = `${m.year}-${m.month}`;
+                        const count = propLeads[key] || 0;
+                        total += count;
+                        return count.toString();
+                    });
+
+                    return [
+                        escapeCSV(prop.teamLeader || ''),
+                        escapeCSV(prop.corredor || ''),
+                        escapeCSV(prop.codigo || ''),
+                        ...monthValues,
+                        total.toString()
+                    ].join(',');
+                });
+
+                const csvContent = BOM + headers.join(',') + '\n' + rows.join('\n');
+
+                // Descargar archivo
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+
+                const fecha = new Date().toISOString().split('T')[0];
+                link.href = url;
+                link.download = `propiedades_leads_historico_${fecha}.csv`;
+                link.style.display = 'none';
+
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                document.body.removeChild(loadingMsg);
+                console.log(`✅ Exportadas ${filteredData.length} propiedades con leads históricos`);
+
+            } catch (error) {
+                document.body.removeChild(loadingMsg);
+                alert('Error al exportar: ' + error.message);
+                console.error('Error exportando:', error);
+            }
         }
 
         // Event listeners para el modal
