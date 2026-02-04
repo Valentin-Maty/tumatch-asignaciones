@@ -1645,6 +1645,10 @@
                 // Cargar leads del mes actual
                 await loadLeadsData();
 
+                // Resetear debug para ver segundo renderizado
+                debugGetLeads = 0;
+                console.log('🔄 Re-renderizando con leads cargados...');
+
                 // Re-renderizar con leads cargados
                 applyFilters();
 
