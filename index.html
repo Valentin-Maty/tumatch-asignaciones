@@ -1466,14 +1466,14 @@
                                 <span class="hidden md:inline">Inicio</span>
                             </button>
 
-                            <!-- Selector de estilo -->
+                            <!-- Selector de estilo - se abre hacia arriba -->
                             <div class="relative">
                                 <button onclick="toggleMapStyleMenu()" title="Cambiar estilo de mapa" class="px-3 py-2 bg-cyan-500/20 border border-cyan-500/30 rounded-lg flex items-center gap-2 text-cyan-400 hover:bg-cyan-500/30 hover:text-white transition-all text-sm font-medium">
                                     <i class="fas fa-layer-group"></i>
                                     <span class="hidden md:inline">Estilo</span>
-                                    <i class="fas fa-chevron-down text-xs"></i>
+                                    <i class="fas fa-chevron-up text-xs"></i>
                                 </button>
-                                <div id="mapStyleMenu" class="hidden absolute right-0 top-full mt-2 bg-zinc-900 border border-zinc-600 rounded-xl p-2 min-w-[180px] z-[100] shadow-2xl backdrop-blur-lg">
+                                <div id="mapStyleMenu" class="hidden absolute right-0 bottom-full mb-2 bg-zinc-900 border border-zinc-600 rounded-xl p-2 min-w-[180px] shadow-2xl" style="z-index: 9999;">
                                     <button onclick="setMapStyle('streets')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
                                         <i class="fas fa-road w-5 text-zinc-400"></i> Calles
                                     </button>
