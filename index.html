@@ -314,6 +314,22 @@
             animation: fadeInScale 0.5s ease-out;
         }
 
+        .animate-fade-in {
+            animation: fadeInScale 0.4s ease-out both;
+        }
+
+        /* Skeleton loading */
+        .skeleton {
+            background: linear-gradient(90deg, #1f1f23 25%, #2a2a2e 50%, #1f1f23 75%);
+            background-size: 200% 100%;
+            animation: skeletonLoading 1.5s infinite;
+        }
+
+        @keyframes skeletonLoading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
         /* Animación para el indicador de resultados */
         #resultsIndicator {
             transition: all 0.3s ease;
@@ -1008,21 +1024,28 @@
             </div>
         </section>
 
-        <!-- Indicador de resultados -->
+        <!-- Indicador de resultados mejorado -->
         <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
-            <div id="resultsIndicator" class="glass-strong rounded-xl p-4 flex items-center justify-between animate-slide-up" style="display: none;">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center">
-                        <i class="fas fa-list-alt text-white"></i>
+            <div id="resultsIndicator" class="glass-strong rounded-xl p-4 animate-slide-up" style="display: none;">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                            <i class="fas fa-building text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-zinc-400 font-medium">Resultados de búsqueda</p>
+                            <p id="resultsCount" class="text-2xl font-bold text-white">0 propiedades</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="text-sm text-zinc-300 font-medium">Propiedades encontradas</p>
-                        <p id="resultsCount" class="text-xl font-bold text-gradient">0 propiedades</p>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span id="filterBadge" class="hidden px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-full text-purple-300 text-xs font-medium">
+                            <i class="fas fa-filter mr-1"></i><span id="filterCount">0</span> filtros
+                        </span>
+                        <div class="text-xs text-zinc-400 max-w-md">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            <span id="activeFilters">Mostrando todas las propiedades</span>
+                        </div>
                     </div>
-                </div>
-                <div class="flex items-center space-x-2 text-xs text-zinc-400">
-                    <i class="fas fa-filter"></i>
-                    <span id="activeFilters">Todos los resultados</span>
                 </div>
             </div>
         </section>
@@ -1030,23 +1053,26 @@
         <!-- Properties Grid ultramoderno -->
         <section class="max-w-7xl mx-auto px-6 lg:px-8">
             
-            <!-- Loading State futurista -->
-            <div id="loading" class="flex flex-col items-center justify-center py-20" style="display: none;">
-                <div class="relative mb-8">
-                    <div class="w-20 h-20 rounded-full border-4 border-purple-500/20 animate-spin">
-                        <div class="absolute top-0 left-0 w-full h-full rounded-full border-4 border-transparent border-t-purple-500 animate-spin"></div>
-                    </div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="fas fa-home text-2xl text-purple-400 animate-pulse"></i>
+            <!-- Loading State con Skeleton -->
+            <div id="loading" style="display: none;">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center space-x-3 glass px-6 py-3 rounded-full">
+                        <div class="w-5 h-5 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-zinc-300">Cargando propiedades...</span>
                     </div>
                 </div>
-                <div class="text-center">
-                    <h3 class="text-xl font-semibold text-white mb-2">Cargando propiedades</h3>
-                    <div class="loading-modern">
-                        <div class="loading-dot"></div>
-                        <div class="loading-dot"></div>
-                        <div class="loading-dot"></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                    ${Array(6).fill('').map(() => `
+                    <div class="glass rounded-2xl overflow-hidden">
+                        <div class="h-48 skeleton"></div>
+                        <div class="p-5 space-y-4">
+                            <div class="h-4 skeleton rounded w-3/4"></div>
+                            <div class="h-16 skeleton rounded"></div>
+                            <div class="h-12 skeleton rounded"></div>
+                            <div class="h-10 skeleton rounded"></div>
+                        </div>
                     </div>
+                    `).join('')}
                 </div>
             </div>
 
@@ -1970,14 +1996,21 @@
                 activeFilters.push(`Búsqueda: "${searchInput}"`);
             }
             
+            // Actualizar badge de filtros
+            const filterBadge = document.getElementById('filterBadge');
+            const filterCount = document.getElementById('filterCount');
+
             if (activeFilters.length > 0) {
                 filtersElement.textContent = activeFilters.join(' • ');
+                filterBadge.classList.remove('hidden');
+                filterCount.textContent = activeFilters.length;
             } else {
                 filtersElement.textContent = `Mostrando todas las propiedades (${totalOriginal} total)`;
+                filterBadge.classList.add('hidden');
             }
-            
+
             // Show indicator
-            indicator.style.display = 'flex';
+            indicator.style.display = 'block';
         }
 
         // Render Properties con paginación
@@ -2134,8 +2167,14 @@
             const leadsThisMonth = getLeadsForProperty(item.codigo);
             const leadsThisYear = getLeadsForPropertyYear(item.codigo);
 
+            // Obtener ubicación
+            const locationText = xmlData.commune ?
+                (xmlData.region ? `${xmlData.commune}, ${xmlData.region}` : xmlData.commune) :
+                (xmlData.region || '');
+
             return `
-                <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
+                <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500 animate-fade-in"
+                     style="animation-delay: ${(index % itemsPerPage) * 50}ms"
                      onclick="window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
                     <!-- Imagen de la propiedad con overlay -->
                     <div class="relative h-48 overflow-hidden rounded-t-2xl">
@@ -2200,13 +2239,21 @@
                     <!-- Contenido Principal -->
                     <div class="p-5 space-y-4">
                         
-                        <!-- Corredor Principal (30% comisión) -->
+                        ${locationText ? `
+                        <!-- Ubicación -->
+                        <div class="flex items-center space-x-2 text-zinc-400 text-sm pb-2 border-b border-zinc-700/50">
+                            <i class="fas fa-map-marker-alt text-cyan-400"></i>
+                            <span class="truncate">${locationText}</span>
+                        </div>
+                        ` : ''}
+
+                        <!-- Corredor Principal -->
                         <div class="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
                             <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                                 <i class="fas fa-user-tie text-white text-sm"></i>
                             </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-white">${item.corredor}</p>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-bold text-white truncate">${item.corredor}</p>
                                 <p class="text-xs text-purple-300 font-medium">💰 Comisión: ${item.corredor === item.teamLeader ? '35%' : '30%'}</p>
                             </div>
                         </div>
