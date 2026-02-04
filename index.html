@@ -2052,13 +2052,14 @@
                             <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
                                 <span class="text-xs text-white font-medium">🏠 ${propertyTypeFormatted}</span>
                             </div>` : '<div></div>'}
-                            <div class="glass px-2.5 py-1 rounded-lg backdrop-blur-lg ${leadsThisMonth > 0 ? 'border border-yellow-500/40' : ''}">
-                                <span class="text-xs font-bold ${leadsThisMonth > 0 ? 'text-yellow-300' : 'text-zinc-400'} flex items-center space-x-1">
-                                    <i class="fas fa-users text-[10px]"></i>
-                                    <span>${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''}</span>
-                                </span>
-                                <div class="text-[10px] ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'} text-right">
-                                    (${leadsThisYear} año)
+                            <div class="glass px-2.5 py-1.5 rounded-lg backdrop-blur-lg ${leadsThisMonth > 0 ? 'border border-yellow-500/40' : ''}">
+                                <div class="flex items-center space-x-1 ${leadsThisMonth > 0 ? 'text-yellow-300' : 'text-zinc-400'}">
+                                    <i class="fas fa-calendar-day text-[10px]"></i>
+                                    <span class="text-xs font-bold">${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''} mes</span>
+                                </div>
+                                <div class="flex items-center space-x-1 ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'} mt-0.5">
+                                    <i class="fas fa-calendar-alt text-[9px]"></i>
+                                    <span class="text-[10px]">${leadsThisYear} lead${leadsThisYear !== 1 ? 's' : ''} anual</span>
                                 </div>
                             </div>
                         </div>
