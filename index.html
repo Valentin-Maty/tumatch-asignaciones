@@ -1473,18 +1473,25 @@
                                     <span class="hidden md:inline">Estilo</span>
                                     <i class="fas fa-chevron-up text-xs"></i>
                                 </button>
-                                <div id="mapStyleMenu" class="hidden absolute right-0 bottom-full mb-2 bg-zinc-900 border border-zinc-600 rounded-xl p-2 min-w-[180px] shadow-2xl" style="z-index: 9999;">
-                                    <button onclick="setMapStyle('streets')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
-                                        <i class="fas fa-road w-5 text-zinc-400"></i> Calles
+                                <div id="mapStyleMenu" class="hidden absolute right-0 bottom-full mb-2 bg-zinc-900 border border-zinc-600 rounded-xl p-2 min-w-[200px] shadow-2xl" style="z-index: 9999;">
+                                    <div class="px-3 py-2 text-xs text-zinc-500 font-semibold uppercase tracking-wider border-b border-zinc-700 mb-1">Estilos de Mapa</div>
+                                    <button onclick="setMapStyle('streets')" class="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-cyan-500/20 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-map w-5 text-cyan-400"></i> Voyager <span class="text-xs text-cyan-400 ml-auto">★</span>
                                     </button>
-                                    <button onclick="setMapStyle('satellite')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
-                                        <i class="fas fa-satellite w-5 text-blue-400"></i> Satélite
+                                    <button onclick="setMapStyle('light')" class="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-sun w-5 text-yellow-400"></i> Claro
                                     </button>
-                                    <button onclick="setMapStyle('dark')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                    <button onclick="setMapStyle('dark')" class="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
                                         <i class="fas fa-moon w-5 text-purple-400"></i> Oscuro
                                     </button>
-                                    <button onclick="setMapStyle('terrain')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
-                                        <i class="fas fa-mountain w-5 text-green-400"></i> Terreno
+                                    <button onclick="setMapStyle('satellite')" class="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-satellite w-5 text-blue-400"></i> Satélite HD
+                                    </button>
+                                    <button onclick="setMapStyle('terrain')" class="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-mountain w-5 text-green-400"></i> Topográfico
+                                    </button>
+                                    <button onclick="setMapStyle('detailed')" class="w-full px-4 py-2.5 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-road w-5 text-orange-400"></i> Detallado
                                     </button>
                                 </div>
                             </div>
@@ -3920,9 +3927,10 @@
             }).setView([-33.45, -70.65], 6);
 
             // Usar tiles con mejor cache
-            currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap',
-                maxZoom: 19,
+            // Usar CartoDB Voyager como mapa por defecto (el mejor gratuito)
+            currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '© <a href="https://carto.com/">CARTO</a>',
+                maxZoom: 20,
                 updateWhenIdle: true,
                 updateWhenZooming: false,
                 keepBuffer: 2
@@ -4417,24 +4425,44 @@
             }
         }
 
-        // ==================== ESTILOS DE MAPA ====================
+        // ==================== ESTILOS DE MAPA (Mejores gratuitos) ====================
         let currentTileLayer = null;
         const mapStyles = {
+            // CartoDB Voyager - El más moderno y limpio (RECOMENDADO)
             streets: {
-                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                attribution: '© OpenStreetMap'
+                url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                attribution: '© <a href="https://carto.com/">CARTO</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+                name: 'Voyager'
             },
+            // Esri World Imagery - Satélite de alta calidad
             satellite: {
                 url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-                attribution: '© Esri'
+                attribution: '© <a href="https://www.esri.com/">Esri</a>',
+                name: 'Satélite HD'
             },
+            // CartoDB Dark Matter - Oscuro elegante
             dark: {
                 url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-                attribution: '© CARTO'
+                attribution: '© <a href="https://carto.com/">CARTO</a>',
+                name: 'Oscuro'
             },
+            // Esri World Topo - Topográfico profesional
             terrain: {
-                url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
-                attribution: '© OpenTopoMap'
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+                attribution: '© <a href="https://www.esri.com/">Esri</a>',
+                name: 'Topográfico'
+            },
+            // CartoDB Positron - Minimalista claro
+            light: {
+                url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+                attribution: '© <a href="https://carto.com/">CARTO</a>',
+                name: 'Claro'
+            },
+            // Esri World Street - Calles detalladas
+            detailed: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+                attribution: '© <a href="https://www.esri.com/">Esri</a>',
+                name: 'Detallado'
             }
         };
 
@@ -4452,11 +4480,11 @@
 
             currentTileLayer = L.tileLayer(mapStyles[style].url, {
                 attribution: mapStyles[style].attribution,
-                maxZoom: 19
+                maxZoom: 20
             }).addTo(globalMap);
 
             document.getElementById('mapStyleMenu').classList.add('hidden');
-            showToast(`Estilo: ${style === 'streets' ? 'Calles' : style === 'satellite' ? 'Satélite' : style === 'dark' ? 'Oscuro' : 'Terreno'}`, 'info');
+            showToast(`Mapa: ${mapStyles[style].name}`, 'success');
         }
 
         // ==================== LIMPIAR FILTROS DEL MAPA ====================
