@@ -1228,7 +1228,10 @@
 
         // Cache de leads del mes actual por código de propiedad
         const leadsCount = new Map();
-        
+
+        // Cache de leads del año actual por código de propiedad
+        const leadsCountYear = new Map();
+
         // Cache de datos de propiedades del XML
         const propertyData = new Map();
         
@@ -1473,11 +1476,10 @@
             return result;
         }
 
-        // Cargar leads del mes actual desde Google Sheets
+        // Cargar leads del mes y año actual desde Google Sheets
         async function loadLeadsData() {
             try {
                 const LEADS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${LEADS_GID}`;
-                console.log('📡 Cargando leads desde:', LEADS_URL);
 
                 const response = await fetch(LEADS_URL);
                 const csvText = await response.text();
@@ -1488,19 +1490,17 @@
                 }
 
                 const lines = csvText.split('\n').filter(line => line.trim());
-                console.log('📊 Total de líneas de leads:', lines.length);
 
                 // Limpiar cache anterior
                 leadsCount.clear();
+                leadsCountYear.clear();
 
                 const now = new Date();
                 const currentMonth = now.getMonth(); // 0-indexed
                 const currentYear = now.getFullYear();
 
-                console.log('📅 Fecha actual:', now.toLocaleDateString(), '- Mes:', currentMonth, '- Año:', currentYear);
-
                 let totalLeadsMes = 0;
-                let debugCount = 0;
+                let totalLeadsYear = 0;
 
                 // Iterar desde la fila 1 (saltar header)
                 for (let i = 1; i < lines.length; i++) {
@@ -1508,12 +1508,6 @@
 
                     const fechaStr = (values[1] || '').trim(); // Columna B - Fecha
                     const codigoLead = (values[7] || '').trim(); // Columna H - Código
-
-                    // Debug primeros 5 registros
-                    if (debugCount < 5) {
-                        console.log(`🔍 Lead ${i}: fecha="${fechaStr}", codigo="${codigoLead}"`);
-                        debugCount++;
-                    }
 
                     if (!fechaStr || !codigoLead) continue;
 
@@ -1527,42 +1521,41 @@
 
                     if (isNaN(day) || isNaN(month) || isNaN(year)) continue;
 
-                    // Filtrar solo mes actual
-                    if (month === currentMonth && year === currentYear) {
-                        // Extraer solo dígitos del código del lead
-                        const codigoNumeros = codigoLead.replace(/\D/g, '');
-                        if (!codigoNumeros) continue;
+                    // Extraer solo dígitos del código del lead
+                    const codigoNumeros = codigoLead.replace(/\D/g, '');
+                    if (!codigoNumeros) continue;
 
-                        const count = leadsCount.get(codigoNumeros) || 0;
-                        leadsCount.set(codigoNumeros, count + 1);
-                        totalLeadsMes++;
+                    // Contar leads del año actual
+                    if (year === currentYear) {
+                        const countYear = leadsCountYear.get(codigoNumeros) || 0;
+                        leadsCountYear.set(codigoNumeros, countYear + 1);
+                        totalLeadsYear++;
+
+                        // Contar leads del mes actual
+                        if (month === currentMonth) {
+                            const count = leadsCount.get(codigoNumeros) || 0;
+                            leadsCount.set(codigoNumeros, count + 1);
+                            totalLeadsMes++;
+                        }
                     }
                 }
 
-                console.log('✅ Leads del mes actual cargados:', totalLeadsMes, 'leads para', leadsCount.size, 'propiedades');
-
-                // Debug: mostrar códigos guardados
-                if (leadsCount.size > 0) {
-                    const codigosLeads = Array.from(leadsCount.entries()).slice(0, 10).map(([cod, count]) => `${cod}:${count}`).join(', ');
-                    console.log('📋 Códigos con leads (código:cantidad):', codigosLeads);
-                }
+                console.log('✅ Leads cargados - Mes:', totalLeadsMes, '| Año:', totalLeadsYear);
             } catch (error) {
                 console.warn('⚠️ Error al cargar leads:', error.message);
             }
         }
 
         // Obtener cantidad de leads del mes para un código de propiedad
-        let debugGetLeads = 0;
         function getLeadsForProperty(codigo) {
-            // Extraer solo los números del código (ej: "tu-385" -> "385")
             const codigoNumeros = codigo.toString().replace(/\D/g, '');
-            const leads = leadsCount.get(codigoNumeros) || 0;
-            // Debug primeras 5 búsquedas
-            if (debugGetLeads < 5) {
-                console.log(`🔎 Buscando leads para "${codigo}" -> "${codigoNumeros}" = ${leads} leads`);
-                debugGetLeads++;
-            }
-            return leads;
+            return leadsCount.get(codigoNumeros) || 0;
+        }
+
+        // Obtener cantidad de leads del año para un código de propiedad
+        function getLeadsForPropertyYear(codigo) {
+            const codigoNumeros = codigo.toString().replace(/\D/g, '');
+            return leadsCountYear.get(codigoNumeros) || 0;
         }
 
         // Load Data Function (Original Working Version)
@@ -1642,17 +1635,11 @@
                 // Renderizar ranking
                 renderRanking();
 
-                // Cargar leads del mes actual
+                // Cargar leads del mes y año actual
                 await loadLeadsData();
-
-                // Resetear debug para ver segundo renderizado
-                debugGetLeads = 0;
-                console.log('🔄 Re-renderizando con leads cargados...');
 
                 // Re-renderizar con leads cargados
                 applyFilters();
-
-                console.log('📈 Stats actualizadas');
 
                 if (!isAutoRefresh) {
                     showToast('Datos actualizados correctamente', 'success');
@@ -2024,6 +2011,7 @@
             const priceInfo = formatPrice(xmlData.price, xmlData.currency, xmlData.operation);
             const propertyTypeFormatted = formatPropertyType(xmlData.propertyType);
             const leadsThisMonth = getLeadsForProperty(item.codigo);
+            const leadsThisYear = getLeadsForPropertyYear(item.codigo);
 
             return `
                 <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
@@ -2069,6 +2057,9 @@
                                     <i class="fas fa-users text-[10px]"></i>
                                     <span>${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''}</span>
                                 </span>
+                                <div class="text-[10px] ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'} text-right">
+                                    (${leadsThisYear} año)
+                                </div>
                             </div>
                         </div>
 
