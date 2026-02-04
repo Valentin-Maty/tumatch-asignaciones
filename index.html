@@ -341,11 +341,22 @@
 
         /* Mejoras para cards clickeables */
         .card-modern:hover {
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(139, 92, 246, 0.2);
+            box-shadow:
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(139, 92, 246, 0.3),
+                0 0 40px rgba(139, 92, 246, 0.1);
+            border-color: rgba(139, 92, 246, 0.2);
         }
 
         .card-modern:active {
             transform: scale(0.98);
+        }
+
+        /* Truncar texto largo */
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         /* Inputs modernos */
@@ -2208,10 +2219,18 @@
                         
                         <!-- Información de propiedad badges -->
                         <div class="absolute bottom-3 left-3 right-3 flex justify-between items-end">
-                            ${propertyTypeFormatted ? `
-                            <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
-                                <span class="text-xs text-white font-medium">🏠 ${propertyTypeFormatted}</span>
-                            </div>` : '<div></div>'}
+                            <div class="flex items-center space-x-1">
+                                ${propertyTypeFormatted ? `
+                                <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
+                                    <span class="text-xs text-white font-medium">🏠 ${propertyTypeFormatted}</span>
+                                </div>` : ''}
+                                ${xmlData.bedrooms || xmlData.bathrooms || xmlData.builtArea ? `
+                                <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg flex items-center space-x-2 text-[10px] text-white/80">
+                                    ${xmlData.bedrooms ? `<span title="Dormitorios"><i class="fas fa-bed"></i> ${xmlData.bedrooms}</span>` : ''}
+                                    ${xmlData.bathrooms ? `<span title="Baños"><i class="fas fa-bath"></i> ${xmlData.bathrooms}</span>` : ''}
+                                    ${xmlData.builtArea ? `<span title="Superficie"><i class="fas fa-ruler-combined"></i> ${xmlData.builtArea}m²</span>` : ''}
+                                </div>` : ''}
+                            </div>
                             <div class="glass px-2.5 py-1.5 rounded-lg backdrop-blur-lg ${leadsThisMonth > 0 ? 'border border-yellow-500/40' : ''}">
                                 <div class="flex items-center space-x-1 ${leadsThisMonth > 0 ? 'text-yellow-300' : 'text-zinc-400'}">
                                     <i class="fas fa-calendar-day text-[10px]"></i>
@@ -2224,13 +2243,16 @@
                             </div>
                         </div>
 
-                        <!-- Enlace a propiedad en 2clics (badge central) -->
-                        <div class="absolute top-3 left-1/2 transform -translate-x-1/2">
-                            <div class="glass px-2 py-1 rounded-lg backdrop-blur-lg">
-                                <button onclick="event.stopPropagation(); openMapModal('${item.codigo}')" 
-                                   class="text-xs text-white hover:text-cyan-300 transition-colors flex items-center space-x-1 bg-transparent border-none cursor-pointer">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                    <span>Ver Mapa</span>
+                        <!-- Quick Actions (aparece en hover) -->
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="event.stopPropagation(); window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
+                                    class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                                    <i class="fas fa-external-link-alt mr-2"></i>Ver propiedad
+                                </button>
+                                <button onclick="event.stopPropagation(); openMapModal('${item.codigo}')"
+                                    class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-white text-sm font-medium hover:bg-white/30 transition-all">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>Mapa
                                 </button>
                             </div>
                         </div>
