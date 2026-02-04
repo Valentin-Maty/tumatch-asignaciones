@@ -3923,14 +3923,15 @@
                 scrollWheelZoom: true,
                 dragging: true,
                 preferCanvas: true,
-                zoomControl: true
+                zoomControl: true,
+                maxZoom: 18,  // Limitar zoom para evitar "data not available"
+                minZoom: 3
             }).setView([-33.45, -70.65], 6);
 
-            // Usar tiles con mejor cache
             // Usar CartoDB Voyager como mapa por defecto (el mejor gratuito)
             currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '© <a href="https://carto.com/">CARTO</a>',
-                maxZoom: 20,
+                maxZoom: 18,
                 updateWhenIdle: true,
                 updateWhenZooming: false,
                 keepBuffer: 2
@@ -4480,7 +4481,7 @@
 
             currentTileLayer = L.tileLayer(mapStyles[style].url, {
                 attribution: mapStyles[style].attribution,
-                maxZoom: 20
+                maxZoom: 18
             }).addTo(globalMap);
 
             document.getElementById('mapStyleMenu').classList.add('hidden');
