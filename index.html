@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    
+    <!-- Leaflet MarkerCluster para mejor rendimiento -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -586,6 +590,63 @@
 
         #globalMapContainer {
             background: #1a1a1d;
+        }
+
+        /* Estilos personalizados para clusters */
+        .marker-cluster-small {
+            background-color: rgba(139, 92, 246, 0.6);
+        }
+        .marker-cluster-small div {
+            background-color: rgba(139, 92, 246, 0.9);
+        }
+        .marker-cluster-medium {
+            background-color: rgba(16, 185, 129, 0.6);
+        }
+        .marker-cluster-medium div {
+            background-color: rgba(16, 185, 129, 0.9);
+        }
+        .marker-cluster-large {
+            background-color: rgba(236, 72, 153, 0.6);
+        }
+        .marker-cluster-large div {
+            background-color: rgba(236, 72, 153, 0.9);
+        }
+        .marker-cluster {
+            background-clip: padding-box;
+            border-radius: 20px;
+        }
+        .marker-cluster div {
+            width: 30px;
+            height: 30px;
+            margin-left: 5px;
+            margin-top: 5px;
+            text-align: center;
+            border-radius: 15px;
+            font: 12px "Inter", sans-serif;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .marker-cluster span {
+            line-height: 30px;
+        }
+
+        /* Loading overlay para el mapa */
+        .map-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(26, 26, 29, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
         }
 
         /* Vista del mapa fija */
@@ -1295,8 +1356,17 @@
 
             <!-- Mapa contenedor fijo -->
             <section class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="glass-strong rounded-2xl p-3 animate-slide-up">
+                <div class="glass-strong rounded-2xl p-3 animate-slide-up relative">
                     <div id="globalMapContainer" class="w-full rounded-xl overflow-hidden" style="height: calc(100vh - 280px); min-height: 400px;"></div>
+                    <!-- Loading overlay -->
+                    <div id="mapLoadingOverlay" class="map-loading-overlay rounded-xl">
+                        <div class="relative mb-4">
+                            <div class="w-16 h-16 border-4 border-purple-500/30 rounded-full"></div>
+                            <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+                        </div>
+                        <span class="text-white font-medium text-lg">Cargando mapa</span>
+                        <span id="mapLoadingStatus" class="text-zinc-400 text-sm mt-1">Inicializando...</span>
+                    </div>
                 </div>
             </section>
         </div> <!-- End Map Section -->
@@ -3658,10 +3728,25 @@
 
         // Mapa global con todas las propiedades
         let globalMap = null;
+        let markerClusterGroup = null;
+
+        function showMapLoading(show, status = 'Inicializando...') {
+            const overlay = document.getElementById('mapLoadingOverlay');
+            const statusEl = document.getElementById('mapLoadingStatus');
+            if (overlay) {
+                overlay.style.display = show ? 'flex' : 'none';
+            }
+            if (statusEl) {
+                statusEl.textContent = status;
+            }
+        }
 
         function initGlobalMap() {
             const mapContainer = document.getElementById('globalMapContainer');
             if (!mapContainer) return;
+
+            // Mostrar loading
+            showMapLoading(true, 'Inicializando mapa...');
 
             // Agregar clase al body para vista fija
             document.body.classList.add('map-view-active');
@@ -3677,22 +3762,47 @@
                 updateGlobalMapMarkersFiltered();
                 setTimeout(() => {
                     globalMap.invalidateSize();
+                    showMapLoading(false);
                 }, 100);
                 return;
             }
 
-            // Crear el mapa centrado en Chile
+            // Crear el mapa centrado en Chile con preferCanvas para mejor rendimiento
             globalMap = L.map('globalMapContainer', {
                 scrollWheelZoom: true,
-                dragging: true
+                dragging: true,
+                preferCanvas: true,
+                zoomControl: true
             }).setView([-33.45, -70.65], 6);
 
+            // Usar tiles con mejor cache
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap',
+                maxZoom: 19,
+                updateWhenIdle: true,
+                updateWhenZooming: false,
+                keepBuffer: 2
             }).addTo(globalMap);
 
-            // Agregar marcadores
-            updateGlobalMapMarkersFiltered();
+            // Crear grupo de clusters
+            markerClusterGroup = L.markerClusterGroup({
+                chunkedLoading: true,
+                chunkInterval: 100,
+                chunkDelay: 50,
+                spiderfyOnMaxZoom: true,
+                showCoverageOnHover: false,
+                zoomToBoundsOnClick: true,
+                maxClusterRadius: 50,
+                disableClusteringAtZoom: 16,
+                animate: true
+            });
+
+            globalMap.addLayer(markerClusterGroup);
+
+            // Agregar marcadores de forma asíncrona
+            requestAnimationFrame(() => {
+                updateGlobalMapMarkersFiltered();
+            });
 
             // Fix para cuando el mapa se muestra por primera vez
             setTimeout(() => {
@@ -3701,23 +3811,24 @@
         }
 
         function updateGlobalMapMarkers() {
-            if (!globalMap) return;
+            if (!globalMap || !markerClusterGroup) return;
 
-            // Limpiar marcadores existentes
-            globalMap.eachLayer(layer => {
-                if (layer instanceof L.Marker) {
-                    globalMap.removeLayer(layer);
-                }
-            });
+            showMapLoading(true, 'Cargando propiedades...');
+
+            // Limpiar marcadores del cluster
+            markerClusterGroup.clearLayers();
 
             const bounds = [];
             let propertiesWithLocation = 0;
+            const markers = [];
 
             // Usar datos filtrados si existen, sino todos los datos
             const dataToShow = filteredData.length > 0 ? filteredData : allData;
 
-            // Agregar marcadores para cada propiedad con ubicación
-            dataToShow.forEach((item, index) => {
+            showMapLoading(true, `Procesando ${dataToShow.length} propiedades...`);
+
+            // Crear marcadores en lotes para mejor rendimiento
+            dataToShow.forEach((item) => {
                 const xmlData = getPropertyData(item.codigo);
                 if (!xmlData.latitude || !xmlData.longitude) return;
 
@@ -3743,85 +3854,89 @@
                     className: 'custom-marker',
                     html: `<div style="
                         background: ${markerColor};
-                        width: 36px;
-                        height: 36px;
+                        width: 32px;
+                        height: 32px;
                         border-radius: 50% 50% 50% 0;
                         transform: rotate(-45deg);
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        border: 3px solid white;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        border: 2px solid white;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
                     ">
-                        <i class="fas ${iconClass}" style="transform: rotate(45deg); color: white; font-size: 14px;"></i>
+                        <i class="fas ${iconClass}" style="transform: rotate(45deg); color: white; font-size: 12px;"></i>
                     </div>`,
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 36],
-                    popupAnchor: [0, -36]
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
                 });
 
-                const marker = L.marker([lat, lng], { icon: customIcon }).addTo(globalMap);
+                const marker = L.marker([lat, lng], { icon: customIcon });
 
-                // Crear popup con card de propiedad
-                const propertyImage = getPropertyImage(item.codigo);
-                const priceFormatted = xmlData.price ?
-                    (xmlData.currency === 'CLF' ? `UF ${xmlData.price.toLocaleString('es-CL')}` : `$${xmlData.price.toLocaleString('es-CL')}`)
-                    : 'Precio no disponible';
-                const operationText = xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '';
-                const propertyTypes = {
-                    'house': 'Casa',
-                    'apartment': 'Departamento',
-                    'land': 'Terreno',
-                    'office': 'Oficina',
-                    'commercial': 'Comercial'
-                };
-                const propertyTypeText = propertyTypes[xmlData.propertyType] || xmlData.propertyType || '';
+                // Crear popup simplificado (se carga el contenido completo solo al abrir)
+                marker.on('click', function() {
+                    const propertyImage = getPropertyImage(item.codigo);
+                    const priceFormatted = xmlData.price ?
+                        (xmlData.currency === 'CLF' ? `UF ${xmlData.price.toLocaleString('es-CL')}` : `$${xmlData.price.toLocaleString('es-CL')}`)
+                        : 'Precio no disponible';
+                    const operationText = xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '';
+                    const propertyTypes = {
+                        'house': 'Casa',
+                        'apartment': 'Departamento',
+                        'land': 'Terreno',
+                        'office': 'Oficina',
+                        'commercial': 'Comercial'
+                    };
+                    const propertyTypeText = propertyTypes[xmlData.propertyType] || xmlData.propertyType || '';
 
-                const popupContent = `
-                    <div style="width: 280px; font-family: 'Inter', sans-serif;">
-                        <div style="position: relative; height: 120px; overflow: hidden; border-radius: 12px 12px 0 0;">
-                            ${propertyImage ?
-                                `<img src="${propertyImage}" alt="Propiedad" style="width: 100%; height: 100%; object-fit: cover;">` :
-                                `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-home" style="font-size: 32px; color: rgba(255,255,255,0.3);"></i>
-                                </div>`
-                            }
-                            <div style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 8px;">
-                                <span style="color: white; font-weight: bold; font-size: 14px;">${item.codigo}</span>
+                    const popupContent = `
+                        <div style="width: 260px; font-family: 'Inter', sans-serif;">
+                            <div style="position: relative; height: 100px; overflow: hidden; border-radius: 8px 8px 0 0;">
+                                ${propertyImage ?
+                                    `<img src="${propertyImage}" loading="lazy" alt="Propiedad" style="width: 100%; height: 100%; object-fit: cover;">` :
+                                    `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-home" style="font-size: 24px; color: rgba(255,255,255,0.3);"></i>
+                                    </div>`
+                                }
+                                <div style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.7); padding: 3px 8px; border-radius: 6px;">
+                                    <span style="color: white; font-weight: bold; font-size: 12px;">${item.codigo}</span>
+                                </div>
+                                ${operationText ? `
+                                <div style="position: absolute; top: 6px; right: 6px; background: ${xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6'}; padding: 3px 8px; border-radius: 6px;">
+                                    <span style="color: white; font-weight: 600; font-size: 10px;">${operationText}</span>
+                                </div>` : ''}
                             </div>
-                            ${operationText ? `
-                            <div style="position: absolute; top: 8px; right: 8px; background: ${xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6'}; padding: 4px 10px; border-radius: 8px;">
-                                <span style="color: white; font-weight: 600; font-size: 11px;">${operationText}</span>
-                            </div>` : ''}
+                            <div style="padding: 10px; background: #1a1a1d; border-radius: 0 0 8px 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="color: white; font-weight: bold; font-size: 14px;">${priceFormatted}</span>
+                                    ${propertyTypeText ? `<span style="color: #a1a1aa; font-size: 11px;">${propertyTypeText}</span>` : ''}
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-bottom: 8px; color: #a1a1aa; font-size: 11px;">
+                                    ${xmlData.bedrooms ? `<span><i class="fas fa-bed"></i> ${xmlData.bedrooms}</span>` : ''}
+                                    ${xmlData.bathrooms ? `<span><i class="fas fa-bath"></i> ${xmlData.bathrooms}</span>` : ''}
+                                    ${xmlData.floorArea ? `<span><i class="fas fa-ruler-combined"></i> ${xmlData.floorArea}m²</span>` : ''}
+                                </div>
+                                <div style="color: #a1a1aa; font-size: 10px; margin-bottom: 2px;">Corredor: <span style="color: white;">${item.corredor}</span></div>
+                                <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}"
+                                   target="_blank"
+                                   style="display: block; margin-top: 8px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 12px;">
+                                    Ver detalles
+                                </a>
+                            </div>
                         </div>
-                        <div style="padding: 12px; background: #1a1a1d; border-radius: 0 0 12px 12px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span style="color: white; font-weight: bold; font-size: 16px;">${priceFormatted}</span>
-                                ${propertyTypeText ? `<span style="color: #a1a1aa; font-size: 12px;">${propertyTypeText}</span>` : ''}
-                            </div>
-                            <div style="display: flex; gap: 12px; margin-bottom: 10px; color: #a1a1aa; font-size: 12px;">
-                                ${xmlData.bedrooms ? `<span><i class="fas fa-bed"></i> ${xmlData.bedrooms}</span>` : ''}
-                                ${xmlData.bathrooms ? `<span><i class="fas fa-bath"></i> ${xmlData.bathrooms}</span>` : ''}
-                                ${xmlData.floorArea ? `<span><i class="fas fa-ruler-combined"></i> ${xmlData.floorArea}m²</span>` : ''}
-                            </div>
-                            <div style="padding-top: 8px; border-top: 1px solid #27272a;">
-                                <div style="color: #a1a1aa; font-size: 11px; margin-bottom: 4px;">Corredor</div>
-                                <div style="color: white; font-size: 13px; font-weight: 500;">${item.corredor}</div>
-                            </div>
-                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}"
-                               target="_blank"
-                               style="display: block; margin-top: 10px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
-                                Ver detalles
-                            </a>
-                        </div>
-                    </div>
-                `;
+                    `;
 
-                marker.bindPopup(popupContent, {
-                    maxWidth: 300,
-                    className: 'custom-popup'
+                    this.bindPopup(popupContent, {
+                        maxWidth: 280,
+                        className: 'custom-popup'
+                    }).openPopup();
                 });
+
+                markers.push(marker);
             });
+
+            // Agregar todos los marcadores al cluster de una vez
+            markerClusterGroup.addLayers(markers);
 
             // Actualizar contador
             const countElement = document.getElementById('mapPropertiesCount');
@@ -3831,8 +3946,13 @@
 
             // Ajustar vista a los bounds si hay marcadores
             if (bounds.length > 0) {
-                globalMap.fitBounds(bounds, { padding: [50, 50] });
+                globalMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
             }
+
+            // Ocultar loading
+            setTimeout(() => {
+                showMapLoading(false);
+            }, 300);
         }
 
         // Filtros específicos del mapa
@@ -3909,22 +4029,21 @@
         }
 
         function updateGlobalMapMarkersFiltered() {
-            if (!globalMap) return;
+            if (!globalMap || !markerClusterGroup) return;
 
-            // Limpiar marcadores existentes
-            globalMap.eachLayer(layer => {
-                if (layer instanceof L.Marker) {
-                    globalMap.removeLayer(layer);
-                }
-            });
+            showMapLoading(true, 'Actualizando mapa...');
+
+            // Limpiar marcadores del cluster
+            markerClusterGroup.clearLayers();
 
             const bounds = [];
             let propertiesWithLocation = 0;
+            const markers = [];
 
             // Usar datos filtrados del mapa
             const dataToShow = mapFilteredData.length > 0 ? mapFilteredData : allData;
 
-            dataToShow.forEach((item, index) => {
+            dataToShow.forEach((item) => {
                 const xmlData = getPropertyData(item.codigo);
                 if (!xmlData.latitude || !xmlData.longitude) return;
 
@@ -3933,7 +4052,7 @@
                 const lng = parseFloat(xmlData.longitude);
                 bounds.push([lat, lng]);
 
-                // Crear icono personalizado según tipo de propiedad
+                // Crear icono personalizado
                 const markerColor = xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6';
                 const propertyIcons = {
                     'house': 'fa-home',
@@ -3948,85 +4067,80 @@
                     className: 'custom-marker',
                     html: `<div style="
                         background: ${markerColor};
-                        width: 36px;
-                        height: 36px;
+                        width: 32px;
+                        height: 32px;
                         border-radius: 50% 50% 50% 0;
                         transform: rotate(-45deg);
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        border: 3px solid white;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                        border: 2px solid white;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
                     ">
-                        <i class="fas ${iconClass}" style="transform: rotate(45deg); color: white; font-size: 14px;"></i>
+                        <i class="fas ${iconClass}" style="transform: rotate(45deg); color: white; font-size: 12px;"></i>
                     </div>`,
-                    iconSize: [36, 36],
-                    iconAnchor: [18, 36],
-                    popupAnchor: [0, -36]
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
                 });
 
-                const marker = L.marker([lat, lng], { icon: customIcon }).addTo(globalMap);
+                const marker = L.marker([lat, lng], { icon: customIcon });
 
-                // Crear popup con card de propiedad
-                const propertyImage = getPropertyImage(item.codigo);
-                const priceFormatted = xmlData.price ?
-                    (xmlData.currency === 'CLF' ? `UF ${xmlData.price.toLocaleString('es-CL')}` : `$${xmlData.price.toLocaleString('es-CL')}`)
-                    : 'Precio no disponible';
-                const operationText = xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '';
-                const propertyTypes = {
-                    'house': 'Casa',
-                    'apartment': 'Departamento',
-                    'land': 'Terreno',
-                    'office': 'Oficina',
-                    'commercial': 'Comercial'
-                };
-                const propertyTypeText = propertyTypes[xmlData.propertyType] || xmlData.propertyType || '';
+                // Popup lazy - se crea solo al hacer clic
+                marker.on('click', function() {
+                    const propertyImage = getPropertyImage(item.codigo);
+                    const priceFormatted = xmlData.price ?
+                        (xmlData.currency === 'CLF' ? `UF ${xmlData.price.toLocaleString('es-CL')}` : `$${xmlData.price.toLocaleString('es-CL')}`)
+                        : 'Precio no disponible';
+                    const operationText = xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '';
+                    const propertyTypes = { 'house': 'Casa', 'apartment': 'Departamento', 'land': 'Terreno', 'office': 'Oficina', 'commercial': 'Comercial' };
+                    const propertyTypeText = propertyTypes[xmlData.propertyType] || '';
 
-                const popupContent = `
-                    <div style="width: 280px; font-family: 'Inter', sans-serif;">
-                        <div style="position: relative; height: 120px; overflow: hidden; border-radius: 12px 12px 0 0;">
-                            ${propertyImage ?
-                                `<img src="${propertyImage}" alt="Propiedad" style="width: 100%; height: 100%; object-fit: cover;">` :
-                                `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-home" style="font-size: 32px; color: rgba(255,255,255,0.3);"></i>
-                                </div>`
-                            }
-                            <div style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); padding: 4px 10px; border-radius: 8px;">
-                                <span style="color: white; font-weight: bold; font-size: 14px;">${item.codigo}</span>
+                    const popupContent = `
+                        <div style="width: 260px; font-family: 'Inter', sans-serif;">
+                            <div style="position: relative; height: 100px; overflow: hidden; border-radius: 8px 8px 0 0;">
+                                ${propertyImage ?
+                                    `<img src="${propertyImage}" loading="lazy" alt="Propiedad" style="width: 100%; height: 100%; object-fit: cover;">` :
+                                    `<div style="width: 100%; height: 100%; background: linear-gradient(135deg, #8b5cf6, #06b6d4); display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-home" style="font-size: 24px; color: rgba(255,255,255,0.3);"></i>
+                                    </div>`
+                                }
+                                <div style="position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.7); padding: 3px 8px; border-radius: 6px;">
+                                    <span style="color: white; font-weight: bold; font-size: 12px;">${item.codigo}</span>
+                                </div>
+                                ${operationText ? `
+                                <div style="position: absolute; top: 6px; right: 6px; background: ${xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6'}; padding: 3px 8px; border-radius: 6px;">
+                                    <span style="color: white; font-weight: 600; font-size: 10px;">${operationText}</span>
+                                </div>` : ''}
                             </div>
-                            ${operationText ? `
-                            <div style="position: absolute; top: 8px; right: 8px; background: ${xmlData.operation === 'sale' ? '#10b981' : '#8b5cf6'}; padding: 4px 10px; border-radius: 8px;">
-                                <span style="color: white; font-weight: 600; font-size: 11px;">${operationText}</span>
-                            </div>` : ''}
+                            <div style="padding: 10px; background: #1a1a1d; border-radius: 0 0 8px 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <span style="color: white; font-weight: bold; font-size: 14px;">${priceFormatted}</span>
+                                    ${propertyTypeText ? `<span style="color: #a1a1aa; font-size: 11px;">${propertyTypeText}</span>` : ''}
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-bottom: 8px; color: #a1a1aa; font-size: 11px;">
+                                    ${xmlData.bedrooms ? `<span><i class="fas fa-bed"></i> ${xmlData.bedrooms}</span>` : ''}
+                                    ${xmlData.bathrooms ? `<span><i class="fas fa-bath"></i> ${xmlData.bathrooms}</span>` : ''}
+                                    ${xmlData.floorArea ? `<span><i class="fas fa-ruler-combined"></i> ${xmlData.floorArea}m²</span>` : ''}
+                                </div>
+                                <div style="color: #a1a1aa; font-size: 10px; margin-bottom: 2px;">Corredor: <span style="color: white;">${item.corredor}</span></div>
+                                <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}"
+                                   target="_blank"
+                                   style="display: block; margin-top: 8px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 12px;">
+                                    Ver detalles
+                                </a>
+                            </div>
                         </div>
-                        <div style="padding: 12px; background: #1a1a1d; border-radius: 0 0 12px 12px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span style="color: white; font-weight: bold; font-size: 16px;">${priceFormatted}</span>
-                                ${propertyTypeText ? `<span style="color: #a1a1aa; font-size: 12px;">${propertyTypeText}</span>` : ''}
-                            </div>
-                            <div style="display: flex; gap: 12px; margin-bottom: 10px; color: #a1a1aa; font-size: 12px;">
-                                ${xmlData.bedrooms ? `<span><i class="fas fa-bed"></i> ${xmlData.bedrooms}</span>` : ''}
-                                ${xmlData.bathrooms ? `<span><i class="fas fa-bath"></i> ${xmlData.bathrooms}</span>` : ''}
-                                ${xmlData.floorArea ? `<span><i class="fas fa-ruler-combined"></i> ${xmlData.floorArea}m²</span>` : ''}
-                            </div>
-                            <div style="padding-top: 8px; border-top: 1px solid #27272a;">
-                                <div style="color: #a1a1aa; font-size: 11px; margin-bottom: 4px;">Corredor</div>
-                                <div style="color: white; font-size: 13px; font-weight: 500;">${item.corredor}</div>
-                            </div>
-                            <a href="https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}"
-                               target="_blank"
-                               style="display: block; margin-top: 10px; text-align: center; background: linear-gradient(135deg, #06b6d4, #8b5cf6); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 13px;">
-                                Ver detalles
-                            </a>
-                        </div>
-                    </div>
-                `;
+                    `;
 
-                marker.bindPopup(popupContent, {
-                    maxWidth: 300,
-                    className: 'custom-popup'
+                    this.bindPopup(popupContent, { maxWidth: 280, className: 'custom-popup' }).openPopup();
                 });
+
+                markers.push(marker);
             });
+
+            // Agregar todos los marcadores al cluster
+            markerClusterGroup.addLayers(markers);
 
             // Actualizar contador
             const countElement = document.getElementById('mapPropertiesCount');
@@ -4034,10 +4148,12 @@
                 countElement.textContent = `${propertiesWithLocation}`;
             }
 
-            // Ajustar vista a los bounds si hay marcadores
+            // Ajustar vista
             if (bounds.length > 0) {
-                globalMap.fitBounds(bounds, { padding: [50, 50] });
+                globalMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
             }
+
+            setTimeout(() => showMapLoading(false), 200);
         }
 
         // Función para exportar propiedades con leads históricos por mes
