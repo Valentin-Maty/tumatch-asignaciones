@@ -1040,19 +1040,23 @@
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
                     <!-- Toggle Vista -->
-                    <button id="viewToggleBtn" onclick="toggleView()" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition-all flex items-center">
+                    <button id="viewToggleBtn" onclick="toggleView()" title="Cambiar vista Grid/Lista (Ctrl+G)" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition-all flex items-center">
                         <i class="fas fa-th-large"></i><span class="hidden sm:inline ml-2">Grid</span>
                     </button>
                     <!-- Ver Favoritos -->
-                    <button onclick="showOnlyFavorites()" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-pink-400 hover:bg-pink-500/10 transition-all flex items-center">
+                    <button onclick="showOnlyFavorites()" title="Ver propiedades favoritas (Ctrl+F)" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-pink-400 hover:bg-pink-500/10 transition-all flex items-center">
                         <i class="fas fa-heart"></i><span class="hidden sm:inline ml-2">Favoritos</span>
                         <span id="favCount" class="ml-1 px-1.5 py-0.5 bg-pink-500/20 rounded text-pink-400 text-xs"></span>
                     </button>
                 </div>
                 <div class="flex items-center gap-2">
                     <!-- Exportar -->
-                    <button onclick="exportToExcel()" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center">
+                    <button onclick="exportToExcel()" title="Exportar a Excel (Ctrl+E)" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center">
                         <i class="fas fa-file-excel"></i><span class="hidden sm:inline ml-2">Exportar</span>
+                    </button>
+                    <!-- Ayuda de atajos -->
+                    <button onclick="showKeyboardShortcuts()" title="Ver atajos de teclado" class="px-3 py-2 glass rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-white/5 transition-all">
+                        <i class="fas fa-keyboard"></i>
                     </button>
                 </div>
             </div>
@@ -1977,6 +1981,34 @@
             }
         }
 
+        // ==================== MODAL DE ATAJOS DE TECLADO ====================
+        function showKeyboardShortcuts() {
+            const shortcuts = [
+                { key: 'Ctrl + F', description: 'Enfocar búsqueda' },
+                { key: 'Ctrl + E', description: 'Exportar a Excel' },
+                { key: 'Ctrl + G', description: 'Cambiar vista Grid/Lista' },
+                { key: 'ESC', description: 'Limpiar todos los filtros' },
+                { key: '← / →', description: 'Página anterior/siguiente' },
+                { key: 'Home / End', description: 'Primera/última página' }
+            ];
+
+            const shortcutsList = shortcuts.map(s =>
+                `<div class="flex justify-between items-center py-2 border-b border-zinc-700/50 last:border-0">
+                    <span class="text-zinc-300">${s.description}</span>
+                    <kbd class="px-2 py-1 bg-zinc-700 rounded text-xs text-cyan-400 font-mono">${s.key}</kbd>
+                </div>`
+            ).join('');
+
+            showToast(`
+                <div class="text-left">
+                    <div class="text-white font-semibold mb-3 flex items-center gap-2">
+                        <i class="fas fa-keyboard text-cyan-400"></i> Atajos de Teclado
+                    </div>
+                    ${shortcutsList}
+                </div>
+            `, 'info', 8000);
+        }
+
         // ==================== ESTADÍSTICAS ANIMADAS ====================
         function animateValue(element, start, end, duration) {
             const range = end - start;
@@ -2008,6 +2040,16 @@
                 e.preventDefault();
                 document.getElementById('searchInput')?.focus();
             }
+            // Ctrl+E para exportar a Excel
+            if (e.ctrlKey && e.key === 'e') {
+                e.preventDefault();
+                exportToExcel();
+            }
+            // Ctrl+G para cambiar vista grid/list
+            if (e.ctrlKey && e.key === 'g') {
+                e.preventDefault();
+                toggleView();
+            }
             // Flechas para paginación
             if (e.key === 'ArrowLeft' && currentPage > 1) {
                 goToPage(currentPage - 1);
@@ -2016,7 +2058,39 @@
                 const totalPages = Math.ceil(filteredData.length / itemsPerPage);
                 if (currentPage < totalPages) goToPage(currentPage + 1);
             }
+            // Home/End para primera/última página
+            if (e.key === 'Home' && !e.ctrlKey) {
+                const searchInput = document.getElementById('searchInput');
+                if (document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    goToPage(1);
+                }
+            }
+            if (e.key === 'End' && !e.ctrlKey) {
+                const searchInput = document.getElementById('searchInput');
+                if (document.activeElement !== searchInput) {
+                    e.preventDefault();
+                    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+                    goToPage(totalPages);
+                }
+            }
         });
+
+        // Función debounce para optimizar búsqueda
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Versión debounced de applyFilters para búsqueda
+        const debouncedApplyFilters = debounce(applyFilters, 300);
 
         // Limpiar todos los filtros
         function clearAllFilters() {
@@ -2345,7 +2419,7 @@
                     <!-- Imagen -->
                     <div class="w-full sm:w-24 h-32 sm:h-16 rounded-lg overflow-hidden flex-shrink-0">
                         ${propertyImage
-                            ? `<img src="${propertyImage}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center\\'><i class=\\'fas fa-home text-white\\'></i></div>'">`
+                            ? `<img src="${propertyImage}" loading="lazy" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center\\'><i class=\\'fas fa-home text-white\\'></i></div>'">`
                             : `<div class="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"><i class="fas fa-home text-white"></i></div>`
                         }
                     </div>
@@ -2444,8 +2518,8 @@
                      onclick="window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
                     <!-- Imagen de la propiedad con overlay -->
                     <div class="relative h-48 overflow-hidden rounded-t-2xl">
-                        ${propertyImage ? 
-                            `<img src="${propertyImage}" alt="Propiedad ${item.codigo}" 
+                        ${propertyImage ?
+                            `<img src="${propertyImage}" alt="Propiedad ${item.codigo}" loading="lazy"
                                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                  onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjE5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImdyYWQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMxQTFBMUQ7c3RvcC1vcGFjaXR5OjEiIC8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTExMTEzO3N0b3Atb3BhY2l0eToxIiAvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZm9udC1mYW1pbHk9IkludGVyIiBmb250LXNpemU9IjE0IiBmaWxsPSIjNzE3MTdBIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iMC4zZW0iPvCfj6Ag0KjQvNCw0LPQtdC9INC00LjRgdC/0L7QvdC40LHQu9C1PC90ZXh0Pjwvc3ZnPg=='">` :
                             `<div class="w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center relative">
@@ -2742,17 +2816,20 @@
                 ? Object.entries(propertyTypes).sort((a, b) => b[1] - a[1])[0][0]
                 : 'N/A';
             
-            // Update Dashboard stats
+            // Update Dashboard stats with animation
             const dashStats = {
                 'dash-totalProperties': totalProperties,
                 'dash-totalCorredores': corredores,
                 'dash-totalFirmas': teamLeaders
             };
 
-            // Update elements safely
+            // Update elements with animation
             Object.entries(dashStats).forEach(([id, value]) => {
                 const element = document.getElementById(id);
-                if (element) element.textContent = value;
+                if (element) {
+                    const currentValue = parseInt(element.textContent) || 0;
+                    animateValue(element, currentValue, value, 800);
+                }
             });
             
             // Update additional dashboard metrics
@@ -3347,26 +3424,36 @@
 
         // Export Data
         // Show Toast Notification
-        function showToast(message, type = 'info') {
+        function showToast(message, type = 'info', duration = 3000) {
             const toast = document.createElement('div');
-            toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg text-white font-medium transform translate-x-full transition-transform duration-300 ${
-                type === 'success' ? 'bg-green-500' :
-                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            const isHtml = message.includes('<');
+            toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-xl text-white font-medium transform translate-x-full transition-transform duration-300 shadow-xl ${
+                type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
+                type === 'error' ? 'bg-gradient-to-r from-red-500 to-rose-500' :
+                type === 'warning' ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                'bg-gradient-to-r from-blue-500 to-cyan-500'
             }`;
-            toast.textContent = message;
-            
+
+            if (isHtml) {
+                toast.innerHTML = message;
+            } else {
+                toast.textContent = message;
+            }
+
             document.body.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.classList.remove('translate-x-full');
             }, 100);
-            
+
             setTimeout(() => {
                 toast.classList.add('translate-x-full');
                 setTimeout(() => {
-                    document.body.removeChild(toast);
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
                 }, 300);
-            }, 3000);
+            }, duration);
         }
 
         // Event Listeners
@@ -3376,7 +3463,7 @@
             document.getElementById('teamLeaderFilter').addEventListener('change', applyFilters);
             document.getElementById('operationFilter').addEventListener('change', applyFilters);
             document.getElementById('priceFilter').addEventListener('change', applyFilters);
-            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('searchInput').addEventListener('input', debouncedApplyFilters);
             document.getElementById('sortFilter').addEventListener('change', applyFilters);
             
             // Expose functions to window for Alpine.js integration
@@ -4030,6 +4117,32 @@
                 </div>
             </div>
         </div>
+
+        <!-- Botón Scroll to Top -->
+        <button id="scrollTopBtn" onclick="scrollToTop()"
+            class="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg opacity-0 invisible transition-all duration-300 hover:scale-110 hover:shadow-purple-500/30 z-50 flex items-center justify-center"
+            title="Volver arriba">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+
+        <script>
+            // Scroll to top functionality
+            const scrollTopBtn = document.getElementById('scrollTopBtn');
+
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 400) {
+                    scrollTopBtn.classList.remove('opacity-0', 'invisible');
+                    scrollTopBtn.classList.add('opacity-100', 'visible');
+                } else {
+                    scrollTopBtn.classList.remove('opacity-100', 'visible');
+                    scrollTopBtn.classList.add('opacity-0', 'invisible');
+                }
+            });
+
+            function scrollToTop() {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        </script>
 
 </body>
 </html>
