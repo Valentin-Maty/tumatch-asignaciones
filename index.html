@@ -352,6 +352,23 @@
             transform: scale(0.98);
         }
 
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(139, 92, 246, 0.4);
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
         /* Truncar texto largo */
         .truncate {
             overflow: hidden;
@@ -2038,6 +2055,33 @@
             requestAnimationFrame(update);
         }
 
+        // ==================== EFECTO RIPPLE ====================
+        function createRipple(event) {
+            const card = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(card.clientWidth, card.clientHeight);
+            const radius = diameter / 2;
+
+            const rect = card.getBoundingClientRect();
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - rect.left - radius}px`;
+            circle.style.top = `${event.clientY - rect.top - radius}px`;
+            circle.classList.add('ripple');
+
+            const ripple = card.querySelector('.ripple');
+            if (ripple) ripple.remove();
+
+            card.appendChild(circle);
+        }
+
+        // Attach ripple to cards after render
+        function attachRippleEffect() {
+            document.querySelectorAll('.card-modern').forEach(card => {
+                card.removeEventListener('click', createRipple);
+                card.addEventListener('click', createRipple);
+            });
+        }
+
         // ==================== ATAJOS DE TECLADO ====================
         document.addEventListener('keydown', function(e) {
             // ESC para limpiar filtros
@@ -2370,6 +2414,9 @@
             // Actualizar contador de favoritos y botón vista
             updateFavoritesCount();
             updateViewButton();
+
+            // Agregar efecto ripple a las tarjetas
+            setTimeout(attachRippleEffect, 100);
         }
 
         // Actualizar contador de favoritos
