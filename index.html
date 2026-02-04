@@ -841,61 +841,194 @@
         
         <!-- Dashboard Section -->
         <div x-show="currentView === 'dashboard'" x-transition>
-            
-            <!-- Dashboard Header -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
-                <div class="text-center mb-12">
-                    <div class="inline-flex items-center px-4 py-2 rounded-full glass border border-white/10 mb-6 animate-fade-scale">
-                        <div class="w-2 h-2 bg-purple-400 rounded-full mr-3 animate-pulse"></div>
-                        <span class="text-sm font-medium text-zinc-300">Dashboard Ejecutivo • Analytics en Tiempo Real</span>
+
+            <!-- Dashboard Hero Header con Gradiente -->
+            <section class="relative overflow-hidden">
+                <!-- Fondo animado -->
+                <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20"></div>
+                <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
+
+                <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-10">
+                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <div>
+                            <div class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 mb-4 backdrop-blur-sm">
+                                <div class="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+                                <span class="text-sm font-medium text-purple-300">En vivo</span>
+                                <span class="mx-3 text-zinc-600">|</span>
+                                <span class="text-sm text-zinc-400" id="dashboardLastUpdate">Actualizando...</span>
+                            </div>
+                            <h1 class="text-4xl md:text-5xl font-bold text-white mb-3">
+                                Dashboard <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">Ejecutivo</span>
+                            </h1>
+                            <p class="text-lg text-zinc-400 max-w-xl">Visualiza el rendimiento de tu portafolio inmobiliario con métricas en tiempo real</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3">
+                            <button onclick="refreshDashboard()" class="px-5 py-3 glass rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 border border-white/10 hover:border-purple-500/30">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Actualizar</span>
+                            </button>
+                            <button onclick="exportDashboardPDF()" class="px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center gap-2">
+                                <i class="fas fa-file-pdf"></i>
+                                <span>Exportar PDF</span>
+                            </button>
+                        </div>
                     </div>
-                    
-                    <h1 class="heading-xl animate-slide-up">
-                        Centro de Analíticas
-                    </h1>
-                    <p class="text-xl text-zinc-400 max-w-3xl mx-auto leading-relaxed animate-slide-up" style="animation-delay: 0.2s">
-                        Insights completos de rendimiento inmobiliario y gestión de corredores
-                    </p>
                 </div>
-                
-                <!-- KPI Cards Enhanced -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <div class="card-modern stat-card animate-fade-scale group">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-building text-2xl text-white"></i>
-                        </div>
-                        <div class="stat-number" id="dash-totalProperties">0</div>
-                        <div class="stat-label">Propiedades Activas</div>
-                        <div class="mt-2 text-xs text-green-400 flex items-center justify-center">
-                            <i class="fas fa-arrow-up mr-1"></i>
-                            <span id="properties-growth">0%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="card-modern stat-card animate-fade-scale group" style="animation-delay: 0.1s">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-users text-2xl text-white"></i>
-                        </div>
-                        <div class="stat-number" id="dash-totalCorredores">0</div>
-                        <div class="stat-label">Corredores Activos</div>
-                        <div class="mt-2 text-xs text-cyan-400 flex items-center justify-center">
-                            <i class="fas fa-user-plus mr-1"></i>
-                            <span>En línea</span>
-                        </div>
-                    </div>
-                    
-                    <div class="card-modern stat-card animate-fade-scale group" style="animation-delay: 0.2s">
-                        <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fas fa-crown text-2xl text-white"></i>
-                        </div>
-                        <div class="stat-number" id="dash-totalFirmas">0</div>
-                        <div class="stat-label">Team Leaders</div>
-                        <div class="mt-2 text-xs text-green-400 flex items-center justify-center">
-                            <i class="fas fa-chart-line mr-1"></i>
-                            <span id="conversions-today">+0</span> hoy
+            </section>
+
+            <!-- KPIs Principales - Diseño Premium -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 -mt-4">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                    <!-- Propiedades -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative glass-strong rounded-2xl p-6 border border-blue-500/20 hover:border-blue-500/40 transition-all overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="relative">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-building text-2xl text-white"></i>
+                                    </div>
+                                    <div class="flex flex-col items-end">
+                                        <span class="text-xs text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full font-medium">TOTAL</span>
+                                    </div>
+                                </div>
+                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalProperties">0</div>
+                                <div class="text-sm text-zinc-400 font-medium">Propiedades Activas</div>
+                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-map-marker-alt text-blue-400 text-xs"></i>
+                                            <span class="text-xs text-zinc-500">Con ubicación</span>
+                                        </div>
+                                        <span class="text-sm text-blue-400 font-bold" id="dash-withLocation">0</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
+
+                    <!-- Corredores -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative glass-strong rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-all overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="relative">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-users text-2xl text-white"></i>
+                                    </div>
+                                    <span class="text-xs text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full font-medium">EQUIPO</span>
+                                </div>
+                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalCorredores">0</div>
+                                <div class="text-sm text-zinc-400 font-medium">Corredores Activos</div>
+                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-chart-bar text-purple-400 text-xs"></i>
+                                            <span class="text-xs text-zinc-500">Promedio props</span>
+                                        </div>
+                                        <span class="text-sm text-purple-400 font-bold" id="dash-avgProperties">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Leaders -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative glass-strong rounded-2xl p-6 border border-emerald-500/20 hover:border-emerald-500/40 transition-all overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="relative">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-crown text-2xl text-white"></i>
+                                    </div>
+                                    <span class="text-xs text-emerald-400 bg-emerald-500/20 px-3 py-1 rounded-full font-medium">LÍDERES</span>
+                                </div>
+                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalFirmas">0</div>
+                                <div class="text-sm text-zinc-400 font-medium">Team Leaders</div>
+                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-user-friends text-emerald-400 text-xs"></i>
+                                            <span class="text-xs text-zinc-500">Corredores/TL</span>
+                                        </div>
+                                        <span class="text-sm text-emerald-400 font-bold" id="dash-corredoresPerTL">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leads -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
+                        <div class="relative glass-strong rounded-2xl p-6 border border-amber-500/20 hover:border-amber-500/40 transition-all overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                            <div class="relative">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-fire text-2xl text-white"></i>
+                                    </div>
+                                    <span class="text-xs text-amber-400 bg-amber-500/20 px-3 py-1 rounded-full font-medium">LEADS</span>
+                                </div>
+                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalLeadsMes">0</div>
+                                <div class="text-sm text-zinc-400 font-medium">Leads este Mes</div>
+                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2">
+                                            <i class="fas fa-calendar-alt text-amber-400 text-xs"></i>
+                                            <span class="text-xs text-zinc-500">Total anual</span>
+                                        </div>
+                                        <span class="text-sm text-amber-400 font-bold" id="dash-totalLeadsYear">0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mini KPIs - Operaciones -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-emerald-500/10 hover:border-emerald-500/30 transition-all hover:bg-emerald-500/5">
+                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-tag text-xl text-emerald-400"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-emerald-400" id="dash-ventas">0</div>
+                            <div class="text-xs text-zinc-500 font-medium">En Venta</div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-violet-500/10 hover:border-violet-500/30 transition-all hover:bg-violet-500/5">
+                        <div class="w-12 h-12 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-key text-xl text-violet-400"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-violet-400" id="dash-arriendos">0</div>
+                            <div class="text-xs text-zinc-500 font-medium">En Arriendo</div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-amber-500/10 hover:border-amber-500/30 transition-all hover:bg-amber-500/5">
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-home text-xl text-amber-400"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-amber-400" id="dash-casas">0</div>
+                            <div class="text-xs text-zinc-500 font-medium">Casas</div>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-cyan-500/10 hover:border-cyan-500/30 transition-all hover:bg-cyan-500/5">
+                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-city text-xl text-cyan-400"></i>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-cyan-400" id="dash-deptos">0</div>
+                            <div class="text-xs text-zinc-500 font-medium">Departamentos</div>
+                        </div>
+                    </div>
                 </div>
             </section>
             
@@ -1014,21 +1147,123 @@
             </section>
 
             
-            <!-- Activity Feed -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="glass-strong rounded-2xl p-8">
-                    <h3 class="text-2xl font-bold text-white mb-6 flex items-center">
-                        <div class="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg flex items-center justify-center mr-3">
-                            <i class="fas fa-clock text-sm text-white"></i>
+            <!-- Rankings Section - Diseño Premium -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
+                        <i class="fas fa-award text-white"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">Rankings de Desempeño</h2>
+                        <p class="text-sm text-zinc-400">Los mejores del equipo por cantidad de propiedades</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Top Corredores -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl blur-xl"></div>
+                        <div class="relative glass-strong rounded-2xl p-6 border border-purple-500/20">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                                        <i class="fas fa-trophy text-xl text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-white">Top Corredores</h3>
+                                        <p class="text-xs text-zinc-500">Por cantidad de propiedades</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-300 font-medium">TOP 5</span>
+                            </div>
+                            <div id="topCorredoresContainer" class="space-y-3">
+                                <div class="flex items-center justify-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
+                                </div>
+                            </div>
                         </div>
-                        Actividad Reciente
-                    </h3>
-                    <div id="activity-feed" class="space-y-4">
-                        <!-- Activity items will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Top Team Leaders -->
+                    <div class="relative group">
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-2xl blur-xl"></div>
+                        <div class="relative glass-strong rounded-2xl p-6 border border-emerald-500/20">
+                            <div class="flex items-center justify-between mb-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                                        <i class="fas fa-crown text-xl text-white"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-white">Top Team Leaders</h3>
+                                        <p class="text-xs text-zinc-500">Por tamaño de equipo</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-emerald-500/20 rounded-full text-xs text-emerald-300 font-medium">TOP 5</span>
+                            </div>
+                            <div id="topTeamLeadersContainer" class="space-y-3">
+                                <div class="flex items-center justify-center py-8">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
-            
+
+            <!-- Resumen del Portafolio - Diseño Premium -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-cyan-500/5 rounded-3xl blur-xl"></div>
+                    <div class="relative glass-strong rounded-3xl p-8 border border-white/10">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                                    <i class="fas fa-chart-pie text-2xl text-white"></i>
+                                </div>
+                                <div>
+                                    <h2 class="text-2xl font-bold text-white">Resumen del Portafolio</h2>
+                                    <p class="text-sm text-zinc-400">Vista general de todos tus activos</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
+                                <i class="fas fa-calendar-check text-cyan-400"></i>
+                                <span class="text-sm text-zinc-300" id="dashboardDate">Cargando fecha...</span>
+                            </div>
+                        </div>
+                        <div id="portfolioSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="p-5 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20 text-center">
+                                <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-map-marker-alt text-blue-400"></i>
+                                </div>
+                                <div class="text-3xl font-bold text-blue-400">-</div>
+                                <div class="text-xs text-zinc-500 mt-1">Con Ubicación</div>
+                            </div>
+                            <div class="p-5 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20 text-center">
+                                <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-database text-purple-400"></i>
+                                </div>
+                                <div class="text-3xl font-bold text-purple-400">-</div>
+                                <div class="text-xs text-zinc-500 mt-1">Datos Completos</div>
+                            </div>
+                            <div class="p-5 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl border border-emerald-500/20 text-center">
+                                <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-layer-group text-emerald-400"></i>
+                                </div>
+                                <div class="text-3xl font-bold text-emerald-400">-</div>
+                                <div class="text-xs text-zinc-500 mt-1">Otros Tipos</div>
+                            </div>
+                            <div class="p-5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 text-center">
+                                <div class="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-bolt text-amber-400"></i>
+                                </div>
+                                <div class="text-3xl font-bold text-amber-400">-</div>
+                                <div class="text-xs text-zinc-500 mt-1">Leads Totales</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </div>
         
         <!-- Properties Section -->
@@ -3278,6 +3513,203 @@
                 `;
             }
 
+            // === NUEVOS ELEMENTOS DEL DASHBOARD ===
+
+            // Propiedades con ubicación
+            const withLocationCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.latitude && xmlData.longitude;
+            }).length;
+            const dashWithLocation = document.getElementById('dash-withLocation');
+            if (dashWithLocation) {
+                animateValue(dashWithLocation, parseInt(dashWithLocation.textContent) || 0, withLocationCount, 600);
+            }
+
+            // Promedio de propiedades por corredor
+            const avgProperties = corredores > 0 ? (totalProperties / corredores).toFixed(1) : 0;
+            const dashAvgProps = document.getElementById('dash-avgProperties');
+            if (dashAvgProps) dashAvgProps.textContent = avgProperties;
+
+            // Promedio de corredores por Team Leader
+            const corredoresPerTL = teamLeaders > 0 ? (corredores / teamLeaders).toFixed(1) : 0;
+            const dashCorredoresPerTL = document.getElementById('dash-corredoresPerTL');
+            if (dashCorredoresPerTL) dashCorredoresPerTL.textContent = corredoresPerTL;
+
+            // Total leads mes y año (desde los Maps globales)
+            let totalLeadsMesCalc = 0;
+            let totalLeadsYearCalc = 0;
+            if (typeof leadsCount !== 'undefined') {
+                leadsCount.forEach(count => totalLeadsMesCalc += count);
+            }
+            if (typeof leadsCountYear !== 'undefined') {
+                leadsCountYear.forEach(count => totalLeadsYearCalc += count);
+            }
+
+            const dashLeadsMes = document.getElementById('dash-totalLeadsMes');
+            if (dashLeadsMes) {
+                animateValue(dashLeadsMes, parseInt(dashLeadsMes.textContent) || 0, totalLeadsMesCalc, 600);
+            }
+            const dashLeadsYear = document.getElementById('dash-totalLeadsYear');
+            if (dashLeadsYear) {
+                animateValue(dashLeadsYear, parseInt(dashLeadsYear.textContent) || 0, totalLeadsYearCalc, 600);
+            }
+
+            // Ventas, Arriendos, Casas, Departamentos para KPIs secundarios
+            const dashVentas = document.getElementById('dash-ventas');
+            if (dashVentas) animateValue(dashVentas, parseInt(dashVentas.textContent) || 0, ventaCount, 600);
+
+            const dashArriendos = document.getElementById('dash-arriendos');
+            if (dashArriendos) animateValue(dashArriendos, parseInt(dashArriendos.textContent) || 0, arriendoCount, 600);
+
+            const dashCasas = document.getElementById('dash-casas');
+            if (dashCasas) animateValue(dashCasas, parseInt(dashCasas.textContent) || 0, casasCount, 600);
+
+            const dashDeptos = document.getElementById('dash-deptos');
+            if (dashDeptos) animateValue(dashDeptos, parseInt(dashDeptos.textContent) || 0, departamentosCount, 600);
+
+            // Top Corredores por propiedades
+            const corredorCounts = {};
+            allData.forEach(item => {
+                if (item.corredor) {
+                    corredorCounts[item.corredor] = (corredorCounts[item.corredor] || 0) + 1;
+                }
+            });
+            const topCorredores = Object.entries(corredorCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const topCorredoresContainer = document.getElementById('topCorredoresContainer');
+            if (topCorredoresContainer) {
+                const maxCount = topCorredores.length > 0 ? topCorredores[0][1] : 1;
+                topCorredoresContainer.innerHTML = topCorredores.map(([nombre, count], index) => {
+                    const medals = ['🥇', '🥈', '🥉', '4', '5'];
+                    const bgColors = ['from-yellow-500/20 to-amber-500/20', 'from-slate-400/20 to-slate-500/20', 'from-orange-500/20 to-amber-500/20', 'from-purple-500/10 to-pink-500/10', 'from-blue-500/10 to-cyan-500/10'];
+                    const borderColors = ['border-yellow-500/30', 'border-slate-400/30', 'border-orange-500/30', 'border-purple-500/20', 'border-blue-500/20'];
+                    const textColors = ['text-yellow-400', 'text-slate-300', 'text-orange-400', 'text-purple-400', 'text-blue-400'];
+                    const barColors = ['bg-gradient-to-r from-yellow-500 to-amber-500', 'bg-gradient-to-r from-slate-400 to-slate-500', 'bg-gradient-to-r from-orange-500 to-amber-500', 'bg-gradient-to-r from-purple-500 to-pink-500', 'bg-gradient-to-r from-blue-500 to-cyan-500'];
+                    const percentage = (count / maxCount) * 100;
+                    return `
+                        <div class="relative p-4 bg-gradient-to-r ${bgColors[index]} rounded-xl border ${borderColors[index]} hover:scale-[1.02] transition-all cursor-default overflow-hidden">
+                            <div class="absolute bottom-0 left-0 h-1 ${barColors[index]} rounded-full" style="width: ${percentage}%"></div>
+                            <div class="flex items-center justify-between relative z-10">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-lg font-bold ${textColors[index]}">
+                                        ${medals[index]}
+                                    </div>
+                                    <div>
+                                        <span class="text-white font-semibold truncate block max-w-[140px]">${nombre}</span>
+                                        <span class="text-xs text-zinc-500">${percentage.toFixed(0)}% del líder</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-2xl font-bold ${textColors[index]}">${count}</span>
+                                    <span class="text-xs text-zinc-500 block">propiedades</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<p class="text-zinc-400 text-center py-8">Sin datos disponibles</p>';
+            }
+
+            // Top Team Leaders por propiedades
+            const tlCounts = {};
+            allData.forEach(item => {
+                if (item.teamLeader && item.teamLeader.trim()) {
+                    tlCounts[item.teamLeader] = (tlCounts[item.teamLeader] || 0) + 1;
+                }
+            });
+            const topTeamLeaders = Object.entries(tlCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const topTLContainer = document.getElementById('topTeamLeadersContainer');
+            if (topTLContainer) {
+                const maxTLCount = topTeamLeaders.length > 0 ? topTeamLeaders[0][1] : 1;
+                topTLContainer.innerHTML = topTeamLeaders.map(([nombre, count], index) => {
+                    const medals = ['🥇', '🥈', '🥉', '4', '5'];
+                    const bgColors = ['from-yellow-500/20 to-amber-500/20', 'from-slate-400/20 to-slate-500/20', 'from-orange-500/20 to-amber-500/20', 'from-emerald-500/10 to-green-500/10', 'from-cyan-500/10 to-blue-500/10'];
+                    const borderColors = ['border-yellow-500/30', 'border-slate-400/30', 'border-orange-500/30', 'border-emerald-500/20', 'border-cyan-500/20'];
+                    const textColors = ['text-yellow-400', 'text-slate-300', 'text-orange-400', 'text-emerald-400', 'text-cyan-400'];
+                    const barColors = ['bg-gradient-to-r from-yellow-500 to-amber-500', 'bg-gradient-to-r from-slate-400 to-slate-500', 'bg-gradient-to-r from-orange-500 to-amber-500', 'bg-gradient-to-r from-emerald-500 to-green-500', 'bg-gradient-to-r from-cyan-500 to-blue-500'];
+                    const percentage = (count / maxTLCount) * 100;
+                    return `
+                        <div class="relative p-4 bg-gradient-to-r ${bgColors[index]} rounded-xl border ${borderColors[index]} hover:scale-[1.02] transition-all cursor-default overflow-hidden">
+                            <div class="absolute bottom-0 left-0 h-1 ${barColors[index]} rounded-full" style="width: ${percentage}%"></div>
+                            <div class="flex items-center justify-between relative z-10">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-lg font-bold ${textColors[index]}">
+                                        ${medals[index]}
+                                    </div>
+                                    <div>
+                                        <span class="text-white font-semibold truncate block max-w-[140px]">${nombre}</span>
+                                        <span class="text-xs text-zinc-500">${percentage.toFixed(0)}% del líder</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-2xl font-bold ${textColors[index]}">${count}</span>
+                                    <span class="text-xs text-zinc-500 block">propiedades</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('') || '<p class="text-zinc-400 text-center py-8">Sin datos disponibles</p>';
+            }
+
+            // Portfolio Summary - Diseño mejorado
+            const portfolioSummary = document.getElementById('portfolioSummary');
+            if (portfolioSummary) {
+                const dataCompleteness = totalProperties > 0 ? Math.round((propertiesWithXmlData.length / totalProperties) * 100) : 0;
+                const locationPercentage = totalProperties > 0 ? Math.round((withLocationCount / totalProperties) * 100) : 0;
+                portfolioSummary.innerHTML = `
+                    <div class="p-5 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20 text-center group hover:border-blue-500/40 transition-all">
+                        <div class="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-map-marker-alt text-xl text-blue-400"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-blue-400 mb-1">${withLocationCount}</div>
+                        <div class="text-xs text-zinc-500">Con Ubicación</div>
+                        <div class="mt-2 text-xs text-blue-400/70">${locationPercentage}% del total</div>
+                    </div>
+                    <div class="p-5 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20 text-center group hover:border-purple-500/40 transition-all">
+                        <div class="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-database text-xl text-purple-400"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-purple-400 mb-1">${dataCompleteness}%</div>
+                        <div class="text-xs text-zinc-500">Datos Completos</div>
+                        <div class="mt-2 text-xs text-purple-400/70">${propertiesWithXmlData.length} props</div>
+                    </div>
+                    <div class="p-5 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl border border-emerald-500/20 text-center group hover:border-emerald-500/40 transition-all">
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-layer-group text-xl text-emerald-400"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-emerald-400 mb-1">${otrosCount}</div>
+                        <div class="text-xs text-zinc-500">Otros Tipos</div>
+                        <div class="mt-2 text-xs text-emerald-400/70">Terrenos, locales...</div>
+                    </div>
+                    <div class="p-5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 text-center group hover:border-amber-500/40 transition-all">
+                        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bolt text-xl text-amber-400"></i>
+                        </div>
+                        <div class="text-3xl font-bold text-amber-400 mb-1">${totalLeadsMesCalc + totalLeadsYearCalc}</div>
+                        <div class="text-xs text-zinc-500">Leads Totales</div>
+                        <div class="mt-2 text-xs text-amber-400/70">${totalLeadsMesCalc} este mes</div>
+                    </div>
+                `;
+            }
+
+            // Dashboard Last Update
+            const dashboardLastUpdate = document.getElementById('dashboardLastUpdate');
+            if (dashboardLastUpdate) {
+                const now = new Date();
+                dashboardLastUpdate.textContent = `Actualizado: ${now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' })}`;
+            }
+
+            // Dashboard Date
+            const dashboardDate = document.getElementById('dashboardDate');
+            if (dashboardDate) {
+                const now = new Date();
+                dashboardDate.textContent = now.toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            }
+
             // Update average price display
             const avgPriceElement = document.getElementById('averagePriceDisplay');
             if (avgPriceElement) {
@@ -3615,6 +4047,259 @@
             }
         }
 
+        // Refresh Dashboard - Recargar todos los datos
+        function refreshDashboard() {
+            const btn = event?.target?.closest('button');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) icon.classList.add('animate-spin');
+            }
+
+            // Actualizar timestamp
+            const dashboardLastUpdate = document.getElementById('dashboardLastUpdate');
+            if (dashboardLastUpdate) {
+                dashboardLastUpdate.textContent = 'Actualizando...';
+            }
+
+            // Recargar datos
+            loadData(true).then(() => {
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.classList.remove('animate-spin');
+                }
+                // Mostrar notificación de éxito
+                showNotification('Dashboard actualizado correctamente', 'success');
+            }).catch(err => {
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.classList.remove('animate-spin');
+                }
+                showNotification('Error al actualizar el dashboard', 'error');
+            });
+        }
+
+        // Mostrar notificación
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'from-emerald-500 to-green-500',
+                error: 'from-red-500 to-pink-500',
+                info: 'from-blue-500 to-cyan-500'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 z-[9999] px-6 py-4 bg-gradient-to-r ${colors[type]} rounded-xl shadow-2xl text-white font-medium flex items-center gap-3 animate-fade-scale`;
+            notification.innerHTML = `
+                <i class="fas ${icons[type]} text-xl"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(20px)';
+                notification.style.transition = 'all 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Export Dashboard to PDF
+        function exportDashboardPDF() {
+            const btn = event?.target?.closest('button');
+            if (btn) {
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-spinner animate-spin';
+                }
+            }
+
+            // Crear contenido para exportar
+            const totalProperties = allData.length;
+            const corredores = new Set(allData.map(item => item.corredor)).size;
+            const teamLeaders = new Set(allData.map(item => item.teamLeader).filter(tl => tl && tl.trim())).size;
+
+            const ventaCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.operation === 'sale';
+            }).length;
+
+            const arriendoCount = allData.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.operation === 'rent';
+            }).length;
+
+            let totalLeadsMes = 0;
+            let totalLeadsYear = 0;
+            if (typeof leadsCount !== 'undefined') {
+                leadsCount.forEach(count => totalLeadsMes += count);
+            }
+            if (typeof leadsCountYear !== 'undefined') {
+                leadsCountYear.forEach(count => totalLeadsYear += count);
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('es-CL', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            // Crear una ventana con los datos del reporte
+            const reportWindow = window.open('', '_blank');
+            reportWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Reporte Dashboard - Tu Match</title>
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            padding: 40px;
+                            background: #f5f5f5;
+                            color: #333;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 40px;
+                            padding-bottom: 20px;
+                            border-bottom: 2px solid #8b5cf6;
+                        }
+                        .header h1 {
+                            font-size: 2rem;
+                            color: #8b5cf6;
+                            margin-bottom: 10px;
+                        }
+                        .header p { color: #666; }
+                        .section {
+                            background: white;
+                            border-radius: 12px;
+                            padding: 24px;
+                            margin-bottom: 24px;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        }
+                        .section h2 {
+                            font-size: 1.25rem;
+                            color: #333;
+                            margin-bottom: 16px;
+                            padding-bottom: 8px;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .grid {
+                            display: grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 16px;
+                        }
+                        .stat-box {
+                            text-align: center;
+                            padding: 16px;
+                            background: #f9fafb;
+                            border-radius: 8px;
+                        }
+                        .stat-box .value {
+                            font-size: 2rem;
+                            font-weight: 700;
+                            color: #8b5cf6;
+                        }
+                        .stat-box .label {
+                            font-size: 0.875rem;
+                            color: #666;
+                            margin-top: 4px;
+                        }
+                        .footer {
+                            text-align: center;
+                            margin-top: 40px;
+                            padding-top: 20px;
+                            border-top: 1px solid #ddd;
+                            color: #999;
+                            font-size: 0.875rem;
+                        }
+                        @media print {
+                            body { background: white; padding: 20px; }
+                            .section { box-shadow: none; border: 1px solid #eee; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>📊 Reporte Dashboard Ejecutivo</h1>
+                        <p>${dateStr}</p>
+                    </div>
+
+                    <div class="section">
+                        <h2>🏠 Resumen General</h2>
+                        <div class="grid">
+                            <div class="stat-box">
+                                <div class="value">${totalProperties}</div>
+                                <div class="label">Propiedades</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="value">${corredores}</div>
+                                <div class="label">Corredores</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="value">${teamLeaders}</div>
+                                <div class="label">Team Leaders</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="value">${totalLeadsMes}</div>
+                                <div class="label">Leads Mes</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <h2>💼 Operaciones</h2>
+                        <div class="grid">
+                            <div class="stat-box">
+                                <div class="value" style="color: #10b981;">${ventaCount}</div>
+                                <div class="label">En Venta</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="value" style="color: #8b5cf6;">${arriendoCount}</div>
+                                <div class="label">En Arriendo</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="value" style="color: #f59e0b;">${totalLeadsMes}</div>
+                                <div class="label">Leads Este Mes</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="value" style="color: #06b6d4;">${totalLeadsYear}</div>
+                                <div class="label">Leads Este Año</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <p>Generado automáticamente por Tu Match Dashboard</p>
+                        <p>© ${now.getFullYear()} - Todos los derechos reservados</p>
+                    </div>
+
+                    <script>
+                        // Auto print
+                        window.onload = function() {
+                            window.print();
+                        }
+                    </script>
+                </body>
+                </html>
+            `);
+            reportWindow.document.close();
+
+            // Restaurar icono
+            setTimeout(() => {
+                if (btn) {
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-download';
+                    }
+                }
+                showNotification('Reporte generado correctamente', 'success');
+            }, 1000);
+        }
 
         // Update Charts
         function updateCharts() {
