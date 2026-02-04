@@ -977,7 +977,7 @@
                             <i class="fas fa-search mr-2 text-emerald-400"></i>Búsqueda
                         </label>
                         <div class="relative">
-                            <input type="text" id="searchInput" placeholder="🔍 Código o referido..."
+                            <input type="text" id="searchInput" placeholder="🔍 Buscar código, corredor, ubicación..."
                                    class="input-modern w-full pl-4 pr-12 py-3 hover:bg-white/5 transition-all duration-200">
                             <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-400">
                                 <i class="fas fa-search"></i>
@@ -996,6 +996,13 @@
                             <option value="leads_desc">📈 Leads: Mayor a Menor</option>
                             <option value="leads_asc">📉 Leads: Menor a Mayor</option>
                         </select>
+                    </div>
+
+                    <!-- Botón limpiar filtros -->
+                    <div class="space-y-3 flex items-end">
+                        <button onclick="clearAllFilters()" class="w-full px-4 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-xl text-red-400 hover:text-white hover:from-red-500 hover:to-orange-500 transition-all duration-300 font-medium">
+                            <i class="fas fa-times-circle mr-2"></i>Limpiar filtros
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1047,6 +1054,9 @@
             <div id="grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                 <!-- Properties will be rendered here -->
             </div>
+
+            <!-- Paginación -->
+            <div id="pagination"></div>
 
         </section>
         
@@ -1225,6 +1235,10 @@
 
         let allData = [];
         let filteredData = [];
+
+        // Paginación
+        let currentPage = 1;
+        const itemsPerPage = 24;
 
         // Cache de leads del mes actual por código de propiedad
         const leadsCount = new Map();
@@ -1792,6 +1806,19 @@
             }
         }
 
+        // Limpiar todos los filtros
+        function clearAllFilters() {
+            document.getElementById('corredorFilter').value = '';
+            document.getElementById('teamLeaderFilter').value = '';
+            document.getElementById('operationFilter').value = '';
+            document.getElementById('priceFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortFilter').value = '';
+            currentPage = 1;
+            localStorage.removeItem('propertyFilters');
+            applyFilters();
+        }
+
         // Apply Filters
         function applyFilters() {
             const corredorFilter = document.getElementById('corredorFilter').value;
@@ -1799,7 +1826,10 @@
             const operationFilter = document.getElementById('operationFilter').value;
             const priceFilter = document.getElementById('priceFilter').value;
             const searchInput = document.getElementById('searchInput').value.toLowerCase();
-            
+
+            // Resetear a página 1 cuando se cambian filtros
+            currentPage = 1;
+
             // Guardar filtros cada vez que se aplican
             saveFilters();
             
@@ -1835,11 +1865,18 @@
                     return false;
                 })();
                 
-                const matchesSearch = !searchInput || 
-                    item.codigo.toLowerCase().includes(searchInput) ||
-                    (item.referido && item.referido.toLowerCase().includes(searchInput)) ||
-                    (item.teamLeader && item.teamLeader.toLowerCase().includes(searchInput)) ||
-                    (item.ordenEnviada && item.ordenEnviada.toLowerCase().includes(searchInput));
+                // Búsqueda mejorada en múltiples campos
+                const matchesSearch = !searchInput || (() => {
+                    const xmlData = getPropertyData(item.codigo);
+                    return item.codigo.toLowerCase().includes(searchInput) ||
+                        (item.corredor && item.corredor.toLowerCase().includes(searchInput)) ||
+                        (item.referido && item.referido.toLowerCase().includes(searchInput)) ||
+                        (item.teamLeader && item.teamLeader.toLowerCase().includes(searchInput)) ||
+                        (item.ordenEnviada && item.ordenEnviada.toLowerCase().includes(searchInput)) ||
+                        (xmlData.region && xmlData.region.toLowerCase().includes(searchInput)) ||
+                        (xmlData.commune && xmlData.commune.toLowerCase().includes(searchInput)) ||
+                        (xmlData.address && xmlData.address.toLowerCase().includes(searchInput));
+                })();
                 
                 return matchesCorredor && matchesTeamLeader && matchesOperation && matchesPrice && matchesSearch;
             });
@@ -1943,11 +1980,11 @@
             indicator.style.display = 'flex';
         }
 
-        // Render Properties
+        // Render Properties con paginación
         function renderProperties() {
-            console.log('🏠 Renderizando propiedades:', filteredData.length);
             const grid = document.getElementById('grid');
-            
+            const paginationContainer = document.getElementById('pagination');
+
             if (filteredData.length === 0) {
                 grid.innerHTML = `
                     <div class="col-span-full text-center py-12">
@@ -1958,11 +1995,95 @@
                         <p class="text-gray-400">Intenta ajustar los filtros de búsqueda</p>
                     </div>
                 `;
+                if (paginationContainer) paginationContainer.innerHTML = '';
                 return;
             }
 
-            grid.innerHTML = filteredData.map((item, index) => createPropertyCard(item, index)).join('');
+            // Calcular paginación
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedData = filteredData.slice(startIndex, endIndex);
+
+            grid.innerHTML = paginatedData.map((item, index) => createPropertyCard(item, startIndex + index)).join('');
             grid.style.display = 'grid';
+
+            // Renderizar paginación
+            renderPagination(totalPages);
+        }
+
+        // Renderizar controles de paginación
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination');
+            if (!container || totalPages <= 1) {
+                if (container) container.innerHTML = '';
+                return;
+            }
+
+            const startItem = (currentPage - 1) * itemsPerPage + 1;
+            const endItem = Math.min(currentPage * itemsPerPage, filteredData.length);
+
+            let html = `
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-4 glass rounded-xl">
+                    <div class="text-sm text-zinc-400">
+                        Mostrando <span class="text-white font-semibold">${startItem}-${endItem}</span> de <span class="text-white font-semibold">${filteredData.length}</span> propiedades
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="goToPage(1)" ${currentPage === 1 ? 'disabled' : ''}
+                            class="px-3 py-2 rounded-lg ${currentPage === 1 ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' : 'bg-zinc-700 text-white hover:bg-zinc-600'} transition-all">
+                            <i class="fas fa-angles-left"></i>
+                        </button>
+                        <button onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}
+                            class="px-3 py-2 rounded-lg ${currentPage === 1 ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' : 'bg-zinc-700 text-white hover:bg-zinc-600'} transition-all">
+                            <i class="fas fa-angle-left"></i>
+                        </button>
+            `;
+
+            // Mostrar números de página
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button onclick="goToPage(${i})"
+                        class="px-4 py-2 rounded-lg font-medium transition-all ${i === currentPage
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                            : 'bg-zinc-700 text-white hover:bg-zinc-600'}">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            html += `
+                        <button onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}
+                            class="px-3 py-2 rounded-lg ${currentPage === totalPages ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' : 'bg-zinc-700 text-white hover:bg-zinc-600'} transition-all">
+                            <i class="fas fa-angle-right"></i>
+                        </button>
+                        <button onclick="goToPage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}
+                            class="px-3 py-2 rounded-lg ${currentPage === totalPages ? 'bg-zinc-800 text-zinc-600 cursor-not-allowed' : 'bg-zinc-700 text-white hover:bg-zinc-600'} transition-all">
+                            <i class="fas fa-angles-right"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        // Ir a página específica
+        function goToPage(page) {
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderProperties();
+            // Scroll suave al inicio del grid
+            document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // Create Property Card con información completa de comisiones
