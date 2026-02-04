@@ -68,23 +68,26 @@
         }
 
         :root {
-            /* Paleta elegante y formal */
+            /* Paleta TuMatch - Coral → Rosa → Magenta → Violeta */
             --bg-primary: #0C0C0E;
             --bg-secondary: #131316;
             --bg-tertiary: #1C1C21;
             --bg-card: #18181B;
-            --accent-gold: #C9A962;
-            --accent-gold-light: #E2C992;
-            --accent-emerald: #059669;
+            --accent-coral: #F97068;
+            --accent-pink: #F472B6;
+            --accent-magenta: #EC4899;
+            --accent-violet: #D946EF;
+            --accent-emerald: #10B981;
             --accent-blue: #3B82F6;
-            --accent-rose: #BE123C;
             --text-primary: #FAFAFA;
             --text-secondary: #A1A1AA;
             --text-muted: #71717A;
             --border-subtle: rgba(255, 255, 255, 0.06);
-            --border-accent: rgba(201, 169, 98, 0.3);
+            --border-accent: rgba(249, 112, 104, 0.3);
             --glass-bg: rgba(12, 12, 14, 0.85);
             --glass-border: rgba(255, 255, 255, 0.04);
+            /* Gradiente principal TuMatch */
+            --gradient-tumatch: linear-gradient(180deg, #F97068 0%, #EC4899 50%, #D946EF 100%);
         }
 
         body {
@@ -97,7 +100,7 @@
             letter-spacing: -0.01em;
         }
 
-        /* Fondo elegante y sutil */
+        /* Fondo con tonos TuMatch sutiles */
         body::before {
             content: '';
             position: fixed;
@@ -106,8 +109,8 @@
             right: 0;
             bottom: 0;
             background:
-                radial-gradient(ellipse at 0% 0%, rgba(201, 169, 98, 0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 100% 100%, rgba(201, 169, 98, 0.02) 0%, transparent 50%),
+                radial-gradient(ellipse at 0% 0%, rgba(249, 112, 104, 0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(217, 70, 239, 0.03) 0%, transparent 50%),
                 linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             z-index: -1;
         }
@@ -132,9 +135,9 @@
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
         }
 
-        /* Botones elegantes */
+        /* Botones TuMatch */
         .btn-modern {
-            background: var(--accent-gold);
+            background: linear-gradient(135deg, #F97068 0%, #EC4899 100%);
             border: none;
             color: white;
             font-weight: 500;
@@ -146,7 +149,7 @@
 
         .btn-modern:hover {
             transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(201, 169, 98, 0.25);
+            box-shadow: 0 8px 24px rgba(236, 72, 153, 0.3);
         }
 
         .btn-modern::before {
@@ -163,8 +166,8 @@
 
         .btn-outline:hover {
             background: rgba(255, 255, 255, 0.03);
-            border-color: var(--accent-gold);
-            color: var(--accent-gold);
+            border-color: var(--accent-pink);
+            color: var(--accent-pink);
         }
 
         /* Tipografía elegante */
@@ -179,7 +182,7 @@
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+            background: linear-gradient(135deg, #F97068, #EC4899, #D946EF);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -197,7 +200,7 @@
 
         .card-modern:hover {
             transform: translateY(-4px);
-            border-color: rgba(201, 169, 98, 0.2);
+            border-color: rgba(236, 72, 153, 0.2);
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
         }
 
@@ -677,7 +680,7 @@
             <div class="flex items-center justify-between h-16 sm:h-18">
                 <!-- Logo y brand -->
                 <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-amber-600 to-yellow-500 flex items-center justify-center">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg, #F97068 0%, #EC4899 50%, #D946EF 100%);">
                         <i class="fas fa-home text-white text-sm sm:text-base"></i>
                     </div>
                     <div class="hidden sm:block">
@@ -693,22 +696,22 @@
                     <!-- Mobile tabs -->
                     <div class="flex md:hidden items-center space-x-1">
                         <button @click="currentView = 'properties'"
-                                :class="currentView === 'properties' ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-500'"
+                                :class="currentView === 'properties' ? 'text-pink-400 bg-pink-500/10' : 'text-zinc-500'"
                                 class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center">
                             <i class="fas fa-building text-sm"></i>
                         </button>
                         <button @click="currentView = 'map'; initGlobalMap();"
-                                :class="currentView === 'map' ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-500'"
+                                :class="currentView === 'map' ? 'text-pink-400 bg-pink-500/10' : 'text-zinc-500'"
                                 class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center">
                             <i class="fas fa-map-marked-alt text-sm"></i>
                         </button>
                         <button @click="currentView = 'dashboard'"
-                                :class="currentView === 'dashboard' ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-500'"
+                                :class="currentView === 'dashboard' ? 'text-pink-400 bg-pink-500/10' : 'text-zinc-500'"
                                 class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center">
                             <i class="fas fa-chart-pie text-sm"></i>
                         </button>
                         <a href="https://tumatch-leads.vercel.app/kanban" target="_blank"
-                           class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center text-zinc-500 hover:text-amber-400">
+                           class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center text-zinc-500 hover:text-pink-400">
                             <i class="fas fa-address-book text-sm"></i>
                         </a>
                     </div>
@@ -716,37 +719,28 @@
                     <!-- Desktop tabs -->
                     <div class="hidden md:flex items-center space-x-1 bg-white/[0.02] rounded-lg p-1">
                         <button @click="currentView = 'properties'"
-                                :class="currentView === 'properties' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                :class="currentView === 'properties' ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
                                 class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-building text-sm"></i>
                             <span class="hidden lg:inline text-sm">Propiedades</span>
                         </button>
                         <button @click="currentView = 'map'; initGlobalMap();"
-                                :class="currentView === 'map' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                :class="currentView === 'map' ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
                                 class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-map-marked-alt text-sm"></i>
                             <span class="hidden lg:inline text-sm">Mapa</span>
                         </button>
                         <button @click="currentView = 'dashboard'"
-                                :class="currentView === 'dashboard' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                :class="currentView === 'dashboard' ? 'text-pink-400 bg-pink-500/10 border-pink-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
                                 class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-chart-pie text-sm"></i>
                             <span class="hidden lg:inline text-sm">Dashboard</span>
                         </button>
                         <a href="https://tumatch-leads.vercel.app/kanban" target="_blank"
-                           class="px-4 lg:px-5 py-2 rounded-lg font-medium border border-transparent text-zinc-400 hover:text-amber-400 hover:bg-amber-500/10 transition-all flex items-center space-x-2">
+                           class="px-4 lg:px-5 py-2 rounded-lg font-medium border border-transparent text-zinc-400 hover:text-pink-400 hover:bg-pink-500/10 transition-all flex items-center space-x-2">
                             <i class="fas fa-address-book text-sm"></i>
                             <span class="hidden lg:inline text-sm">Mis Contactos</span>
                         </a>
-                        <!-- Ranking oculto -->
-                        <!--
-                        <button @click="currentView = 'ranking'"
-                                :class="currentView === 'ranking' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
-                                class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
-                            <i class="fas fa-trophy text-sm"></i>
-                            <span class="hidden lg:inline">Ranking</span>
-                        </button>
-                        -->
                     </div>
                 </div>
                 
@@ -791,7 +785,7 @@
                 <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
                     <div>
                         <div class="flex items-center gap-3 mb-3">
-                            <div class="w-1.5 h-8 bg-amber-500 rounded-full"></div>
+                            <div class="w-1.5 h-8 bg-pink-500 rounded-full"></div>
                             <span class="text-sm text-zinc-500 font-medium tracking-wide uppercase">Panel de Control</span>
                         </div>
                         <h1 class="text-3xl md:text-4xl font-semibold text-white mb-2 tracking-tight">
@@ -807,7 +801,7 @@
                             <i class="fas fa-sync-alt"></i>
                             <span>Actualizar</span>
                         </button>
-                        <button onclick="exportDashboardPDF()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-white font-medium transition-all flex items-center gap-2 text-sm">
+                        <button onclick="exportDashboardPDF()" class="px-4 py-2.5 bg-pink-600 hover:bg-pink-500 rounded-lg text-white font-medium transition-all flex items-center gap-2 text-sm">
                             <i class="fas fa-download"></i>
                             <span>Exportar</span>
                         </button>
@@ -817,10 +811,10 @@
                 <!-- KPIs Principales - Diseño Elegante -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
                     <!-- Propiedades -->
-                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-pink-500/20 transition-all group">
                         <div class="flex items-start justify-between mb-4">
-                            <div class="w-11 h-11 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-building text-lg text-amber-500"></i>
+                            <div class="w-11 h-11 bg-pink-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-building text-lg text-pink-500"></i>
                             </div>
                             <span class="text-[10px] text-zinc-600 font-medium tracking-wider uppercase">Total</span>
                         </div>
@@ -828,12 +822,12 @@
                         <div class="text-sm text-zinc-500">Propiedades</div>
                         <div class="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs">
                             <span class="text-zinc-600">Con ubicación</span>
-                            <span class="text-amber-500 font-medium" id="dash-withLocation">0</span>
+                            <span class="text-pink-500 font-medium" id="dash-withLocation">0</span>
                         </div>
                     </div>
 
                     <!-- Corredores -->
-                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-pink-500/20 transition-all group">
                         <div class="flex items-start justify-between mb-4">
                             <div class="w-11 h-11 bg-emerald-500/10 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-users text-lg text-emerald-500"></i>
@@ -849,7 +843,7 @@
                     </div>
 
                     <!-- Team Leaders -->
-                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-pink-500/20 transition-all group">
                         <div class="flex items-start justify-between mb-4">
                             <div class="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-user-tie text-lg text-blue-500"></i>
@@ -865,7 +859,7 @@
                     </div>
 
                     <!-- Leads -->
-                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-pink-500/20 transition-all group">
                         <div class="flex items-start justify-between mb-4">
                             <div class="w-11 h-11 bg-rose-500/10 rounded-lg flex items-center justify-center">
                                 <i class="fas fa-chart-line text-lg text-rose-500"></i>
@@ -902,8 +896,8 @@
                         </div>
                     </div>
                     <div class="glass-strong rounded-lg p-4 border border-zinc-800/30 flex items-center gap-3">
-                        <div class="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                            <i class="fas fa-home text-amber-500 text-sm"></i>
+                        <div class="w-9 h-9 bg-pink-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-pink-500 text-sm"></i>
                         </div>
                         <div>
                             <div class="text-xl font-semibold text-white" id="dash-casas">0</div>
@@ -934,7 +928,7 @@
                                 <p class="text-xs text-zinc-500">Propiedades asignadas por equipo</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                                <span class="w-2 h-2 bg-pink-500 rounded-full"></span>
                                 <span class="text-xs text-zinc-500">Propiedades</span>
                             </div>
                         </div>
@@ -947,8 +941,8 @@
                         <div class="grid grid-cols-2 gap-4">
                             <div class="rounded-lg p-4 bg-zinc-900/50 border border-zinc-800/50">
                                 <div class="flex items-center gap-3 mb-3">
-                                    <div class="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-building text-amber-500 text-sm"></i>
+                                    <div class="w-9 h-9 bg-pink-500/10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-building text-pink-500 text-sm"></i>
                                     </div>
                                     <div>
                                         <h4 class="text-sm font-medium text-white">Tipos de Propiedades</h4>
@@ -989,12 +983,12 @@
                         <div class="space-y-4">
                             <div class="rounded-lg p-3 bg-zinc-900/50 border border-zinc-800/50">
                                 <h4 class="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
-                                    <i class="fas fa-globe-americas text-amber-500"></i>
+                                    <i class="fas fa-globe-americas text-pink-500"></i>
                                     Regiones
                                 </h4>
                                 <div id="regionStatsContainer" class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
                                     <div class="flex items-center justify-center py-3">
-                                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
+                                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-pink-500"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1019,7 +1013,7 @@
             <!-- Rankings Section -->
             <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-10">
                 <div class="flex items-center gap-3 mb-5">
-                    <div class="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                    <div class="w-1.5 h-6 bg-pink-500 rounded-full"></div>
                     <h2 class="text-lg font-semibold text-white">Rankings</h2>
                 </div>
 
@@ -1028,8 +1022,8 @@
                     <div class="glass-strong rounded-xl p-5 border border-zinc-800/50">
                         <div class="flex items-center justify-between mb-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-trophy text-amber-500 text-sm"></i>
+                                <div class="w-9 h-9 bg-pink-500/10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-trophy text-pink-500 text-sm"></i>
                                 </div>
                                 <div>
                                     <h3 class="text-sm font-semibold text-white">Top Corredores</h3>
@@ -1040,7 +1034,7 @@
                         </div>
                         <div id="topCorredoresContainer" class="space-y-2">
                             <div class="flex items-center justify-center py-4">
-                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500"></div>
+                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-pink-500"></div>
                             </div>
                         </div>
                     </div>
@@ -1073,7 +1067,7 @@
                 <div class="glass-strong rounded-xl p-6 border border-zinc-800/50">
                     <div class="flex items-center justify-between mb-5">
                         <div class="flex items-center gap-3">
-                            <div class="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                            <div class="w-1.5 h-6 bg-pink-500 rounded-full"></div>
                             <div>
                                 <h2 class="text-lg font-semibold text-white">Resumen del Portafolio</h2>
                                 <p class="text-xs text-zinc-500" id="dashboardDate">Cargando...</p>
@@ -1082,8 +1076,8 @@
                     </div>
                     <div id="portfolioSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800/30 text-center">
-                            <div class="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center mx-auto mb-2">
-                                <i class="fas fa-map-marker-alt text-amber-500"></i>
+                            <div class="w-10 h-10 bg-pink-500/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-map-marker-alt text-pink-500"></i>
                             </div>
                             <div class="text-2xl font-semibold text-white">-</div>
                             <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Con Ubicación</div>
@@ -3045,8 +3039,8 @@
                         </div>
                         
                         <!-- Orden Enviada a Firmar (5% comisión) -->
-                        <div class="flex items-center space-x-3 p-2.5 rounded-lg ${item.ordenEnviada ? 'bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20' : 'bg-zinc-800/30 border border-zinc-700/30'}">
-                            <div class="w-8 h-8 rounded-lg ${item.ordenEnviada ? 'bg-gradient-to-br from-orange-500 to-amber-500' : 'bg-zinc-700'} flex items-center justify-center">
+                        <div class="flex items-center space-x-3 p-2.5 rounded-lg ${item.ordenEnviada ? 'bg-gradient-to-r from-pink-500/10 to-rose-500/10 border border-pink-500/20' : 'bg-zinc-800/30 border border-zinc-700/30'}">
+                            <div class="w-8 h-8 rounded-lg ${item.ordenEnviada ? 'bg-gradient-to-br from-pink-500 to-rose-500' : 'bg-zinc-700'} flex items-center justify-center">
                                 <i class="fas fa-file-signature text-white text-xs"></i>
                             </div>
                             <div class="flex-1">
@@ -3141,7 +3135,7 @@
                 let medalClass = '';
                 if (position === 1) {
                     medal = '🥇';
-                    medalClass = 'from-yellow-500 to-amber-600';
+                    medalClass = 'from-yellow-500 to-pink-500';
                 } else if (position === 2) {
                     medal = '🥈';
                     medalClass = 'from-gray-300 to-gray-400';
@@ -3286,11 +3280,11 @@
                     <div class="space-y-2">
                         <div class="bg-white/5 rounded-lg p-2 sm:p-3 hover:bg-white/10 transition-all duration-200">
                             <div class="flex items-center space-x-2 sm:space-x-3">
-                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg flex items-center justify-center">
+                                <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-pink-400 to-rose-500 rounded-lg flex items-center justify-center">
                                     <i class="fas fa-home text-white text-xs sm:text-sm"></i>
                                 </div>
                                 <div>
-                                    <div class="text-lg sm:text-xl font-bold text-amber-400">${casasCount}</div>
+                                    <div class="text-lg sm:text-xl font-bold text-pink-400">${casasCount}</div>
                                     <div class="text-xs sm:text-sm text-white font-medium">Casas</div>
                                 </div>
                             </div>
@@ -3433,10 +3427,10 @@
                 const maxCount = topCorredores.length > 0 ? topCorredores[0][1] : 1;
                 topCorredoresContainer.innerHTML = topCorredores.map(([nombre, count], index) => {
                     const medals = ['🥇', '🥈', '🥉', '4', '5'];
-                    const bgColors = ['from-yellow-500/20 to-amber-500/20', 'from-slate-400/20 to-slate-500/20', 'from-orange-500/20 to-amber-500/20', 'from-purple-500/10 to-pink-500/10', 'from-blue-500/10 to-cyan-500/10'];
+                    const bgColors = ['from-yellow-500/20 to-pink-500/20', 'from-slate-400/20 to-slate-500/20', 'from-orange-500/20 to-rose-500/20', 'from-purple-500/10 to-pink-500/10', 'from-blue-500/10 to-cyan-500/10'];
                     const borderColors = ['border-yellow-500/30', 'border-slate-400/30', 'border-orange-500/30', 'border-purple-500/20', 'border-blue-500/20'];
                     const textColors = ['text-yellow-400', 'text-slate-300', 'text-orange-400', 'text-purple-400', 'text-blue-400'];
-                    const barColors = ['bg-gradient-to-r from-yellow-500 to-amber-500', 'bg-gradient-to-r from-slate-400 to-slate-500', 'bg-gradient-to-r from-orange-500 to-amber-500', 'bg-gradient-to-r from-purple-500 to-pink-500', 'bg-gradient-to-r from-blue-500 to-cyan-500'];
+                    const barColors = ['bg-gradient-to-r from-yellow-500 to-pink-500', 'bg-gradient-to-r from-slate-400 to-slate-500', 'bg-gradient-to-r from-orange-500 to-rose-500', 'bg-gradient-to-r from-purple-500 to-pink-500', 'bg-gradient-to-r from-blue-500 to-cyan-500'];
                     const percentage = (count / maxCount) * 100;
                     return `
                         <div class="relative p-4 bg-gradient-to-r ${bgColors[index]} rounded-xl border ${borderColors[index]} hover:scale-[1.02] transition-all cursor-default overflow-hidden">
@@ -3477,10 +3471,10 @@
                 const maxTLCount = topTeamLeaders.length > 0 ? topTeamLeaders[0][1] : 1;
                 topTLContainer.innerHTML = topTeamLeaders.map(([nombre, count], index) => {
                     const medals = ['🥇', '🥈', '🥉', '4', '5'];
-                    const bgColors = ['from-yellow-500/20 to-amber-500/20', 'from-slate-400/20 to-slate-500/20', 'from-orange-500/20 to-amber-500/20', 'from-emerald-500/10 to-green-500/10', 'from-cyan-500/10 to-blue-500/10'];
+                    const bgColors = ['from-yellow-500/20 to-pink-500/20', 'from-slate-400/20 to-slate-500/20', 'from-orange-500/20 to-rose-500/20', 'from-emerald-500/10 to-green-500/10', 'from-cyan-500/10 to-blue-500/10'];
                     const borderColors = ['border-yellow-500/30', 'border-slate-400/30', 'border-orange-500/30', 'border-emerald-500/20', 'border-cyan-500/20'];
                     const textColors = ['text-yellow-400', 'text-slate-300', 'text-orange-400', 'text-emerald-400', 'text-cyan-400'];
-                    const barColors = ['bg-gradient-to-r from-yellow-500 to-amber-500', 'bg-gradient-to-r from-slate-400 to-slate-500', 'bg-gradient-to-r from-orange-500 to-amber-500', 'bg-gradient-to-r from-emerald-500 to-green-500', 'bg-gradient-to-r from-cyan-500 to-blue-500'];
+                    const barColors = ['bg-gradient-to-r from-yellow-500 to-pink-500', 'bg-gradient-to-r from-slate-400 to-slate-500', 'bg-gradient-to-r from-orange-500 to-rose-500', 'bg-gradient-to-r from-emerald-500 to-green-500', 'bg-gradient-to-r from-cyan-500 to-blue-500'];
                     const percentage = (count / maxTLCount) * 100;
                     return `
                         <div class="relative p-4 bg-gradient-to-r ${bgColors[index]} rounded-xl border ${borderColors[index]} hover:scale-[1.02] transition-all cursor-default overflow-hidden">
@@ -3535,13 +3529,13 @@
                         <div class="text-xs text-zinc-500">Otros Tipos</div>
                         <div class="mt-2 text-xs text-emerald-400/70">Terrenos, locales...</div>
                     </div>
-                    <div class="p-5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 text-center group hover:border-amber-500/40 transition-all">
-                        <div class="w-12 h-12 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                            <i class="fas fa-bolt text-xl text-amber-400"></i>
+                    <div class="p-5 bg-gradient-to-br from-pink-500/10 to-rose-500/10 rounded-2xl border border-pink-500/20 text-center group hover:border-pink-500/40 transition-all">
+                        <div class="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-bolt text-xl text-pink-400"></i>
                         </div>
-                        <div class="text-3xl font-bold text-amber-400 mb-1">${totalLeadsMesCalc + totalLeadsYearCalc}</div>
+                        <div class="text-3xl font-bold text-pink-400 mb-1">${totalLeadsMesCalc + totalLeadsYearCalc}</div>
                         <div class="text-xs text-zinc-500">Leads Totales</div>
-                        <div class="mt-2 text-xs text-amber-400/70">${totalLeadsMesCalc} este mes</div>
+                        <div class="mt-2 text-xs text-pink-400/70">${totalLeadsMesCalc} este mes</div>
                     </div>
                 `;
             }
@@ -3814,7 +3808,7 @@
                 'from-cyan-400 to-blue-500',
                 'from-purple-400 to-pink-500',
                 'from-green-400 to-emerald-500',
-                'from-amber-400 to-orange-500',
+                'from-pink-400 to-rose-500',
                 'from-red-400 to-rose-500',
                 'from-indigo-400 to-violet-500',
                 'from-teal-400 to-cyan-500',
@@ -3825,7 +3819,7 @@
                 'from-rose-400 to-pink-500',
                 'from-emerald-400 to-teal-500',
                 'from-violet-400 to-indigo-500',
-                'from-yellow-400 to-amber-500',
+                'from-yellow-400 to-pink-500',
                 'from-blue-400 to-indigo-500'
             ];
 
@@ -3833,7 +3827,7 @@
             const comunaColors = [
                 'from-purple-400 to-pink-500',
                 'from-cyan-400 to-blue-500',
-                'from-amber-400 to-orange-500',
+                'from-pink-400 to-rose-500',
                 'from-green-400 to-emerald-500',
                 'from-red-400 to-rose-500',
                 'from-indigo-400 to-violet-500',
@@ -4259,7 +4253,7 @@
                 
                 return `
                     <div class="flex items-center space-x-4 p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${item.firmaOrden ? 'from-green-500 to-emerald-500' : 'from-orange-500 to-amber-500'} flex items-center justify-center">
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${item.firmaOrden ? 'from-green-500 to-emerald-500' : 'from-pink-500 to-rose-500'} flex items-center justify-center">
                             <i class="fas ${item.firmaOrden ? 'fa-check' : 'fa-clock'} text-white"></i>
                         </div>
                         <div class="flex-1">
