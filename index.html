@@ -649,6 +649,41 @@
             backdrop-filter: blur(4px);
         }
 
+        /* Controles del mapa con glass effect */
+        #mapSection.fixed #globalMapContainer {
+            height: calc(100vh - 2rem) !important;
+        }
+
+        #mapSection.fixed .glass-strong {
+            height: 100%;
+        }
+
+        /* Resultados de búsqueda de comunas */
+        #comunaResults::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #comunaResults::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+
+        #comunaResults::-webkit-scrollbar-thumb {
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 3px;
+        }
+
+        /* Mi ubicación pulsante */
+        .my-location-marker {
+            animation: pulse-location 2s infinite;
+        }
+
+        @keyframes pulse-location {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+            70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
         /* Vista del mapa fija */
         .map-view-container {
             position: fixed;
@@ -1351,9 +1386,108 @@
                 </div>
             </section>
 
+            <!-- Estadísticas del mapa en vivo -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-4">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="glass rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-white"></i>
+                        </div>
+                        <div>
+                            <p id="mapStatVentas" class="text-lg font-bold text-emerald-400">0</p>
+                            <p class="text-xs text-zinc-400">Ventas</p>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-key text-white"></i>
+                        </div>
+                        <div>
+                            <p id="mapStatArriendos" class="text-lg font-bold text-violet-400">0</p>
+                            <p class="text-xs text-zinc-400">Arriendos</p>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-map-pin text-white"></i>
+                        </div>
+                        <div>
+                            <p id="mapStatUbicadas" class="text-lg font-bold text-cyan-400">0</p>
+                            <p class="text-xs text-zinc-400">Con ubicación</p>
+                        </div>
+                    </div>
+                    <div class="glass rounded-xl p-3 flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-map-marker-slash text-white"></i>
+                        </div>
+                        <div>
+                            <p id="mapStatSinUbicar" class="text-lg font-bold text-orange-400">0</p>
+                            <p class="text-xs text-zinc-400">Sin ubicación</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Mapa contenedor fijo -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8">
+            <section id="mapSection" class="max-w-7xl mx-auto px-6 lg:px-8">
                 <div class="glass-strong rounded-2xl p-3 animate-slide-up relative">
+                    <!-- Controles del mapa -->
+                    <div class="absolute top-5 right-5 z-20 flex flex-col gap-2">
+                        <button onclick="toggleMapFullscreen()" title="Pantalla completa" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                            <i id="fullscreenIcon" class="fas fa-expand"></i>
+                        </button>
+                        <button onclick="goToMyLocation()" title="Mi ubicación" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                        <button onclick="resetMapView()" title="Vista inicial" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                            <i class="fas fa-home"></i>
+                        </button>
+                        <div class="relative">
+                            <button onclick="toggleMapStyleMenu()" title="Estilo de mapa" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
+                                <i class="fas fa-layer-group"></i>
+                            </button>
+                            <div id="mapStyleMenu" class="hidden absolute right-12 top-0 glass rounded-lg p-2 min-w-[140px]">
+                                <button onclick="setMapStyle('streets')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
+                                    <i class="fas fa-road w-4"></i> Calles
+                                </button>
+                                <button onclick="setMapStyle('satellite')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
+                                    <i class="fas fa-satellite w-4"></i> Satélite
+                                </button>
+                                <button onclick="setMapStyle('dark')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
+                                    <i class="fas fa-moon w-4"></i> Oscuro
+                                </button>
+                                <button onclick="setMapStyle('terrain')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
+                                    <i class="fas fa-mountain w-4"></i> Terreno
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controles izquierda -->
+                    <div class="absolute top-5 left-5 z-20 flex flex-col gap-2">
+                        <button onclick="clearMapFilters()" title="Limpiar filtros" class="px-3 py-2 glass rounded-lg flex items-center gap-2 text-white hover:bg-red-500/30 transition-all text-sm">
+                            <i class="fas fa-times-circle"></i>
+                            <span class="hidden sm:inline">Limpiar</span>
+                        </button>
+                        <button onclick="exportVisibleProperties()" title="Exportar propiedades visibles" class="px-3 py-2 glass rounded-lg flex items-center gap-2 text-white hover:bg-emerald-500/30 transition-all text-sm">
+                            <i class="fas fa-file-export"></i>
+                            <span class="hidden sm:inline">Exportar</span>
+                        </button>
+                    </div>
+
+                    <!-- Buscador de comunas -->
+                    <div class="absolute bottom-5 left-5 right-5 z-20">
+                        <div class="max-w-md mx-auto">
+                            <div class="relative">
+                                <input type="text" id="mapComunaSearch" placeholder="Buscar comuna o dirección..."
+                                    class="w-full px-4 py-3 pl-10 glass rounded-xl text-white placeholder-zinc-400 text-sm"
+                                    oninput="searchComunaDebounced(this.value)">
+                                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+                                <div id="comunaResults" class="hidden absolute bottom-full left-0 right-0 mb-2 glass rounded-xl max-h-48 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="globalMapContainer" class="w-full rounded-xl overflow-hidden" style="height: calc(100vh - 280px); min-height: 400px;"></div>
                     <!-- Loading overlay -->
                     <div id="mapLoadingOverlay" class="map-loading-overlay rounded-xl">
@@ -3773,7 +3907,7 @@
             }).setView([-33.45, -70.65], 6);
 
             // Usar tiles con mejor cache
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap',
                 maxZoom: 19,
                 updateWhenIdle: true,
@@ -4151,7 +4285,271 @@
             }
 
             setTimeout(() => showMapLoading(false), 200);
+
+            // Actualizar estadísticas del mapa
+            updateMapStats();
         }
+
+        // ==================== ESTADÍSTICAS DEL MAPA ====================
+        function updateMapStats() {
+            const dataToShow = mapFilteredData.length > 0 ? mapFilteredData : allData;
+            let ventas = 0, arriendos = 0, conUbicacion = 0, sinUbicacion = 0;
+
+            dataToShow.forEach(item => {
+                const xmlData = getPropertyData(item.codigo);
+                if (xmlData.latitude && xmlData.longitude) {
+                    conUbicacion++;
+                    if (xmlData.operation === 'sale') ventas++;
+                    else if (xmlData.operation === 'rent') arriendos++;
+                } else {
+                    sinUbicacion++;
+                }
+            });
+
+            document.getElementById('mapStatVentas').textContent = ventas;
+            document.getElementById('mapStatArriendos').textContent = arriendos;
+            document.getElementById('mapStatUbicadas').textContent = conUbicacion;
+            document.getElementById('mapStatSinUbicar').textContent = sinUbicacion;
+        }
+
+        // ==================== PANTALLA COMPLETA ====================
+        let isMapFullscreen = false;
+
+        function toggleMapFullscreen() {
+            const mapSection = document.getElementById('mapSection');
+            const icon = document.getElementById('fullscreenIcon');
+
+            if (!isMapFullscreen) {
+                mapSection.classList.add('fixed', 'inset-0', 'z-50', 'p-4', 'bg-zinc-900');
+                mapSection.classList.remove('max-w-7xl', 'mx-auto', 'px-6', 'lg:px-8');
+                icon.classList.remove('fa-expand');
+                icon.classList.add('fa-compress');
+                document.body.style.overflow = 'hidden';
+            } else {
+                mapSection.classList.remove('fixed', 'inset-0', 'z-50', 'p-4', 'bg-zinc-900');
+                mapSection.classList.add('max-w-7xl', 'mx-auto', 'px-6', 'lg:px-8');
+                icon.classList.remove('fa-compress');
+                icon.classList.add('fa-expand');
+                document.body.style.overflow = '';
+            }
+
+            isMapFullscreen = !isMapFullscreen;
+
+            setTimeout(() => {
+                if (globalMap) globalMap.invalidateSize();
+            }, 300);
+        }
+
+        // ==================== MI UBICACIÓN ====================
+        function goToMyLocation() {
+            if (!navigator.geolocation) {
+                showToast('Tu navegador no soporta geolocalización', 'error');
+                return;
+            }
+
+            showToast('Obteniendo ubicación...', 'info');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    if (globalMap) {
+                        globalMap.setView([latitude, longitude], 14);
+                        L.marker([latitude, longitude], {
+                            icon: L.divIcon({
+                                className: 'my-location-marker',
+                                html: `<div style="
+                                    width: 20px;
+                                    height: 20px;
+                                    background: #3b82f6;
+                                    border: 3px solid white;
+                                    border-radius: 50%;
+                                    box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+                                "></div>`,
+                                iconSize: [20, 20],
+                                iconAnchor: [10, 10]
+                            })
+                        }).addTo(globalMap).bindPopup('Tu ubicación').openPopup();
+                        showToast('Ubicación encontrada', 'success');
+                    }
+                },
+                (error) => {
+                    showToast('No se pudo obtener tu ubicación', 'error');
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+
+        // ==================== RESETEAR VISTA ====================
+        function resetMapView() {
+            if (globalMap) {
+                globalMap.setView([-33.45, -70.65], 6);
+                showToast('Vista reiniciada', 'info');
+            }
+        }
+
+        // ==================== ESTILOS DE MAPA ====================
+        let currentTileLayer = null;
+        const mapStyles = {
+            streets: {
+                url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                attribution: '© OpenStreetMap'
+            },
+            satellite: {
+                url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                attribution: '© Esri'
+            },
+            dark: {
+                url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                attribution: '© CARTO'
+            },
+            terrain: {
+                url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+                attribution: '© OpenTopoMap'
+            }
+        };
+
+        function toggleMapStyleMenu() {
+            const menu = document.getElementById('mapStyleMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function setMapStyle(style) {
+            if (!globalMap || !mapStyles[style]) return;
+
+            if (currentTileLayer) {
+                globalMap.removeLayer(currentTileLayer);
+            }
+
+            currentTileLayer = L.tileLayer(mapStyles[style].url, {
+                attribution: mapStyles[style].attribution,
+                maxZoom: 19
+            }).addTo(globalMap);
+
+            document.getElementById('mapStyleMenu').classList.add('hidden');
+            showToast(`Estilo: ${style === 'streets' ? 'Calles' : style === 'satellite' ? 'Satélite' : style === 'dark' ? 'Oscuro' : 'Terreno'}`, 'info');
+        }
+
+        // ==================== LIMPIAR FILTROS DEL MAPA ====================
+        function clearMapFilters() {
+            document.getElementById('mapCorredorFilter').value = '';
+            document.getElementById('mapTeamLeaderFilter').value = '';
+            document.getElementById('mapOperationFilter').value = '';
+            document.getElementById('mapPropertyTypeFilter').value = '';
+            document.getElementById('mapPriceFilter').value = '';
+            document.getElementById('mapSearchInput').value = '';
+            document.getElementById('mapComunaSearch').value = '';
+
+            mapFilteredData = [...allData];
+            updateGlobalMapMarkersFiltered();
+            showToast('Filtros limpiados', 'info');
+        }
+
+        // ==================== EXPORTAR PROPIEDADES VISIBLES ====================
+        function exportVisibleProperties() {
+            const dataToExport = mapFilteredData.length > 0 ? mapFilteredData : allData;
+            const propertiesWithLocation = dataToExport.filter(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return xmlData.latitude && xmlData.longitude;
+            });
+
+            if (propertiesWithLocation.length === 0) {
+                showToast('No hay propiedades con ubicación para exportar', 'warning');
+                return;
+            }
+
+            const headers = ['Código', 'Corredor', 'Team Leader', 'Tipo', 'Operación', 'Precio', 'Comuna', 'Latitud', 'Longitud'];
+            const rows = propertiesWithLocation.map(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return [
+                    item.codigo,
+                    item.corredor || '',
+                    item.teamLeader || '',
+                    xmlData.propertyType || '',
+                    xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '',
+                    xmlData.price ? (xmlData.currency === 'CLF' ? `UF ${xmlData.price}` : `$${xmlData.price}`) : '',
+                    xmlData.commune || '',
+                    xmlData.latitude || '',
+                    xmlData.longitude || ''
+                ].map(val => `"${val}"`).join(',');
+            });
+
+            const csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `propiedades_mapa_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showToast(`${propertiesWithLocation.length} propiedades exportadas`, 'success');
+        }
+
+        // ==================== BUSCADOR DE COMUNAS ====================
+        const searchComunaDebounced = debounce(searchComuna, 300);
+
+        async function searchComuna(query) {
+            const resultsContainer = document.getElementById('comunaResults');
+
+            if (!query || query.length < 3) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ', Chile')}&limit=5`);
+                const results = await response.json();
+
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<div class="p-3 text-zinc-400 text-sm">No se encontraron resultados</div>';
+                } else {
+                    resultsContainer.innerHTML = results.map(r => `
+                        <button onclick="goToLocation(${r.lat}, ${r.lon}, '${r.display_name.replace(/'/g, "\\'")}')"
+                            class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 flex items-center gap-2">
+                            <i class="fas fa-map-marker-alt text-cyan-400"></i>
+                            <span class="truncate">${r.display_name}</span>
+                        </button>
+                    `).join('');
+                }
+
+                resultsContainer.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error buscando comuna:', error);
+            }
+        }
+
+        function goToLocation(lat, lon, name) {
+            if (globalMap) {
+                globalMap.setView([lat, lon], 14);
+                document.getElementById('comunaResults').classList.add('hidden');
+                document.getElementById('mapComunaSearch').value = name.split(',')[0];
+                showToast(`Mostrando: ${name.split(',')[0]}`, 'success');
+            }
+        }
+
+        // Cerrar menús al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('#mapStyleMenu') && !e.target.closest('[onclick*="toggleMapStyleMenu"]')) {
+                document.getElementById('mapStyleMenu')?.classList.add('hidden');
+            }
+            if (!e.target.closest('#comunaResults') && !e.target.closest('#mapComunaSearch')) {
+                document.getElementById('comunaResults')?.classList.add('hidden');
+            }
+        });
+
+        // ==================== ATAJOS DE TECLADO DEL MAPA ====================
+        document.addEventListener('keydown', (e) => {
+            // Solo si estamos en vista de mapa
+            if (document.querySelector('[x-show="currentView === \'map\'"]')?.offsetParent === null) return;
+
+            if (e.key === 'Escape' && isMapFullscreen) {
+                toggleMapFullscreen();
+            }
+            if (e.key === 'f' && e.ctrlKey && e.shiftKey) {
+                e.preventDefault();
+                toggleMapFullscreen();
+            }
+        });
 
         // Función para exportar propiedades con leads históricos por mes
         async function exportLeadsHistorico() {
