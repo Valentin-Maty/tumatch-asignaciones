@@ -1228,9 +1228,6 @@
 
         // Cache de leads del mes actual por código de propiedad
         const leadsCount = new Map();
-
-        // Cache de leads del año actual por código de propiedad
-        const leadsCountYear = new Map();
         
         // Cache de datos de propiedades del XML
         const propertyData = new Map();
@@ -1476,7 +1473,7 @@
             return result;
         }
 
-        // Cargar leads del mes actual y año actual desde Google Sheets
+        // Cargar leads del mes actual desde Google Sheets
         async function loadLeadsData() {
             try {
                 const LEADS_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/export?format=csv&gid=${LEADS_GID}`;
@@ -1495,14 +1492,12 @@
 
                 // Limpiar cache anterior
                 leadsCount.clear();
-                leadsCountYear.clear();
 
                 const now = new Date();
                 const currentMonth = now.getMonth(); // 0-indexed
                 const currentYear = now.getFullYear();
 
                 let totalLeadsMes = 0;
-                let totalLeadsYear = 0;
 
                 // Iterar desde la fila 1 (saltar header)
                 for (let i = 1; i < lines.length; i++) {
@@ -1523,8 +1518,9 @@
 
                     if (isNaN(day) || isNaN(month) || isNaN(year)) continue;
 
-                    // Contar leads del mes actual (lógica original)
+                    // Filtrar solo mes actual
                     if (month === currentMonth && year === currentYear) {
+                        // Extraer solo dígitos del código del lead
                         const codigoNumeros = codigoLead.replace(/\D/g, '');
                         if (!codigoNumeros) continue;
 
@@ -1532,20 +1528,9 @@
                         leadsCount.set(codigoNumeros, count + 1);
                         totalLeadsMes++;
                     }
-
-                    // Contar leads del año actual
-                    if (year === currentYear) {
-                        const codigoNumeros = codigoLead.replace(/\D/g, '');
-                        if (!codigoNumeros) continue;
-
-                        const countYear = leadsCountYear.get(codigoNumeros) || 0;
-                        leadsCountYear.set(codigoNumeros, countYear + 1);
-                        totalLeadsYear++;
-                    }
                 }
 
                 console.log('✅ Leads del mes actual cargados:', totalLeadsMes, 'leads para', leadsCount.size, 'propiedades');
-                console.log('✅ Leads del año actual cargados:', totalLeadsYear, 'leads para', leadsCountYear.size, 'propiedades');
             } catch (error) {
                 console.warn('⚠️ Error al cargar leads:', error.message);
             }
@@ -1556,13 +1541,6 @@
             // Extraer solo los números del código (ej: "tu-385" -> "385")
             const codigoNumeros = codigo.toString().replace(/\D/g, '');
             return leadsCount.get(codigoNumeros) || 0;
-        }
-
-        // Obtener cantidad de leads del año para un código de propiedad
-        function getLeadsForPropertyYear(codigo) {
-            // Extraer solo los números del código (ej: "tu-385" -> "385")
-            const codigoNumeros = codigo.toString().replace(/\D/g, '');
-            return leadsCountYear.get(codigoNumeros) || 0;
         }
 
         // Load Data Function (Original Working Version)
@@ -2020,7 +1998,6 @@
             const priceInfo = formatPrice(xmlData.price, xmlData.currency, xmlData.operation);
             const propertyTypeFormatted = formatPropertyType(xmlData.propertyType);
             const leadsThisMonth = getLeadsForProperty(item.codigo);
-            const leadsThisYear = getLeadsForPropertyYear(item.codigo);
 
             return `
                 <div class="card-modern group cursor-pointer transform hover:scale-[1.02] transition-all duration-500" 
@@ -2066,9 +2043,6 @@
                                     <i class="fas fa-users text-[10px]"></i>
                                     <span>${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''}</span>
                                 </span>
-                                <div class="text-[10px] ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'} text-right">
-                                    (${leadsThisYear} año)
-                                </div>
                             </div>
                         </div>
 
@@ -2087,14 +2061,14 @@
                     <!-- Contenido Principal -->
                     <div class="p-5 space-y-4">
                         
-                        <!-- Corredor Principal (30% o 35% si es TL) -->
+                        <!-- Corredor Principal (30% comisión) -->
                         <div class="flex items-center space-x-3 p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20">
                             <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
                                 <i class="fas fa-user-tie text-white text-sm"></i>
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-bold text-white">${item.corredor}</p>
-                                <p class="text-xs text-purple-300 font-medium">💰 Comisión: ${item.corredor === item.teamLeader ? '35%' : '30%'}</p>
+                                <p class="text-xs text-purple-300 font-medium">💰 Comisión: ${xmlData.operation === 'rent' && item.corredor === item.teamLeader ? '35%' : '30%'}</p>
                             </div>
                         </div>
                         
