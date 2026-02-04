@@ -1497,7 +1497,10 @@
                 const currentMonth = now.getMonth(); // 0-indexed
                 const currentYear = now.getFullYear();
 
+                console.log('📅 Fecha actual:', now.toLocaleDateString(), '- Mes:', currentMonth, '- Año:', currentYear);
+
                 let totalLeadsMes = 0;
+                let debugCount = 0;
 
                 // Iterar desde la fila 1 (saltar header)
                 for (let i = 1; i < lines.length; i++) {
@@ -1505,6 +1508,12 @@
 
                     const fechaStr = (values[1] || '').trim(); // Columna B - Fecha
                     const codigoLead = (values[7] || '').trim(); // Columna H - Código
+
+                    // Debug primeros 5 registros
+                    if (debugCount < 5) {
+                        console.log(`🔍 Lead ${i}: fecha="${fechaStr}", codigo="${codigoLead}"`);
+                        debugCount++;
+                    }
 
                     if (!fechaStr || !codigoLead) continue;
 
@@ -1531,6 +1540,11 @@
                 }
 
                 console.log('✅ Leads del mes actual cargados:', totalLeadsMes, 'leads para', leadsCount.size, 'propiedades');
+
+                // Debug: mostrar códigos guardados
+                if (leadsCount.size > 0) {
+                    console.log('📋 Códigos con leads:', Array.from(leadsCount.entries()).slice(0, 10));
+                }
             } catch (error) {
                 console.warn('⚠️ Error al cargar leads:', error.message);
             }
