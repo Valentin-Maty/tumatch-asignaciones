@@ -2025,7 +2025,7 @@
                 return;
             }
 
-            const headers = ['Código', 'Corredor', 'Team Leader', 'Referido', 'Tipo', 'Operación', 'Precio', 'Comuna', 'Región', 'Leads Mes', 'Leads Año'];
+            const headers = ['Código', 'Corredor', 'Team Leader', 'Referido', 'Tipo', 'Operación', 'Precio', 'Comuna', 'Región', 'Leads Mensual', 'Leads Anual'];
 
             const rows = filteredData.map(item => {
                 const xmlData = getPropertyData(item.codigo);
@@ -2613,11 +2613,11 @@
                     <div class="flex items-center gap-4 flex-shrink-0">
                         <div class="text-center">
                             <div class="text-lg font-bold ${leadsThisMonth > 0 ? 'text-yellow-400' : 'text-zinc-500'}">${leadsThisMonth}</div>
-                            <div class="text-xs text-zinc-500">Mes</div>
+                            <div class="text-xs text-zinc-500">Mensual</div>
                         </div>
                         <div class="text-center">
                             <div class="text-lg font-bold ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'}">${leadsThisYear}</div>
-                            <div class="text-xs text-zinc-500">Año</div>
+                            <div class="text-xs text-zinc-500">Anual</div>
                         </div>
                         <button onclick="toggleFavorite('${item.codigo}', event)"
                             class="w-10 h-10 rounded-full glass flex items-center justify-center transition-all hover:scale-110 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/20' : 'text-zinc-400 hover:text-pink-400'}">
@@ -2732,7 +2732,7 @@
                             <div class="glass px-2.5 py-1.5 rounded-lg backdrop-blur-lg ${leadsThisMonth > 0 ? 'border border-yellow-500/40' : ''}">
                                 <div class="flex items-center space-x-1 ${leadsThisMonth > 0 ? 'text-yellow-300' : 'text-zinc-400'}">
                                     <i class="fas fa-calendar-day text-[10px]"></i>
-                                    <span class="text-xs font-bold">${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''} mes</span>
+                                    <span class="text-xs font-bold">${leadsThisMonth} lead${leadsThisMonth !== 1 ? 's' : ''} mensual</span>
                                 </div>
                                 <div class="flex items-center space-x-1 ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'} mt-0.5">
                                     <i class="fas fa-calendar-alt text-[9px]"></i>
