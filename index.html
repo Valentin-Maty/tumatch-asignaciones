@@ -1523,22 +1523,24 @@
 
                     if (isNaN(day) || isNaN(month) || isNaN(year)) continue;
 
-                    // Extraer solo dígitos del código del lead
-                    const codigoNumeros = codigoLead.replace(/\D/g, '');
-                    if (!codigoNumeros) continue;
+                    // Contar leads del mes actual (lógica original)
+                    if (month === currentMonth && year === currentYear) {
+                        const codigoNumeros = codigoLead.replace(/\D/g, '');
+                        if (!codigoNumeros) continue;
+
+                        const count = leadsCount.get(codigoNumeros) || 0;
+                        leadsCount.set(codigoNumeros, count + 1);
+                        totalLeadsMes++;
+                    }
 
                     // Contar leads del año actual
                     if (year === currentYear) {
+                        const codigoNumeros = codigoLead.replace(/\D/g, '');
+                        if (!codigoNumeros) continue;
+
                         const countYear = leadsCountYear.get(codigoNumeros) || 0;
                         leadsCountYear.set(codigoNumeros, countYear + 1);
                         totalLeadsYear++;
-
-                        // Contar leads del mes actual (solo si también es el mes actual)
-                        if (month === currentMonth) {
-                            const count = leadsCount.get(codigoNumeros) || 0;
-                            leadsCount.set(codigoNumeros, count + 1);
-                            totalLeadsMes++;
-                        }
                     }
                 }
 
