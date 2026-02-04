@@ -1428,67 +1428,80 @@
                 </div>
             </section>
 
-            <!-- Mapa contenedor fijo -->
-            <section id="mapSection" class="max-w-7xl mx-auto px-6 lg:px-8">
-                <div class="glass-strong rounded-2xl p-3 animate-slide-up relative">
-                    <!-- Controles del mapa -->
-                    <div class="absolute top-5 right-5 z-20 flex flex-col gap-2">
-                        <button onclick="toggleMapFullscreen()" title="Pantalla completa" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
-                            <i id="fullscreenIcon" class="fas fa-expand"></i>
-                        </button>
-                        <button onclick="goToMyLocation()" title="Mi ubicación" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
-                            <i class="fas fa-crosshairs"></i>
-                        </button>
-                        <button onclick="resetMapView()" title="Vista inicial" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
-                            <i class="fas fa-home"></i>
-                        </button>
-                        <div class="relative">
-                            <button onclick="toggleMapStyleMenu()" title="Estilo de mapa" class="w-10 h-10 glass rounded-lg flex items-center justify-center text-white hover:bg-white/20 transition-all">
-                                <i class="fas fa-layer-group"></i>
+            <!-- Barra de herramientas del mapa -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-3">
+                <div class="glass-strong rounded-xl p-3">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <!-- Controles izquierda -->
+                        <div class="flex items-center gap-2">
+                            <button onclick="clearMapFilters()" title="Limpiar filtros" class="px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-lg flex items-center gap-2 text-red-400 hover:bg-red-500/30 hover:text-white transition-all text-sm font-medium">
+                                <i class="fas fa-times-circle"></i>
+                                <span>Limpiar filtros</span>
                             </button>
-                            <div id="mapStyleMenu" class="hidden absolute right-12 top-0 glass rounded-lg p-2 min-w-[140px]">
-                                <button onclick="setMapStyle('streets')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
-                                    <i class="fas fa-road w-4"></i> Calles
-                                </button>
-                                <button onclick="setMapStyle('satellite')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
-                                    <i class="fas fa-satellite w-4"></i> Satélite
-                                </button>
-                                <button onclick="setMapStyle('dark')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
-                                    <i class="fas fa-moon w-4"></i> Oscuro
-                                </button>
-                                <button onclick="setMapStyle('terrain')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-white/10 rounded flex items-center gap-2">
-                                    <i class="fas fa-mountain w-4"></i> Terreno
-                                </button>
-                            </div>
+                            <button onclick="exportVisibleProperties()" title="Exportar propiedades visibles" class="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg flex items-center gap-2 text-emerald-400 hover:bg-emerald-500/30 hover:text-white transition-all text-sm font-medium">
+                                <i class="fas fa-file-export"></i>
+                                <span>Exportar</span>
+                            </button>
                         </div>
-                    </div>
 
-                    <!-- Controles izquierda -->
-                    <div class="absolute top-5 left-5 z-20 flex flex-col gap-2">
-                        <button onclick="clearMapFilters()" title="Limpiar filtros" class="px-3 py-2 glass rounded-lg flex items-center gap-2 text-white hover:bg-red-500/30 transition-all text-sm">
-                            <i class="fas fa-times-circle"></i>
-                            <span class="hidden sm:inline">Limpiar</span>
-                        </button>
-                        <button onclick="exportVisibleProperties()" title="Exportar propiedades visibles" class="px-3 py-2 glass rounded-lg flex items-center gap-2 text-white hover:bg-emerald-500/30 transition-all text-sm">
-                            <i class="fas fa-file-export"></i>
-                            <span class="hidden sm:inline">Exportar</span>
-                        </button>
-                    </div>
-
-                    <!-- Buscador de comunas -->
-                    <div class="absolute bottom-5 left-5 right-5 z-20">
-                        <div class="max-w-md mx-auto">
+                        <!-- Buscador de comunas -->
+                        <div class="flex-1 max-w-md mx-4">
                             <div class="relative">
                                 <input type="text" id="mapComunaSearch" placeholder="Buscar comuna o dirección..."
-                                    class="w-full px-4 py-3 pl-10 glass rounded-xl text-white placeholder-zinc-400 text-sm"
+                                    class="w-full px-4 py-2 pl-10 bg-zinc-800/50 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 text-sm focus:border-cyan-500 focus:outline-none"
                                     oninput="searchComunaDebounced(this.value)">
                                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                                <div id="comunaResults" class="hidden absolute bottom-full left-0 right-0 mb-2 glass rounded-xl max-h-48 overflow-y-auto"></div>
+                                <div id="comunaResults" class="hidden absolute top-full left-0 right-0 mt-2 bg-zinc-800 border border-zinc-700 rounded-lg max-h-48 overflow-y-auto z-50"></div>
                             </div>
                         </div>
-                    </div>
 
-                    <div id="globalMapContainer" class="w-full rounded-xl overflow-hidden" style="height: calc(100vh - 280px); min-height: 400px;"></div>
+                        <!-- Controles derecha -->
+                        <div class="flex items-center gap-2">
+                            <button onclick="goToMyLocation()" title="Mi ubicación" class="px-3 py-2 bg-blue-500/20 border border-blue-500/30 rounded-lg flex items-center gap-2 text-blue-400 hover:bg-blue-500/30 hover:text-white transition-all text-sm font-medium">
+                                <i class="fas fa-crosshairs"></i>
+                                <span class="hidden md:inline">Mi ubicación</span>
+                            </button>
+                            <button onclick="resetMapView()" title="Vista inicial de Chile" class="px-3 py-2 bg-purple-500/20 border border-purple-500/30 rounded-lg flex items-center gap-2 text-purple-400 hover:bg-purple-500/30 hover:text-white transition-all text-sm font-medium">
+                                <i class="fas fa-home"></i>
+                                <span class="hidden md:inline">Inicio</span>
+                            </button>
+
+                            <!-- Selector de estilo -->
+                            <div class="relative">
+                                <button onclick="toggleMapStyleMenu()" title="Cambiar estilo de mapa" class="px-3 py-2 bg-cyan-500/20 border border-cyan-500/30 rounded-lg flex items-center gap-2 text-cyan-400 hover:bg-cyan-500/30 hover:text-white transition-all text-sm font-medium">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span class="hidden md:inline">Estilo</span>
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </button>
+                                <div id="mapStyleMenu" class="hidden absolute right-0 top-full mt-2 bg-zinc-800 border border-zinc-700 rounded-lg p-2 min-w-[160px] z-50 shadow-xl">
+                                    <button onclick="setMapStyle('streets')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
+                                        <i class="fas fa-road w-4 text-zinc-400"></i> Calles
+                                    </button>
+                                    <button onclick="setMapStyle('satellite')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
+                                        <i class="fas fa-satellite w-4 text-blue-400"></i> Satélite
+                                    </button>
+                                    <button onclick="setMapStyle('dark')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
+                                        <i class="fas fa-moon w-4 text-purple-400"></i> Oscuro
+                                    </button>
+                                    <button onclick="setMapStyle('terrain')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
+                                        <i class="fas fa-mountain w-4 text-green-400"></i> Terreno
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button onclick="toggleMapFullscreen()" title="Pantalla completa" class="px-3 py-2 bg-pink-500/20 border border-pink-500/30 rounded-lg flex items-center gap-2 text-pink-400 hover:bg-pink-500/30 hover:text-white transition-all text-sm font-medium">
+                                <i id="fullscreenIcon" class="fas fa-expand"></i>
+                                <span class="hidden md:inline">Expandir</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Mapa contenedor -->
+            <section id="mapSection" class="max-w-7xl mx-auto px-6 lg:px-8">
+                <div class="glass-strong rounded-2xl p-3 animate-slide-up relative">
+                    <div id="globalMapContainer" class="w-full rounded-xl overflow-hidden" style="height: calc(100vh - 350px); min-height: 400px;"></div>
                     <!-- Loading overlay -->
                     <div id="mapLoadingOverlay" class="map-loading-overlay rounded-xl">
                         <div class="relative mb-4">
