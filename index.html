@@ -731,7 +731,7 @@
 }" class="font-sans antialiased">
     
     <!-- Navigation ultramoderna con tabs responsive -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-white/5">
+    <nav id="mainHeader" class="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16 sm:h-20">
                 <!-- Logo y brand -->
@@ -1473,18 +1473,18 @@
                                     <span class="hidden md:inline">Estilo</span>
                                     <i class="fas fa-chevron-down text-xs"></i>
                                 </button>
-                                <div id="mapStyleMenu" class="hidden absolute right-0 top-full mt-2 bg-zinc-800 border border-zinc-700 rounded-lg p-2 min-w-[160px] z-50 shadow-xl">
-                                    <button onclick="setMapStyle('streets')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
-                                        <i class="fas fa-road w-4 text-zinc-400"></i> Calles
+                                <div id="mapStyleMenu" class="hidden absolute right-0 top-full mt-2 bg-zinc-900 border border-zinc-600 rounded-xl p-2 min-w-[180px] z-[100] shadow-2xl backdrop-blur-lg">
+                                    <button onclick="setMapStyle('streets')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-road w-5 text-zinc-400"></i> Calles
                                     </button>
-                                    <button onclick="setMapStyle('satellite')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
-                                        <i class="fas fa-satellite w-4 text-blue-400"></i> Satélite
+                                    <button onclick="setMapStyle('satellite')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-satellite w-5 text-blue-400"></i> Satélite
                                     </button>
-                                    <button onclick="setMapStyle('dark')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
-                                        <i class="fas fa-moon w-4 text-purple-400"></i> Oscuro
+                                    <button onclick="setMapStyle('dark')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-moon w-5 text-purple-400"></i> Oscuro
                                     </button>
-                                    <button onclick="setMapStyle('terrain')" class="w-full px-3 py-2 text-left text-sm text-white hover:bg-zinc-700 rounded flex items-center gap-2">
-                                        <i class="fas fa-mountain w-4 text-green-400"></i> Terreno
+                                    <button onclick="setMapStyle('terrain')" class="w-full px-4 py-3 text-left text-sm text-white hover:bg-zinc-700 rounded-lg flex items-center gap-3 transition-colors">
+                                        <i class="fas fa-mountain w-5 text-green-400"></i> Terreno
                                     </button>
                                 </div>
                             </div>
@@ -4331,19 +4331,29 @@
         function toggleMapFullscreen() {
             const mapSection = document.getElementById('mapSection');
             const icon = document.getElementById('fullscreenIcon');
+            const expandText = icon.nextElementSibling;
+            const header = document.getElementById('mainHeader');
 
             if (!isMapFullscreen) {
-                mapSection.classList.add('fixed', 'inset-0', 'z-50', 'p-4', 'bg-zinc-900');
+                // Entrar en pantalla completa
+                mapSection.classList.add('fixed', 'inset-0', 'z-[60]', 'p-4', 'bg-zinc-900');
                 mapSection.classList.remove('max-w-7xl', 'mx-auto', 'px-6', 'lg:px-8');
                 icon.classList.remove('fa-expand');
                 icon.classList.add('fa-compress');
+                if (expandText) expandText.textContent = 'Salir';
                 document.body.style.overflow = 'hidden';
+                // Ocultar header
+                if (header) header.style.display = 'none';
             } else {
-                mapSection.classList.remove('fixed', 'inset-0', 'z-50', 'p-4', 'bg-zinc-900');
+                // Salir de pantalla completa
+                mapSection.classList.remove('fixed', 'inset-0', 'z-[60]', 'p-4', 'bg-zinc-900');
                 mapSection.classList.add('max-w-7xl', 'mx-auto', 'px-6', 'lg:px-8');
                 icon.classList.remove('fa-compress');
                 icon.classList.add('fa-expand');
+                if (expandText) expandText.textContent = 'Expandir';
                 document.body.style.overflow = '';
+                // Mostrar header
+                if (header) header.style.display = '';
             }
 
             isMapFullscreen = !isMapFullscreen;
@@ -4352,6 +4362,13 @@
                 if (globalMap) globalMap.invalidateSize();
             }, 300);
         }
+
+        // Listener global para ESC en pantalla completa del mapa
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isMapFullscreen) {
+                toggleMapFullscreen();
+            }
+        });
 
         // ==================== MI UBICACIÓN ====================
         function goToMyLocation() {
@@ -4547,20 +4564,6 @@
             }
             if (!e.target.closest('#comunaResults') && !e.target.closest('#mapComunaSearch')) {
                 document.getElementById('comunaResults')?.classList.add('hidden');
-            }
-        });
-
-        // ==================== ATAJOS DE TECLADO DEL MAPA ====================
-        document.addEventListener('keydown', (e) => {
-            // Solo si estamos en vista de mapa
-            if (document.querySelector('[x-show="currentView === \'map\'"]')?.offsetParent === null) return;
-
-            if (e.key === 'Escape' && isMapFullscreen) {
-                toggleMapFullscreen();
-            }
-            if (e.key === 'f' && e.ctrlKey && e.shiftKey) {
-                e.preventDefault();
-                toggleMapFullscreen();
             }
         });
 
