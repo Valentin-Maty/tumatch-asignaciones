@@ -1543,7 +1543,8 @@
 
                 // Debug: mostrar códigos guardados
                 if (leadsCount.size > 0) {
-                    console.log('📋 Códigos con leads:', Array.from(leadsCount.entries()).slice(0, 10));
+                    const codigosLeads = Array.from(leadsCount.entries()).slice(0, 10).map(([cod, count]) => `${cod}:${count}`).join(', ');
+                    console.log('📋 Códigos con leads (código:cantidad):', codigosLeads);
                 }
             } catch (error) {
                 console.warn('⚠️ Error al cargar leads:', error.message);
@@ -1551,10 +1552,17 @@
         }
 
         // Obtener cantidad de leads del mes para un código de propiedad
+        let debugGetLeads = 0;
         function getLeadsForProperty(codigo) {
             // Extraer solo los números del código (ej: "tu-385" -> "385")
             const codigoNumeros = codigo.toString().replace(/\D/g, '');
-            return leadsCount.get(codigoNumeros) || 0;
+            const leads = leadsCount.get(codigoNumeros) || 0;
+            // Debug primeras 5 búsquedas
+            if (debugGetLeads < 5) {
+                console.log(`🔎 Buscando leads para "${codigo}" -> "${codigoNumeros}" = ${leads} leads`);
+                debugGetLeads++;
+            }
+            return leads;
         }
 
         // Load Data Function (Original Working Version)
