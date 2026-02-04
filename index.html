@@ -1035,6 +1035,29 @@
             </div>
         </section>
 
+        <!-- Barra de acciones -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <!-- Toggle Vista -->
+                    <button id="viewToggleBtn" onclick="toggleView()" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-white hover:bg-white/10 transition-all flex items-center">
+                        <i class="fas fa-th-large"></i><span class="hidden sm:inline ml-2">Grid</span>
+                    </button>
+                    <!-- Ver Favoritos -->
+                    <button onclick="showOnlyFavorites()" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-pink-400 hover:bg-pink-500/10 transition-all flex items-center">
+                        <i class="fas fa-heart"></i><span class="hidden sm:inline ml-2">Favoritos</span>
+                        <span id="favCount" class="ml-1 px-1.5 py-0.5 bg-pink-500/20 rounded text-pink-400 text-xs"></span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Exportar -->
+                    <button onclick="exportToExcel()" class="px-4 py-2 glass rounded-lg text-zinc-300 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all flex items-center">
+                        <i class="fas fa-file-excel"></i><span class="hidden sm:inline ml-2">Exportar</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
         <!-- Indicador de resultados mejorado -->
         <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
             <div id="resultsIndicator" class="glass-strong rounded-xl p-4 animate-slide-up" style="display: none;">
@@ -1276,6 +1299,12 @@
         // Paginación
         let currentPage = 1;
         const itemsPerPage = 24;
+
+        // Vista (grid o list)
+        let currentView = localStorage.getItem('propertyView') || 'grid';
+
+        // Favoritos
+        let favorites = JSON.parse(localStorage.getItem('propertyFavorites') || '[]');
 
         // Cache de leads del mes actual por código de propiedad
         const leadsCount = new Map();
@@ -1843,6 +1872,152 @@
             }
         }
 
+        // ==================== FAVORITOS ====================
+        function toggleFavorite(codigo, event) {
+            event.stopPropagation();
+            const index = favorites.indexOf(codigo);
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showToast('Eliminado de favoritos', 'info');
+            } else {
+                favorites.push(codigo);
+                showToast('Agregado a favoritos', 'success');
+            }
+            localStorage.setItem('propertyFavorites', JSON.stringify(favorites));
+            renderProperties();
+        }
+
+        function isFavorite(codigo) {
+            return favorites.includes(codigo);
+        }
+
+        function showOnlyFavorites() {
+            if (favorites.length === 0) {
+                showToast('No tienes favoritos guardados', 'warning');
+                return;
+            }
+            document.getElementById('searchInput').value = '';
+            filteredData = allData.filter(item => favorites.includes(item.codigo));
+            currentPage = 1;
+            renderProperties();
+            updateResultsIndicator('', '', '', '', '');
+            document.getElementById('activeFilters').textContent = `Mostrando ${favorites.length} favoritos`;
+        }
+
+        // ==================== CAMBIAR VISTA ====================
+        function toggleView() {
+            currentView = currentView === 'grid' ? 'list' : 'grid';
+            localStorage.setItem('propertyView', currentView);
+            updateViewButton();
+            renderProperties();
+        }
+
+        function updateViewButton() {
+            const btn = document.getElementById('viewToggleBtn');
+            if (btn) {
+                btn.innerHTML = currentView === 'grid'
+                    ? '<i class="fas fa-list"></i><span class="hidden sm:inline ml-2">Lista</span>'
+                    : '<i class="fas fa-th-large"></i><span class="hidden sm:inline ml-2">Grid</span>';
+            }
+        }
+
+        // ==================== EXPORTAR A EXCEL ====================
+        function exportToExcel() {
+            if (filteredData.length === 0) {
+                showToast('No hay propiedades para exportar', 'warning');
+                return;
+            }
+
+            const headers = ['Código', 'Corredor', 'Team Leader', 'Referido', 'Tipo', 'Operación', 'Precio', 'Comuna', 'Región', 'Leads Mes', 'Leads Año'];
+
+            const rows = filteredData.map(item => {
+                const xmlData = getPropertyData(item.codigo);
+                return [
+                    item.codigo,
+                    item.corredor || '',
+                    item.teamLeader || '',
+                    item.referido || '',
+                    xmlData.propertyType || '',
+                    xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '',
+                    xmlData.price ? (xmlData.currency === 'CLF' ? `UF ${xmlData.price}` : `$${xmlData.price}`) : '',
+                    xmlData.commune || '',
+                    xmlData.region || '',
+                    getLeadsForProperty(item.codigo),
+                    getLeadsForPropertyYear(item.codigo)
+                ];
+            });
+
+            let csv = '\uFEFF'; // BOM para Excel
+            csv += headers.join(';') + '\n';
+            csv += rows.map(row => row.map(cell => `"${cell}"`).join(';')).join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `propiedades_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+
+            showToast(`${filteredData.length} propiedades exportadas`, 'success');
+        }
+
+        // ==================== COMPARTIR PROPIEDAD ====================
+        function shareProperty(codigo, event) {
+            event.stopPropagation();
+            const url = `https://www.tumatchpropiedades.cl/propiedad/${codigo.toString().trim().match(/\\d+/)?.[0] || ''}`;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: `Propiedad ${codigo}`,
+                    url: url
+                });
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('Link copiado al portapapeles', 'success');
+                });
+            }
+        }
+
+        // ==================== ESTADÍSTICAS ANIMADAS ====================
+        function animateValue(element, start, end, duration) {
+            const range = end - start;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(start + range * easeOut);
+                element.textContent = current.toLocaleString('es-CL');
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        // ==================== ATAJOS DE TECLADO ====================
+        document.addEventListener('keydown', function(e) {
+            // ESC para limpiar filtros
+            if (e.key === 'Escape') {
+                clearAllFilters();
+            }
+            // Ctrl+F para enfocar búsqueda
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchInput')?.focus();
+            }
+            // Flechas para paginación
+            if (e.key === 'ArrowLeft' && currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
+            if (e.key === 'ArrowRight') {
+                const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+                if (currentPage < totalPages) goToPage(currentPage + 1);
+            }
+        });
+
         // Limpiar todos los filtros
         function clearAllFilters() {
             document.getElementById('corredorFilter').value = '';
@@ -2051,11 +2226,30 @@
             const endIndex = startIndex + itemsPerPage;
             const paginatedData = filteredData.slice(startIndex, endIndex);
 
-            grid.innerHTML = paginatedData.map((item, index) => createPropertyCard(item, startIndex + index)).join('');
-            grid.style.display = 'grid';
+            // Aplicar vista (grid o lista)
+            if (currentView === 'list') {
+                grid.className = 'flex flex-col gap-4';
+                grid.innerHTML = paginatedData.map((item, index) => createPropertyListItem(item, startIndex + index)).join('');
+            } else {
+                grid.className = 'grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8';
+                grid.innerHTML = paginatedData.map((item, index) => createPropertyCard(item, startIndex + index)).join('');
+            }
+            grid.style.display = currentView === 'list' ? 'flex' : 'grid';
 
             // Renderizar paginación
             renderPagination(totalPages);
+
+            // Actualizar contador de favoritos y botón vista
+            updateFavoritesCount();
+            updateViewButton();
+        }
+
+        // Actualizar contador de favoritos
+        function updateFavoritesCount() {
+            const favCountEl = document.getElementById('favCount');
+            if (favCountEl) {
+                favCountEl.textContent = favorites.length > 0 ? favorites.length : '';
+            }
         }
 
         // Renderizar controles de paginación
@@ -2128,6 +2322,67 @@
             renderProperties();
             // Scroll suave al inicio del grid
             document.getElementById('grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Create Property List Item (vista lista compacta)
+        function createPropertyListItem(item, index) {
+            const xmlData = getPropertyData(item.codigo);
+            const propertyImage = getPropertyImage(item.codigo);
+            const leadsThisMonth = getLeadsForProperty(item.codigo);
+            const leadsThisYear = getLeadsForPropertyYear(item.codigo);
+
+            const priceText = xmlData.price
+                ? (xmlData.currency === 'CLF' ? `UF ${xmlData.price.toLocaleString('es-CL')}` : `$${xmlData.price.toLocaleString('es-CL')}`)
+                : '-';
+            const operationText = xmlData.operation === 'sale' ? 'Venta' : xmlData.operation === 'rent' ? 'Arriendo' : '-';
+            const locationText = xmlData.commune ? (xmlData.region ? `${xmlData.commune}, ${xmlData.region}` : xmlData.commune) : '-';
+
+            return `
+                <div class="glass rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-white/5 transition-all cursor-pointer animate-fade-in"
+                     style="animation-delay: ${(index % itemsPerPage) * 30}ms"
+                     onclick="window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\\d+/)?.[0] || ''}', '_blank')">
+
+                    <!-- Imagen -->
+                    <div class="w-full sm:w-24 h-32 sm:h-16 rounded-lg overflow-hidden flex-shrink-0">
+                        ${propertyImage
+                            ? `<img src="${propertyImage}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<div class=\\'w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center\\'><i class=\\'fas fa-home text-white\\'></i></div>'">`
+                            : `<div class="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center"><i class="fas fa-home text-white"></i></div>`
+                        }
+                    </div>
+
+                    <!-- Info principal -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-lg font-bold text-white">${item.codigo}</span>
+                            <span class="px-2 py-0.5 rounded text-xs ${xmlData.operation === 'sale' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-violet-500/20 text-violet-400'}">${operationText}</span>
+                            <span class="text-lg font-bold text-cyan-400">${priceText}</span>
+                        </div>
+                        <div class="text-sm text-zinc-400 truncate">
+                            <i class="fas fa-map-marker-alt mr-1 text-cyan-500"></i>${locationText}
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-user mr-1"></i>${item.corredor || '-'}
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-crown mr-1 text-yellow-500"></i>${item.teamLeader || '-'}
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="flex items-center gap-4 flex-shrink-0">
+                        <div class="text-center">
+                            <div class="text-lg font-bold ${leadsThisMonth > 0 ? 'text-yellow-400' : 'text-zinc-500'}">${leadsThisMonth}</div>
+                            <div class="text-xs text-zinc-500">Mes</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold ${leadsThisYear > 0 ? 'text-emerald-400' : 'text-zinc-500'}">${leadsThisYear}</div>
+                            <div class="text-xs text-zinc-500">Año</div>
+                        </div>
+                        <button onclick="toggleFavorite('${item.codigo}', event)"
+                            class="w-10 h-10 rounded-full glass flex items-center justify-center transition-all hover:scale-110 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/20' : 'text-zinc-400 hover:text-pink-400'}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
         }
 
         // Create Property Card con información completa de comisiones
@@ -2243,17 +2498,29 @@
                             </div>
                         </div>
 
+                        <!-- Botón Favorito (siempre visible) -->
+                        <button onclick="toggleFavorite('${item.codigo}', event)"
+                            class="absolute top-3 right-3 w-10 h-10 rounded-full glass flex items-center justify-center transition-all hover:scale-110 z-10 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/20' : 'text-white/60 hover:text-pink-400'}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+
                         <!-- Quick Actions (aparece en hover) -->
                         <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                            <div class="flex items-center space-x-2">
-                                <button onclick="event.stopPropagation(); window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
-                                    class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
-                                    <i class="fas fa-external-link-alt mr-2"></i>Ver propiedad
-                                </button>
-                                <button onclick="event.stopPropagation(); openMapModal('${item.codigo}')"
-                                    class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-white text-sm font-medium hover:bg-white/30 transition-all">
-                                    <i class="fas fa-map-marker-alt mr-2"></i>Mapa
-                                </button>
+                            <div class="flex flex-col items-center space-y-2">
+                                <div class="flex items-center space-x-2">
+                                    <button onclick="event.stopPropagation(); window.open('https://www.tumatchpropiedades.cl/propiedad/${item.codigo.toString().trim().match(/\d+/)?.[0] || ''}', '_blank')"
+                                        class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white text-sm font-medium hover:from-purple-600 hover:to-pink-600 transition-all transform hover:scale-105">
+                                        <i class="fas fa-external-link-alt mr-2"></i>Ver
+                                    </button>
+                                    <button onclick="event.stopPropagation(); openMapModal('${item.codigo}')"
+                                        class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-white text-sm font-medium hover:bg-white/30 transition-all">
+                                        <i class="fas fa-map-marker-alt mr-2"></i>Mapa
+                                    </button>
+                                    <button onclick="shareProperty('${item.codigo}', event)"
+                                        class="px-4 py-2 bg-white/20 backdrop-blur rounded-lg text-white text-sm font-medium hover:bg-white/30 transition-all">
+                                        <i class="fas fa-share-alt"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
