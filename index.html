@@ -1103,13 +1103,10 @@
                         </select>
                     </div>
 
-                    <!-- Botones de acción -->
-                    <div class="space-y-2 flex flex-col items-stretch">
-                        <button onclick="clearAllFilters()" class="px-4 py-2.5 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-xl text-red-400 hover:text-white hover:from-red-500 hover:to-orange-500 transition-all duration-300 font-medium">
-                            <i class="fas fa-times-circle mr-2"></i>Limpiar
-                        </button>
-                        <button onclick="copyFilteredUrl()" title="Copiar URL con filtros actuales" class="px-4 py-2.5 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 rounded-xl text-cyan-400 hover:text-white hover:from-cyan-500 hover:to-blue-500 transition-all duration-300 font-medium">
-                            <i class="fas fa-link mr-2"></i>Compartir
+                    <!-- Botón limpiar filtros -->
+                    <div class="flex items-end">
+                        <button onclick="clearAllFilters()" class="px-4 py-3 bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/30 rounded-xl text-red-400 hover:text-white hover:from-red-500 hover:to-orange-500 transition-all duration-300 font-medium">
+                            <i class="fas fa-times-circle mr-2"></i>Limpiar filtros
                         </button>
                     </div>
                 </div>
@@ -2744,10 +2741,10 @@
                             </div>
                         </div>
 
-                        <!-- Botón Favorito (siempre visible) -->
+                        <!-- Botón Favorito (centrado en la imagen) -->
                         <button onclick="toggleFavorite('${item.codigo}', event)"
-                            class="absolute top-3 right-3 w-10 h-10 rounded-full glass flex items-center justify-center transition-all hover:scale-110 z-10 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/20' : 'text-white/60 hover:text-pink-400'}">
-                            <i class="fas fa-heart"></i>
+                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass flex items-center justify-center transition-all hover:scale-125 z-10 opacity-0 group-hover:opacity-100 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/30 !opacity-100' : 'text-white/80 hover:text-pink-400 bg-black/40'}">
+                            <i class="fas fa-heart text-lg"></i>
                         </button>
 
                         <!-- Quick Actions (aparece en hover) -->
