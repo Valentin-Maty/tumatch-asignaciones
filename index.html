@@ -2741,10 +2741,10 @@
                             </div>
                         </div>
 
-                        <!-- Botón Favorito (centrado en la imagen) -->
+                        <!-- Botón Favorito (centrado arriba) -->
                         <button onclick="toggleFavorite('${item.codigo}', event)"
-                            class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full glass flex items-center justify-center transition-all hover:scale-125 z-10 opacity-0 group-hover:opacity-100 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/30 !opacity-100' : 'text-white/80 hover:text-pink-400 bg-black/40'}">
-                            <i class="fas fa-heart text-lg"></i>
+                            class="absolute top-3 left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full glass flex items-center justify-center transition-all hover:scale-110 z-10 ${isFavorite(item.codigo) ? 'text-pink-500 bg-pink-500/30' : 'text-white/70 hover:text-pink-400'}">
+                            <i class="fas fa-heart"></i>
                         </button>
 
                         <!-- Quick Actions (aparece en hover) -->
