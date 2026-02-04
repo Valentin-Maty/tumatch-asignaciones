@@ -58,10 +58,9 @@
     </script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -69,22 +68,23 @@
         }
 
         :root {
-            /* Colores ultra modernos 2025 */
-            --bg-primary: #0A0A0B;
-            --bg-secondary: #111113;
-            --bg-tertiary: #1A1A1D;
-            --accent-purple: #8B5CF6;
-            --accent-cyan: #06B6D4;
-            --accent-pink: #EC4899;
-            --accent-green: #10B981;
-            --accent-orange: #F97316;
-            --text-primary: #FFFFFF;
+            /* Paleta elegante y formal */
+            --bg-primary: #0C0C0E;
+            --bg-secondary: #131316;
+            --bg-tertiary: #1C1C21;
+            --bg-card: #18181B;
+            --accent-gold: #C9A962;
+            --accent-gold-light: #E2C992;
+            --accent-emerald: #059669;
+            --accent-blue: #3B82F6;
+            --accent-rose: #BE123C;
+            --text-primary: #FAFAFA;
             --text-secondary: #A1A1AA;
             --text-muted: #71717A;
-            --border-primary: rgba(255, 255, 255, 0.08);
-            --border-accent: rgba(139, 92, 246, 0.2);
-            --glass-bg: rgba(0, 0, 0, 0.55);
-            --glass-border: rgba(255, 255, 255, 0.05);
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-accent: rgba(201, 169, 98, 0.3);
+            --glass-bg: rgba(12, 12, 14, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.04);
         }
 
         body {
@@ -94,9 +94,10 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
+            letter-spacing: -0.01em;
         }
 
-        /* Fondo dinámico ultramoderno */
+        /* Fondo elegante y sutil */
         body::before {
             content: '';
             position: fixed;
@@ -104,187 +105,127 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
-                linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+            background:
+                radial-gradient(ellipse at 0% 0%, rgba(201, 169, 98, 0.03) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(201, 169, 98, 0.02) 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
             z-index: -1;
-            animation: gradientShift 20s ease infinite;
         }
 
-        @keyframes gradientShift {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
-
-        /* Grid pattern overlay */
+        /* Sin grid pattern para look más limpio */
         body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.01) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.01) 1px, transparent 1px);
-            background-size: 50px 50px;
-            z-index: -1;
-            animation: gridFloat 30s linear infinite;
+            display: none;
         }
 
-        @keyframes gridFloat {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* Glass morphism ultramoderno */
+        /* Glass morphism elegante */
         .glass {
             background: var(--glass-bg);
-            backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
         }
 
         .glass-strong {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(24px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 
-                0 12px 40px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
         }
 
-        /* Botones futuristas */
+        /* Botones elegantes */
         .btn-modern {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            background: var(--accent-gold);
             border: none;
             color: white;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
         }
 
         .btn-modern:hover {
-            transform: translateY(-1px) scale(1.02);
-            box-shadow: 
-                0 20px 40px rgba(139, 92, 246, 0.3),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(201, 169, 98, 0.25);
         }
 
         .btn-modern::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .btn-modern:hover::before {
-            left: 100%;
+            display: none;
         }
 
         .btn-outline {
             background: transparent;
-            border: 1px solid rgba(139, 92, 246, 0.5);
-            color: var(--accent-purple);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
             font-weight: 500;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            transition: all 0.25s ease;
         }
 
         .btn-outline:hover {
-            background: rgba(139, 92, 246, 0.1);
-            border-color: var(--accent-purple);
-            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+            background: rgba(255, 255, 255, 0.03);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
         }
 
-        /* Tipografía moderna */
+        /* Tipografía elegante */
         .heading-xl {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: clamp(2.5rem, 5vw, 4.5rem);
-            font-weight: 700;
-            line-height: 1.1;
-            background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan), var(--accent-purple));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--text-primary);
             margin-bottom: 1rem;
+            letter-spacing: -0.02em;
         }
 
         .text-gradient {
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
+            background: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        /* Cards ultramodernas */
+        /* Cards elegantes */
         .card-modern {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 1.5rem;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
 
         .card-modern:hover {
-            transform: translateY(-8px) rotate(0.5deg);
-            box-shadow: 
-                0 25px 50px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(139, 92, 246, 0.2);
+            transform: translateY(-4px);
+            border-color: rgba(201, 169, 98, 0.2);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
         }
 
         .card-modern::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent-purple), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            display: none;
         }
 
-        .card-modern:hover::before {
-            opacity: 1;
-        }
-
-        /* Stats cards con números animados */
+        /* Stats cards elegantes */
         .stat-card {
             position: relative;
-            padding: 2rem;
+            padding: 1.5rem;
             text-align: center;
         }
 
         .stat-number {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-purple), var(--accent-cyan));
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-family: 'Inter', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 600;
+            color: var(--accent-gold);
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.875rem;
+            font-size: 0.8rem;
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.1em;
         }
 
         /* Animaciones suaves y modernas */
@@ -730,81 +671,69 @@
     }
 }" class="font-sans antialiased">
     
-    <!-- Navigation ultramoderna con tabs responsive -->
+    <!-- Navigation elegante -->
     <nav id="mainHeader" class="fixed top-0 left-0 right-0 z-50 glass-strong border-b border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
+            <div class="flex items-center justify-between h-16 sm:h-18">
                 <!-- Logo y brand -->
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <div class="relative">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500 via-cyan-500 to-pink-500 p-0.5 animate-pulse">
-                            <div class="w-full h-full rounded-xl sm:rounded-2xl bg-black/50 backdrop-blur flex items-center justify-center">
-                                <i class="fas fa-home text-lg sm:text-xl text-white"></i>
-                            </div>
-                        </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-br from-amber-600 to-yellow-500 flex items-center justify-center">
+                        <i class="fas fa-home text-white text-sm sm:text-base"></i>
                     </div>
                     <div class="hidden sm:block">
-                        <h1 class="text-lg sm:text-2xl font-bold bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+                        <h1 class="text-lg sm:text-xl font-semibold text-white tracking-tight">
                             TuMatch
                         </h1>
-                        <p class="text-xs text-zinc-400 font-medium tracking-wider">PORTAL INMOBILIARIO</p>
+                        <p class="text-[10px] text-zinc-500 font-medium tracking-widest uppercase">Portal Inmobiliario</p>
                     </div>
                 </div>
-                
+
                 <!-- Navigation Tabs - Mobile y Desktop -->
                 <div class="flex items-center space-x-1">
-                    <!-- Mobile tabs - compactos -->
+                    <!-- Mobile tabs -->
                     <div class="flex md:hidden items-center space-x-1">
                         <button @click="currentView = 'properties'"
-                                :class="currentView === 'properties' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'text-zinc-400 border-transparent'"
-                                class="px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center">
+                                :class="currentView === 'properties' ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-500'"
+                                class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center">
                             <i class="fas fa-building text-sm"></i>
                         </button>
                         <button @click="currentView = 'map'; initGlobalMap();"
-                                :class="currentView === 'map' ? 'bg-green-500/20 text-green-300 border-green-500/50' : 'text-zinc-400 border-transparent'"
-                                class="px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center">
+                                :class="currentView === 'map' ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-500'"
+                                class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center">
                             <i class="fas fa-map-marked-alt text-sm"></i>
                         </button>
                         <button @click="currentView = 'dashboard'"
-                                :class="currentView === 'dashboard' ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'text-zinc-400 border-transparent'"
-                                class="px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center">
+                                :class="currentView === 'dashboard' ? 'text-amber-400 bg-amber-500/10' : 'text-zinc-500'"
+                                class="px-3 py-2 rounded-lg text-xs font-medium transition-all flex items-center">
                             <i class="fas fa-chart-pie text-sm"></i>
                         </button>
-                        <!-- Ranking oculto -->
-                        <!--
-                        <button @click="currentView = 'ranking'"
-                                :class="currentView === 'ranking' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50' : 'text-zinc-400 border-transparent'"
-                                class="px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300 flex items-center">
-                            <i class="fas fa-trophy text-sm"></i>
-                        </button>
-                        -->
                     </div>
 
-                    <!-- Desktop tabs - completos -->
-                    <div class="hidden md:flex items-center space-x-1">
+                    <!-- Desktop tabs -->
+                    <div class="hidden md:flex items-center space-x-1 bg-white/[0.02] rounded-lg p-1">
                         <button @click="currentView = 'properties'"
-                                :class="currentView === 'properties' ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
-                                class="px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                                :class="currentView === 'properties' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-building text-sm"></i>
-                            <span class="hidden lg:inline">Propiedades</span>
+                            <span class="hidden lg:inline text-sm">Propiedades</span>
                         </button>
                         <button @click="currentView = 'map'; initGlobalMap();"
-                                :class="currentView === 'map' ? 'bg-green-500/20 text-green-300 border-green-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
-                                class="px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                                :class="currentView === 'map' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-map-marked-alt text-sm"></i>
-                            <span class="hidden lg:inline">Mapa</span>
+                            <span class="hidden lg:inline text-sm">Mapa</span>
                         </button>
                         <button @click="currentView = 'dashboard'"
-                                :class="currentView === 'dashboard' ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
-                                class="px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                                :class="currentView === 'dashboard' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-chart-pie text-sm"></i>
-                            <span class="hidden lg:inline">Dashboard</span>
+                            <span class="hidden lg:inline text-sm">Dashboard</span>
                         </button>
                         <!-- Ranking oculto -->
                         <!--
                         <button @click="currentView = 'ranking'"
-                                :class="currentView === 'ranking' ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50' : 'text-zinc-400 hover:text-white border-transparent hover:border-white/20'"
-                                class="px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-medium border transition-all duration-300 flex items-center space-x-2">
+                                :class="currentView === 'ranking' ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' : 'text-zinc-400 hover:text-white border-transparent'"
+                                class="px-4 lg:px-5 py-2 rounded-lg font-medium border transition-all flex items-center space-x-2">
                             <i class="fas fa-trophy text-sm"></i>
                             <span class="hidden lg:inline">Ranking</span>
                         </button>
@@ -848,430 +777,336 @@
         <!-- Dashboard Section -->
         <div x-show="currentView === 'dashboard'" x-transition>
 
-            <!-- Dashboard Hero Header con Gradiente -->
-            <section class="relative overflow-hidden">
-                <!-- Fondo animado -->
-                <div class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-cyan-900/20"></div>
-                <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
-                <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl"></div>
-
-                <div class="relative max-w-7xl mx-auto px-6 lg:px-8 py-10">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                        <div>
-                            <div class="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 mb-4 backdrop-blur-sm">
-                                <div class="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-                                <span class="text-sm font-medium text-purple-300">En vivo</span>
-                                <span class="mx-3 text-zinc-600">|</span>
-                                <span class="text-sm text-zinc-400" id="dashboardLastUpdate">Actualizando...</span>
-                            </div>
-                            <h1 class="text-4xl md:text-5xl font-bold text-white mb-3">
-                                Dashboard <span class="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent">Ejecutivo</span>
-                            </h1>
-                            <p class="text-lg text-zinc-400 max-w-xl">Visualiza el rendimiento de tu portafolio inmobiliario con métricas en tiempo real</p>
+            <!-- Dashboard Header Elegante -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 py-8">
+                <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-10">
+                    <div>
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-1.5 h-8 bg-amber-500 rounded-full"></div>
+                            <span class="text-sm text-zinc-500 font-medium tracking-wide uppercase">Panel de Control</span>
                         </div>
-                        <div class="flex flex-wrap gap-3">
-                            <button onclick="refreshDashboard()" class="px-5 py-3 glass rounded-xl text-zinc-300 hover:text-white hover:bg-white/10 transition-all flex items-center gap-2 border border-white/10 hover:border-purple-500/30">
-                                <i class="fas fa-sync-alt"></i>
-                                <span>Actualizar</span>
-                            </button>
-                            <button onclick="exportDashboardPDF()" class="px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl text-white font-medium hover:shadow-lg hover:shadow-purple-500/25 transition-all flex items-center gap-2">
-                                <i class="fas fa-file-pdf"></i>
-                                <span>Exportar PDF</span>
-                            </button>
-                        </div>
+                        <h1 class="text-3xl md:text-4xl font-semibold text-white mb-2 tracking-tight">
+                            Dashboard Ejecutivo
+                        </h1>
+                        <p class="text-zinc-500 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                            <span class="text-sm" id="dashboardLastUpdate">Actualizado hace un momento</span>
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="refreshDashboard()" class="px-4 py-2.5 rounded-lg text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-700 transition-all flex items-center gap-2 text-sm">
+                            <i class="fas fa-sync-alt"></i>
+                            <span>Actualizar</span>
+                        </button>
+                        <button onclick="exportDashboardPDF()" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-500 rounded-lg text-white font-medium transition-all flex items-center gap-2 text-sm">
+                            <i class="fas fa-download"></i>
+                            <span>Exportar</span>
+                        </button>
                     </div>
                 </div>
-            </section>
 
-            <!-- KPIs Principales - Diseño Premium -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 -mt-4">
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                <!-- KPIs Principales - Diseño Elegante -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5 mb-8">
                     <!-- Propiedades -->
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                        <div class="relative glass-strong rounded-2xl p-6 border border-blue-500/20 hover:border-blue-500/40 transition-all overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-building text-2xl text-white"></i>
-                                    </div>
-                                    <div class="flex flex-col items-end">
-                                        <span class="text-xs text-blue-400 bg-blue-500/20 px-3 py-1 rounded-full font-medium">TOTAL</span>
-                                    </div>
-                                </div>
-                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalProperties">0</div>
-                                <div class="text-sm text-zinc-400 font-medium">Propiedades Activas</div>
-                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-map-marker-alt text-blue-400 text-xs"></i>
-                                            <span class="text-xs text-zinc-500">Con ubicación</span>
-                                        </div>
-                                        <span class="text-sm text-blue-400 font-bold" id="dash-withLocation">0</span>
-                                    </div>
-                                </div>
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-11 h-11 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-building text-lg text-amber-500"></i>
                             </div>
+                            <span class="text-[10px] text-zinc-600 font-medium tracking-wider uppercase">Total</span>
+                        </div>
+                        <div class="text-3xl font-semibold text-white mb-1" id="dash-totalProperties">0</div>
+                        <div class="text-sm text-zinc-500">Propiedades</div>
+                        <div class="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs">
+                            <span class="text-zinc-600">Con ubicación</span>
+                            <span class="text-amber-500 font-medium" id="dash-withLocation">0</span>
                         </div>
                     </div>
 
                     <!-- Corredores -->
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                        <div class="relative glass-strong rounded-2xl p-6 border border-purple-500/20 hover:border-purple-500/40 transition-all overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-users text-2xl text-white"></i>
-                                    </div>
-                                    <span class="text-xs text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full font-medium">EQUIPO</span>
-                                </div>
-                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalCorredores">0</div>
-                                <div class="text-sm text-zinc-400 font-medium">Corredores Activos</div>
-                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-chart-bar text-purple-400 text-xs"></i>
-                                            <span class="text-xs text-zinc-500">Promedio props</span>
-                                        </div>
-                                        <span class="text-sm text-purple-400 font-bold" id="dash-avgProperties">0</span>
-                                    </div>
-                                </div>
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-11 h-11 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-users text-lg text-emerald-500"></i>
                             </div>
+                            <span class="text-[10px] text-zinc-600 font-medium tracking-wider uppercase">Equipo</span>
+                        </div>
+                        <div class="text-3xl font-semibold text-white mb-1" id="dash-totalCorredores">0</div>
+                        <div class="text-sm text-zinc-500">Corredores</div>
+                        <div class="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs">
+                            <span class="text-zinc-600">Promedio props</span>
+                            <span class="text-emerald-500 font-medium" id="dash-avgProperties">0</span>
                         </div>
                     </div>
 
                     <!-- Team Leaders -->
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                        <div class="relative glass-strong rounded-2xl p-6 border border-emerald-500/20 hover:border-emerald-500/40 transition-all overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-500 to-green-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-crown text-2xl text-white"></i>
-                                    </div>
-                                    <span class="text-xs text-emerald-400 bg-emerald-500/20 px-3 py-1 rounded-full font-medium">LÍDERES</span>
-                                </div>
-                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalFirmas">0</div>
-                                <div class="text-sm text-zinc-400 font-medium">Team Leaders</div>
-                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-user-friends text-emerald-400 text-xs"></i>
-                                            <span class="text-xs text-zinc-500">Corredores/TL</span>
-                                        </div>
-                                        <span class="text-sm text-emerald-400 font-bold" id="dash-corredoresPerTL">0</span>
-                                    </div>
-                                </div>
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-11 h-11 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-user-tie text-lg text-blue-500"></i>
                             </div>
+                            <span class="text-[10px] text-zinc-600 font-medium tracking-wider uppercase">Líderes</span>
+                        </div>
+                        <div class="text-3xl font-semibold text-white mb-1" id="dash-totalFirmas">0</div>
+                        <div class="text-sm text-zinc-500">Team Leaders</div>
+                        <div class="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs">
+                            <span class="text-zinc-600">Corredores/TL</span>
+                            <span class="text-blue-500 font-medium" id="dash-corredoresPerTL">0</span>
                         </div>
                     </div>
 
                     <!-- Leads -->
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition-opacity"></div>
-                        <div class="relative glass-strong rounded-2xl p-6 border border-amber-500/20 hover:border-amber-500/40 transition-all overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                            <div class="relative">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg shadow-amber-500/30 group-hover:scale-110 transition-transform">
-                                        <i class="fas fa-fire text-2xl text-white"></i>
-                                    </div>
-                                    <span class="text-xs text-amber-400 bg-amber-500/20 px-3 py-1 rounded-full font-medium">LEADS</span>
-                                </div>
-                                <div class="text-4xl font-bold text-white mb-1 tracking-tight" id="dash-totalLeadsMes">0</div>
-                                <div class="text-sm text-zinc-400 font-medium">Leads este Mes</div>
-                                <div class="mt-4 pt-4 border-t border-zinc-700/50">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-calendar-alt text-amber-400 text-xs"></i>
-                                            <span class="text-xs text-zinc-500">Total anual</span>
-                                        </div>
-                                        <span class="text-sm text-amber-400 font-bold" id="dash-totalLeadsYear">0</span>
-                                    </div>
-                                </div>
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50 hover:border-amber-500/20 transition-all group">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="w-11 h-11 bg-rose-500/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-lg text-rose-500"></i>
                             </div>
+                            <span class="text-[10px] text-zinc-600 font-medium tracking-wider uppercase">Leads</span>
+                        </div>
+                        <div class="text-3xl font-semibold text-white mb-1" id="dash-totalLeadsMes">0</div>
+                        <div class="text-sm text-zinc-500">Este Mes</div>
+                        <div class="mt-4 pt-3 border-t border-zinc-800/50 flex items-center justify-between text-xs">
+                            <span class="text-zinc-600">Total anual</span>
+                            <span class="text-rose-500 font-medium" id="dash-totalLeadsYear">0</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Mini KPIs - Operaciones -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
-                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-emerald-500/10 hover:border-emerald-500/30 transition-all hover:bg-emerald-500/5">
-                        <div class="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-green-500/20 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-tag text-xl text-emerald-400"></i>
+                <!-- Mini KPIs secundarios -->
+                <div class="grid grid-cols-4 gap-3 mb-8">
+                    <div class="glass-strong rounded-lg p-4 border border-zinc-800/30 flex items-center gap-3">
+                        <div class="w-9 h-9 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-tag text-emerald-500 text-sm"></i>
                         </div>
                         <div>
-                            <div class="text-2xl font-bold text-emerald-400" id="dash-ventas">0</div>
-                            <div class="text-xs text-zinc-500 font-medium">En Venta</div>
+                            <div class="text-xl font-semibold text-white" id="dash-ventas">0</div>
+                            <div class="text-xs text-zinc-500">Ventas</div>
                         </div>
                     </div>
-                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-violet-500/10 hover:border-violet-500/30 transition-all hover:bg-violet-500/5">
-                        <div class="w-12 h-12 bg-gradient-to-br from-violet-500/20 to-purple-500/20 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-key text-xl text-violet-400"></i>
+                    <div class="glass-strong rounded-lg p-4 border border-zinc-800/30 flex items-center gap-3">
+                        <div class="w-9 h-9 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-key text-blue-500 text-sm"></i>
                         </div>
                         <div>
-                            <div class="text-2xl font-bold text-violet-400" id="dash-arriendos">0</div>
-                            <div class="text-xs text-zinc-500 font-medium">En Arriendo</div>
+                            <div class="text-xl font-semibold text-white" id="dash-arriendos">0</div>
+                            <div class="text-xs text-zinc-500">Arriendos</div>
                         </div>
                     </div>
-                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-amber-500/10 hover:border-amber-500/30 transition-all hover:bg-amber-500/5">
-                        <div class="w-12 h-12 bg-gradient-to-br from-amber-500/20 to-orange-500/20 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-home text-xl text-amber-400"></i>
+                    <div class="glass-strong rounded-lg p-4 border border-zinc-800/30 flex items-center gap-3">
+                        <div class="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-home text-amber-500 text-sm"></i>
                         </div>
                         <div>
-                            <div class="text-2xl font-bold text-amber-400" id="dash-casas">0</div>
-                            <div class="text-xs text-zinc-500 font-medium">Casas</div>
+                            <div class="text-xl font-semibold text-white" id="dash-casas">0</div>
+                            <div class="text-xs text-zinc-500">Casas</div>
                         </div>
                     </div>
-                    <div class="glass rounded-xl p-4 flex items-center gap-4 border border-cyan-500/10 hover:border-cyan-500/30 transition-all hover:bg-cyan-500/5">
-                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center">
-                            <i class="fas fa-city text-xl text-cyan-400"></i>
+                    <div class="glass-strong rounded-lg p-4 border border-zinc-800/30 flex items-center gap-3">
+                        <div class="w-9 h-9 bg-violet-500/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-city text-violet-500 text-sm"></i>
                         </div>
                         <div>
-                            <div class="text-2xl font-bold text-cyan-400" id="dash-deptos">0</div>
-                            <div class="text-xs text-zinc-500 font-medium">Departamentos</div>
+                            <div class="text-xl font-semibold text-white" id="dash-deptos">0</div>
+                            <div class="text-xs text-zinc-500">Deptos</div>
                         </div>
                     </div>
                 </div>
             </section>
-            
-            <!-- Analytics Grid Completo -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-12">
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 lg:gap-8">
-                    
-                    <!-- Team Leaders Chart con KPIs -->
-                    <div class="xl:col-span-2 glass-strong rounded-2xl p-4 sm:p-6 lg:p-8">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6">
-                            <div class="mb-2 sm:mb-0">
-                                <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">📊 Distribución por Team Leader</h3>
-                                <p class="text-xs sm:text-sm text-zinc-400">Propiedades asignadas por equipo de trabajo</p>
+
+            <!-- Analytics Grid -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-10">
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+                    <!-- Team Leaders Chart -->
+                    <div class="xl:col-span-2 glass-strong rounded-xl p-6 border border-zinc-800/50">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white mb-1">Distribución por Team Leader</h3>
+                                <p class="text-xs text-zinc-500">Propiedades asignadas por equipo</p>
                             </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="w-3 h-3 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full"></div>
-                                <span class="text-xs text-zinc-400">Propiedades</span>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                                <span class="text-xs text-zinc-500">Propiedades</span>
                             </div>
                         </div>
-                        
-                        <!-- Chart principal -->
-                        <div class="relative h-64 sm:h-72 lg:h-80 mb-6 lg:mb-8">
+
+                        <div class="relative h-64 sm:h-72 mb-6">
                             <canvas id="teamLeaderChart"></canvas>
                         </div>
-                        
-                        <!-- KPIs debajo del gráfico -->
-                        <div class="space-y-4 lg:space-y-6">
-                            <!-- Tipos de Propiedades -->
-                            <div class="glass-strong rounded-xl p-4 sm:p-6 border border-zinc-700/30">
-                                <div class="flex items-center mb-4 sm:mb-6">
-                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4">
-                                        <i class="fas fa-building text-white text-sm sm:text-lg"></i>
+
+                        <!-- Stats debajo del gráfico -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="rounded-lg p-4 bg-zinc-900/50 border border-zinc-800/50">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-building text-amber-500 text-sm"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg sm:text-xl font-bold text-white">Tipos de Propiedades</h4>
-                                        <p class="text-xs sm:text-sm text-zinc-400">Distribución por categoría</p>
+                                        <h4 class="text-sm font-medium text-white">Tipos de Propiedades</h4>
+                                        <p class="text-[10px] text-zinc-500">Por categoría</p>
                                     </div>
                                 </div>
-                                <div class="space-y-3 sm:space-y-4" id="propertyTypesContainer">
-                                    <!-- Se llenará dinámicamente -->
-                                </div>
+                                <div class="space-y-2" id="propertyTypesContainer"></div>
                             </div>
-                            
-                            <!-- Tipo de Operación -->
-                            <div class="glass-strong rounded-xl p-4 sm:p-6 border border-zinc-700/30">
-                                <div class="flex items-center mb-4 sm:mb-6">
-                                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center mr-3 sm:mr-4">
-                                        <i class="fas fa-exchange-alt text-white text-sm sm:text-lg"></i>
+
+                            <div class="rounded-lg p-4 bg-zinc-900/50 border border-zinc-800/50">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-9 h-9 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-exchange-alt text-emerald-500 text-sm"></i>
                                     </div>
                                     <div>
-                                        <h4 class="text-lg sm:text-xl font-bold text-white">Tipo de Operación</h4>
-                                        <p class="text-xs sm:text-sm text-zinc-400">Ventas vs Arriendos</p>
+                                        <h4 class="text-sm font-medium text-white">Tipo de Operación</h4>
+                                        <p class="text-[10px] text-zinc-500">Ventas vs Arriendos</p>
                                     </div>
                                 </div>
-                                <div class="space-y-3 sm:space-y-4" id="operationTypesContainer">
-                                    <!-- Se llenará dinámicamente -->
-                                </div>
+                                <div class="space-y-2" id="operationTypesContainer"></div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Distribución Geográfica -->
-                    <div class="glass-strong rounded-2xl p-4 sm:p-6 lg:p-8 flex flex-col h-full">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6">
-                            <div class="mb-2 sm:mb-0">
-                                <h3 class="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 flex items-center">
-                                    <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-lg flex items-center justify-center mr-2 sm:mr-3">
-                                        <i class="fas fa-map-marker-alt text-white text-xs sm:text-sm"></i>
-                                    </div>
-                                    Distribución Geográfica
-                                </h3>
-                                <p class="text-xs sm:text-sm text-zinc-400">Cobertura completa por ubicación</p>
+                    <div class="glass-strong rounded-xl p-6 border border-zinc-800/50">
+                        <div class="flex items-center justify-between mb-5">
+                            <div>
+                                <h3 class="text-lg font-semibold text-white mb-1">Distribución Geográfica</h3>
+                                <p class="text-xs text-zinc-500">Cobertura por ubicación</p>
                             </div>
-                            <div class="text-xs text-zinc-400 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 px-2 sm:px-4 py-1 sm:py-2 rounded-full border border-blue-500/20 flex items-center gap-1">
-                                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                                Tiempo real
-                            </div>
+                            <span class="text-[10px] text-zinc-500 bg-zinc-800/50 px-2 py-1 rounded flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                                En vivo
+                            </span>
                         </div>
 
-                        <div class="flex flex-col gap-3">
-                            <!-- Por Región - TODAS las regiones -->
-                            <div class="bg-white/5 rounded-xl p-3 border border-cyan-500/10">
-                                <h4 class="text-xs font-semibold text-zinc-300 mb-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-globe-americas text-cyan-400 mr-2"></i>
-                                        Todas las Regiones
-                                    </div>
+                        <div class="space-y-4">
+                            <div class="rounded-lg p-3 bg-zinc-900/50 border border-zinc-800/50">
+                                <h4 class="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
+                                    <i class="fas fa-globe-americas text-amber-500"></i>
+                                    Regiones
                                 </h4>
-                                <div id="regionStatsContainer" class="space-y-1.5 max-h-96 overflow-y-auto custom-scrollbar">
-                                    <div class="flex items-center justify-center py-2">
-                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-cyan-400"></div>
-                                        <span class="ml-2 text-xs text-zinc-400">Cargando...</span>
+                                <div id="regionStatsContainer" class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
+                                    <div class="flex items-center justify-center py-3">
+                                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-amber-500"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Por Comuna - Top 10 -->
-                            <div class="bg-white/5 rounded-xl p-3 border border-purple-500/10">
-                                <h4 class="text-xs font-semibold text-zinc-300 mb-2 flex items-center justify-between">
-                                    <div class="flex items-center">
-                                        <i class="fas fa-city text-purple-400 mr-2"></i>
-                                        Top 10 Comunas
-                                    </div>
+                            <div class="rounded-lg p-3 bg-zinc-900/50 border border-zinc-800/50">
+                                <h4 class="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
+                                    <i class="fas fa-city text-blue-500"></i>
+                                    Top Comunas
                                 </h4>
-                                <div id="comunaStatsContainer" class="space-y-1.5 max-h-96 overflow-y-auto custom-scrollbar">
-                                    <div class="flex items-center justify-center py-2">
-                                        <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-400"></div>
-                                        <span class="ml-2 text-xs text-zinc-400">Cargando...</span>
+                                <div id="comunaStatsContainer" class="space-y-1.5 max-h-48 overflow-y-auto custom-scrollbar">
+                                    <div class="flex items-center justify-center py-3">
+                                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
+
                 </div>
             </section>
 
-            
-            <!-- Rankings Section - Diseño Premium -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-yellow-500/20">
-                        <i class="fas fa-award text-white"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">Rankings de Desempeño</h2>
-                        <p class="text-sm text-zinc-400">Los mejores del equipo por cantidad de propiedades</p>
-                    </div>
+            <!-- Rankings Section -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-10">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                    <h2 class="text-lg font-semibold text-white">Rankings</h2>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                     <!-- Top Corredores -->
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-2xl blur-xl"></div>
-                        <div class="relative glass-strong rounded-2xl p-6 border border-purple-500/20">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-trophy text-xl text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-white">Top Corredores</h3>
-                                        <p class="text-xs text-zinc-500">Por cantidad de propiedades</p>
-                                    </div>
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-amber-500/10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-trophy text-amber-500 text-sm"></i>
                                 </div>
-                                <span class="px-3 py-1 bg-purple-500/20 rounded-full text-xs text-purple-300 font-medium">TOP 5</span>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-white">Top Corredores</h3>
+                                    <p class="text-[10px] text-zinc-500">Por propiedades</p>
+                                </div>
                             </div>
-                            <div id="topCorredoresContainer" class="space-y-3">
-                                <div class="flex items-center justify-center py-8">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-400"></div>
-                                </div>
+                            <span class="text-[10px] text-zinc-600 uppercase tracking-wider">Top 5</span>
+                        </div>
+                        <div id="topCorredoresContainer" class="space-y-2">
+                            <div class="flex items-center justify-center py-4">
+                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Top Team Leaders -->
-                    <div class="relative group">
-                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-2xl blur-xl"></div>
-                        <div class="relative glass-strong rounded-2xl p-6 border border-emerald-500/20">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                                        <i class="fas fa-crown text-xl text-white"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="text-lg font-bold text-white">Top Team Leaders</h3>
-                                        <p class="text-xs text-zinc-500">Por tamaño de equipo</p>
-                                    </div>
+                    <div class="glass-strong rounded-xl p-5 border border-zinc-800/50">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 bg-emerald-500/10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-crown text-emerald-500 text-sm"></i>
                                 </div>
-                                <span class="px-3 py-1 bg-emerald-500/20 rounded-full text-xs text-emerald-300 font-medium">TOP 5</span>
+                                <div>
+                                    <h3 class="text-sm font-semibold text-white">Top Team Leaders</h3>
+                                    <p class="text-[10px] text-zinc-500">Por equipo</p>
+                                </div>
                             </div>
-                            <div id="topTeamLeadersContainer" class="space-y-3">
-                                <div class="flex items-center justify-center py-8">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-400"></div>
-                                </div>
+                            <span class="text-[10px] text-zinc-600 uppercase tracking-wider">Top 5</span>
+                        </div>
+                        <div id="topTeamLeadersContainer" class="space-y-2">
+                            <div class="flex items-center justify-center py-4">
+                                <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-emerald-500"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Resumen del Portafolio - Diseño Premium -->
-            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-8">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-cyan-500/5 rounded-3xl blur-xl"></div>
-                    <div class="relative glass-strong rounded-3xl p-8 border border-white/10">
-                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                            <div class="flex items-center gap-4">
-                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
-                                    <i class="fas fa-chart-pie text-2xl text-white"></i>
-                                </div>
-                                <div>
-                                    <h2 class="text-2xl font-bold text-white">Resumen del Portafolio</h2>
-                                    <p class="text-sm text-zinc-400">Vista general de todos tus activos</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
-                                <i class="fas fa-calendar-check text-cyan-400"></i>
-                                <span class="text-sm text-zinc-300" id="dashboardDate">Cargando fecha...</span>
+            <!-- Resumen del Portafolio -->
+            <section class="max-w-7xl mx-auto px-6 lg:px-8 mb-10">
+                <div class="glass-strong rounded-xl p-6 border border-zinc-800/50">
+                    <div class="flex items-center justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                            <div>
+                                <h2 class="text-lg font-semibold text-white">Resumen del Portafolio</h2>
+                                <p class="text-xs text-zinc-500" id="dashboardDate">Cargando...</p>
                             </div>
                         </div>
-                        <div id="portfolioSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div class="p-5 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-2xl border border-blue-500/20 text-center">
-                                <div class="w-10 h-10 bg-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                    <i class="fas fa-map-marker-alt text-blue-400"></i>
-                                </div>
-                                <div class="text-3xl font-bold text-blue-400">-</div>
-                                <div class="text-xs text-zinc-500 mt-1">Con Ubicación</div>
+                    </div>
+                    <div id="portfolioSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800/30 text-center">
+                            <div class="w-10 h-10 bg-amber-500/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-map-marker-alt text-amber-500"></i>
                             </div>
-                            <div class="p-5 bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-2xl border border-purple-500/20 text-center">
-                                <div class="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                    <i class="fas fa-database text-purple-400"></i>
-                                </div>
-                                <div class="text-3xl font-bold text-purple-400">-</div>
-                                <div class="text-xs text-zinc-500 mt-1">Datos Completos</div>
+                            <div class="text-2xl font-semibold text-white">-</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Con Ubicación</div>
+                        </div>
+                        <div class="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800/30 text-center">
+                            <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-database text-blue-500"></i>
                             </div>
-                            <div class="p-5 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl border border-emerald-500/20 text-center">
-                                <div class="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                    <i class="fas fa-layer-group text-emerald-400"></i>
-                                </div>
-                                <div class="text-3xl font-bold text-emerald-400">-</div>
-                                <div class="text-xs text-zinc-500 mt-1">Otros Tipos</div>
+                            <div class="text-2xl font-semibold text-white">-</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Datos Completos</div>
+                        </div>
+                        <div class="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800/30 text-center">
+                            <div class="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-layer-group text-emerald-500"></i>
                             </div>
-                            <div class="p-5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 text-center">
-                                <div class="w-10 h-10 bg-amber-500/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-                                    <i class="fas fa-bolt text-amber-400"></i>
-                                </div>
-                                <div class="text-3xl font-bold text-amber-400">-</div>
-                                <div class="text-xs text-zinc-500 mt-1">Leads Totales</div>
+                            <div class="text-2xl font-semibold text-white">-</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Otros Tipos</div>
+                        </div>
+                        <div class="p-4 bg-zinc-900/50 rounded-lg border border-zinc-800/30 text-center">
+                            <div class="w-10 h-10 bg-rose-500/10 rounded-lg flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-bolt text-rose-500"></i>
                             </div>
+                            <div class="text-2xl font-semibold text-white">-</div>
+                            <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Leads Totales</div>
                         </div>
                     </div>
                 </div>
             </section>
 
         </div>
-        
+        <!-- End Dashboard Section -->
+
         <!-- Properties Section -->
         <div x-show="currentView === 'properties'" x-transition>
         
